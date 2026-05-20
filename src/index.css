@@ -286,9 +286,9 @@ img { max-width: 100%; height: auto; }
 /* ===== SKILLS ===== */
 .skills-section {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-  max-width: 850px; margin: 0 auto;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  max-width: 900px; margin: 0 auto;
 }
 
 .skill-card {
@@ -439,9 +439,15 @@ img { max-width: 100%; height: auto; }
 .project-tags { display: flex; flex-wrap: wrap; gap: 6px; }
 .project-tags .tag { font-size: 0.7rem; padding: 3px 10px; }
 
+@media (max-width: 900px) {
+  .skills-section { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 500px) {
+  .skills-section { grid-template-columns: 1fr; }
+}
+
 @media (max-width: 768px) {
   .featured-project { grid-template-columns: 1fr; padding: 24px; }
-  .skills-section { grid-template-columns: 1fr; }
 }
 
 /* ===== ARTICLES ===== */
