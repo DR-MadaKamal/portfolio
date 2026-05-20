@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { personalData } from '../data/portfolioData'
 
 const links = ['Home', 'About', 'Projects', 'Articles']
@@ -19,6 +20,10 @@ export default function Navbar({ activeSection, setActiveSection }) {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
   }
 
+  const toggleTheme = () => {
+    document.body.classList.toggle('light')
+  }
+
   return (
     <nav className={`nav${scrolled ? ' scrolled' : ''}`}>
       <div className="container nav-inner">
@@ -28,11 +33,15 @@ export default function Navbar({ activeSection, setActiveSection }) {
 
         <div className="nav-links">
           {links.map(l => (
-            <button key={l} className={`nav-link${activeSection === l.toLowerCase() ? ' active' : ''}`} onClick={() => scrollTo(l.toLowerCase())}>
+            <button
+              key={l}
+              className={`nav-link${activeSection === l.toLowerCase() ? ' active' : ''}`}
+              onClick={() => scrollTo(l.toLowerCase())}
+            >
               {l}
             </button>
           ))}
-          <button className="theme-btn nav-link" onClick={() => document.body.classList.toggle('light')} title="Toggle theme">
+          <button className="nav-link theme-btn" onClick={toggleTheme} title="Toggle theme">
             <i className="fas fa-moon" />
           </button>
         </div>
@@ -41,18 +50,26 @@ export default function Navbar({ activeSection, setActiveSection }) {
           <i className={`fas fa-${mobileOpen ? 'times' : 'bars'}`} />
         </button>
 
-        {mobileOpen && (
-          <div className="nav-mobile-menu">
-            {links.map(l => (
-              <button key={l} className="nav-mobile-link" onClick={() => scrollTo(l.toLowerCase())}>
-                {l}
+        <AnimatePresence>
+          {mobileOpen && (
+            <motion.div
+              className="nav-mobile-menu"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              {links.map(l => (
+                <button key={l} className="nav-mobile-link" onClick={() => scrollTo(l.toLowerCase())}>
+                  {l}
+                </button>
+              ))}
+              <button className="nav-mobile-link" onClick={() => { toggleTheme(); setMobileOpen(false) }}>
+                <i className="fas fa-moon" /> Theme
               </button>
-            ))}
-            <button className="nav-mobile-link" onClick={() => { document.body.classList.toggle('light'); setMobileOpen(false) }}>
-              <i className="fas fa-moon" /> Theme
-            </button>
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </nav>
   )

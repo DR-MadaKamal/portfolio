@@ -5,6 +5,7 @@ import About from './components/About'
 import Projects from './components/Projects'
 import Articles from './components/Articles'
 import SayHello from './components/SayHello'
+import ScrollToTop from './components/ScrollToTop'
 import Footer from './components/Footer'
 
 function App() {
@@ -23,9 +24,7 @@ function App() {
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          setActiveSection(entry.target.id)
-        }
+        if (entry.isIntersecting) setActiveSection(entry.target.id)
       })
     }, { rootMargin: '-40% 0px -55% 0px' })
 
@@ -43,6 +42,7 @@ function App() {
         <Articles />
         <SayHello />
       </main>
+      <ScrollToTop />
       <Footer />
     </>
   )

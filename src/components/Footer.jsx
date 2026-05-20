@@ -1,15 +1,28 @@
+import { motion } from 'framer-motion'
 import { personalData } from '../data/portfolioData'
 
 export default function Footer() {
   return (
-    <footer className="footer">
+    <motion.footer
+      className="footer"
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5 }}
+    >
       <div className="footer-social">
-        <a href={`https://${personalData.linkedin}`} target="_blank" rel="noopener noreferrer" title="LinkedIn">
+        <motion.a
+          href={`https://${personalData.linkedin}`} target="_blank" rel="noopener noreferrer" title="LinkedIn"
+          whileHover={{ y: -3 }} whileTap={{ scale: 0.95 }}
+        >
           <i className="fab fa-linkedin-in" />
-        </a>
-        <a href={`mailto:${personalData.email}`} title="Email">
+        </motion.a>
+        <motion.a
+          href={`mailto:${personalData.email}`} title="Email"
+          whileHover={{ y: -3 }} whileTap={{ scale: 0.95 }}
+        >
           <i className="fas fa-envelope" />
-        </a>
+        </motion.a>
       </div>
       <p>
         &copy; {new Date().getFullYear()} All Rights Reserved.<br />
@@ -18,6 +31,6 @@ export default function Footer() {
           {personalData.firstName} {personalData.lastName}
         </a>
       </p>
-    </footer>
+    </motion.footer>
   )
 }
