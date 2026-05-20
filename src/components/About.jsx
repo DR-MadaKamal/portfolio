@@ -123,14 +123,22 @@ export default function About() {
                 <span className="timeline-dot" />
                 <div className="timeline-item-inner">
                   <div className="timeline-item-header">
-                    <h3>{exp.role}</h3>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      {exp.logo && (
+                        <img src={exp.logo} alt={exp.company}
+                          style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'contain', background: 'var(--bg)', border: '1px solid var(--border)', padding: 4 }} />
+                      )}
+                      <div>
+                        <h3>{exp.role}</h3>
+                        <div className="meta" style={{ margin: 0 }}>
+                          <i className="fas fa-building" style={{ marginRight: 4, fontSize: '0.7rem' }} />
+                          {exp.company}
+                        </div>
+                      </div>
+                    </div>
                     <span className="timeline-period">{exp.period}</span>
                   </div>
-                  <div className="meta">
-                    <i className="fas fa-building" style={{ marginRight: 4, fontSize: '0.7rem' }} />
-                    {exp.company}
-                    {exp.location ? ` | ${exp.location}` : ''}
-                  </div>
+                  {exp.location && <div className="meta" style={{ marginTop: 2, fontSize: '0.78rem' }}><i className="fas fa-map-marker-alt" style={{ marginRight: 4, fontSize: '0.65rem' }} />{exp.location}</div>}
                   {exp.highlights.length > 0 && (
                     <ul>
                       {exp.highlights.map((h, j) => <li key={j}>{h}</li>)}

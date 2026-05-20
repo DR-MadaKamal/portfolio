@@ -26,6 +26,7 @@ export const experience = [
     company: 'Vape City E-liquid',
     period: '05/2024 – Present',
     location: 'Abbasiya, Cairo',
+    logo: '/portfolio/images/flavow-logo.png',
     highlights: [
       'Spearhead full-stack marketing initiatives and brand strategy for the e-liquid and e-juice industry.',
       'Develop product catalogs, technical flavor descriptions, and marketing content to boost product visibility.',
