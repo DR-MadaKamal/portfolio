@@ -25,7 +25,7 @@ function App() {
       <ThemeToggle theme={theme} toggle={toggleTheme} />
       <Navbar />
       <main>
-        <div className="split-layout" style={{ paddingTop: '100px' }}>
+        <div className="split-layout">
           <div className="split-sidebar">
             <About />
             <Education compact />
