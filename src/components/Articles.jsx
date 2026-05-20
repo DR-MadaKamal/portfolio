@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { articles } from '../data/portfolioData'
+import { articles as defaultArticles } from '../data/portfolioData'
 
 const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December']
 
@@ -16,7 +16,8 @@ const cardAnim = {
   transition: { duration: 0.5 },
 }
 
-export default function Articles() {
+export default function Articles({ articles: editedArticles }) {
+  const articles = editedArticles || defaultArticles
   return (
     <section id="articles" className="section">
       <div className="container">

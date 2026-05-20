@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { personalData, skillCategories, experience, education } from '../data/portfolioData'
+import { personalData as defaultPersonal, skillCategories as defaultSkills, experience as defaultExp, education as defaultEdu } from '../data/portfolioData'
 import AnimatedCounter from './AnimatedCounter'
 
 const fadeUp = {
@@ -21,7 +21,11 @@ const childUp = {
   viewport: { once: true },
 }
 
-export default function About() {
+export default function About({ editedData }) {
+  const personalData = editedData?.personalData || defaultPersonal
+  const skillCategories = editedData?.skillCategories || defaultSkills
+  const experience = editedData?.experience || defaultExp
+  const education = editedData?.education || defaultEdu
   return (
     <section id="about" className="section">
       <div className="container">

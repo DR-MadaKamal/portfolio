@@ -11,7 +11,8 @@ const imgChild = {
   animate: { opacity: 1, scale: 1, transition: { duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] } },
 }
 
-export default function Hero() {
+export default function Hero({ personalData: editedPersonalData }) {
+  const data = editedPersonalData || personalData
   return (
     <section id="home" className="hero">
       <motion.div className="container hero-grid" variants={container} initial="initial" animate="animate">
@@ -26,11 +27,11 @@ export default function Hero() {
             to drive real impact.
           </motion.h1>
 
-          <motion.p variants={child}>{personalData.summary}</motion.p>
+          <motion.p variants={child}>{data.summary}</motion.p>
 
           <motion.div className="hero-cta" variants={child}>
             <motion.a
-              href={`mailto:${personalData.email}`}
+              href={`mailto:${data.email}`}
               className="btn btn-solid"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.97 }}
@@ -52,7 +53,7 @@ export default function Hero() {
         <motion.div className="hero-image" variants={imgChild}>
           <div className="hero-glow" />
           <div className="hero-glow hero-glow-2" />
-          <img src="/portfolio/photo.png" alt={personalData.firstName} />
+          <img src="/portfolio/photo.png" alt={data.firstName} />
         </motion.div>
       </motion.div>
 

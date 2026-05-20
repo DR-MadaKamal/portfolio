@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { projects } from '../data/portfolioData'
+import { projects as defaultProjects } from '../data/portfolioData'
 
 const container = {
   initial: {},
@@ -12,7 +12,8 @@ const cardAnim = {
   animate: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] } },
 }
 
-export default function Projects() {
+export default function Projects({ projects: editedProjects }) {
+  const projects = editedProjects || defaultProjects
   const [filter, setFilter] = useState('All')
   const allTags = ['All', ...new Set(projects.flatMap(p => p.tags))]
   const filtered = filter === 'All' ? projects : projects.filter(p => p.tags.includes(filter))

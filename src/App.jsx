@@ -7,10 +7,21 @@ import Articles from './components/Articles'
 import SayHello from './components/SayHello'
 import ScrollToTop from './components/ScrollToTop'
 import AnimatedBackground from './components/AnimatedBackground'
+import AdminPanel from './components/AdminPanel'
 import Footer from './components/Footer'
+
+const STORAGE_KEY = 'portfolio-admin-data'
+
+function loadSaved() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch { return null }
+}
 
 function App() {
   const [activeSection, setActiveSection] = useState('home')
+  const [editedData, setEditedData] = useState(loadSaved)
 
   useEffect(() => {
     const saved = localStorage.getItem('portfolio-theme')
@@ -36,16 +47,17 @@ function App() {
   return (
     <>
       <AnimatedBackground />
+      <AdminPanel onDataChange={setEditedData} />
       <Navbar activeSection={activeSection} setActiveSection={setActiveSection} />
       <main>
-        <Hero />
-        <About />
-        <Projects />
-        <Articles />
+        <Hero personalData={editedData?.personalData} />
+        <About editedData={editedData} />
+        <Projects projects={editedData?.projects} />
+        <Articles articles={editedData?.articles} />
         <SayHello />
       </main>
       <ScrollToTop />
-      <Footer />
+      <Footer personalData={editedData?.personalData} />
     </>
   )
 }
