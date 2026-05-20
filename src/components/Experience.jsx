@@ -19,41 +19,29 @@ function ExpItem({ exp, index }) {
   const ref = useRef(null)
   const inView = useInView(ref)
   return (
-    <div ref={ref} style={{
+    <div ref={ref} className="timeline-card" style={{
       opacity: inView ? 1 : 0,
-      transform: inView ? 'translateX(0)' : 'translateX(-30px)',
+      transform: inView ? 'translateX(0)' : 'translateX(-20px)',
       transition: `all 0.5s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.08}s`,
-      padding: '24px',
-      borderRadius: '12px',
-      background: 'var(--card-bg)',
-      border: '1px solid var(--card-border)',
-      marginBottom: '20px',
-      position: 'relative',
+      marginBottom: '16px',
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px', marginBottom: '6px' }}>
         <div>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--text-primary)' }}>{exp.role}</h3>
-          <p style={{ color: 'var(--accent)', fontSize: '0.9rem', fontWeight: 500 }}>{exp.company}</p>
+          <h3 className="timeline-card-title">{exp.role}</h3>
+          <p className="timeline-card-sub">{exp.company}</p>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', display: 'block' }}>{exp.period}</span>
-          {exp.location && <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{exp.location}</span>}
+          <span className="timeline-card-meta" style={{ display: 'block' }}>{exp.period}</span>
+          {exp.location && <span className="timeline-card-meta">{exp.location}</span>}
         </div>
       </div>
       {exp.highlights.length > 0 && (
-        <ul style={{ marginTop: '12px', paddingLeft: '20px', color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.8 }}>
+        <ul className="timeline-card-list">
           {exp.highlights.map((h, i) => <li key={i}>{h}</li>)}
         </ul>
       )}
       {exp.link && (
-        <a href={exp.link.url} target="_blank" rel="noopener noreferrer" style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '6px',
-          marginTop: '12px',
-          fontSize: '0.85rem',
-          color: 'var(--accent)',
-        }}>
+        <a href={exp.link.url} target="_blank" rel="noopener noreferrer" className="timeline-badge" style={{ marginTop: '10px' }}>
           <i className="fas fa-external-link-alt" /> {exp.link.label}
         </a>
       )}
@@ -79,23 +67,12 @@ export default function Experience() {
       <div className="container">
         <h2 className="section-title">Experience</h2>
 
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '36px', flexWrap: 'wrap' }}>
+        <div className="tab-filters">
           {['all', ...roles].filter(Boolean).map(role => (
             <button
               key={role}
               onClick={() => setActiveTab(role)}
-              style={{
-                padding: '8px 20px',
-                borderRadius: '20px',
-                border: activeTab === role ? '2px solid var(--accent)' : '2px solid var(--card-border)',
-                background: activeTab === role ? 'rgba(100,255,218,0.1)' : 'transparent',
-                color: activeTab === role ? 'var(--accent)' : 'var(--text-secondary)',
-                fontWeight: 500,
-                fontSize: '0.85rem',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                textTransform: 'capitalize',
-              }}
+              className={`tab-filter${activeTab === role ? ' active' : ''}`}
             >
               {role === 'all' ? 'All' : role}
             </button>
