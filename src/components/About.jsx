@@ -84,13 +84,13 @@ export default function About() {
                 overflow: 'hidden',
               }}>
                 <img
-                  src="/portfolio/logo.png"
+                  src="/portfolio/photo.png"
                   alt="Mohammed Kamal Shaat"
                   style={{
                     width: '100%',
                     height: '100%',
-                    objectFit: 'contain',
-                    padding: '24px',
+                    objectFit: 'cover',
+                    borderRadius: '14px',
                   }}
                 />
               </div>
