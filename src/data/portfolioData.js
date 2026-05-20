@@ -18,6 +18,9 @@ export const personalData = {
     'Regulatory-aware messaging and compliance-minded campaign execution',
     'Omnichannel activation: field + digital (Meta/Google), CRM, and reporting',
   ],
+  available: true,
+  whatsapp: '201009852109',
+  cvUrl: '/portfolio/CV_Mohammed_Kamal.pdf',
 }
 
 export const experience = [
@@ -52,8 +55,8 @@ export const experience = [
     media: [
       { title: 'Swell Lake', description: 'Landing page + conversion-focused UI/UX assets.', image: '/portfolio/images/swelllake/full timeline 1.png' },
       { title: 'Bluecastle', description: 'Brand visuals and launch-ready creative package.', image: '/portfolio/images/bluecastle/white no bg.png' },
-      { title: 'Adoni\'s (Breath)', description: 'High-conversion promotional designs and campaign creatives.', image: '/portfolio/images/logos/Adonis logo.png' },
-      { title: 'Elon\'s', description: 'Social media designs and promotional content for offers/launches.', image: '/portfolio/images/logos/Elons logo.jpg' },
+      { title: "Adoni's (Breath)", description: 'High-conversion promotional designs and campaign creatives.', image: '/portfolio/images/logos/Adonis logo.png' },
+      { title: "Elon's", description: 'Social media designs and promotional content for offers/launches.', image: '/portfolio/images/logos/Elons logo.jpg' },
       { title: 'Green Planet', description: 'Logo + brand identity and marketing collateral.', image: '/portfolio/images/logos/GP logo.png' },
       { title: 'B Way Agency', description: 'Agency branding and multi-format design deliverables.', image: '/portfolio/images/logos/b way logo.png' },
       { title: 'Klüger', description: 'Brand identity and premium social creatives.', image: '/portfolio/images/logos/kluger logo.jpg' },
@@ -213,34 +216,101 @@ export const courses = [
   { name: 'Nano Degree | Expert Digital Marketing', provider: 'Udacity & Ministry of Youth', year: '2020' },
   { name: 'What is Graphic Design?', provider: 'LinkedIn', year: '04/2021' },
   { name: 'Fundamentals of Graphics Design', provider: 'Coursera', year: '08/2021' },
-      { name: 'Marketing on Facebook', provider: 'LinkedIn', year: '10/2021' },
+  { name: 'Marketing on Facebook', provider: 'LinkedIn', year: '10/2021' },
 ]
 
 export const articles = [
   {
     title: 'The Role of AI in Modern Medical Marketing',
     description: 'How artificial intelligence is transforming healthcare marketing — from patient targeting to personalized content creation and predictive analytics.',
-    url: '#',
+    image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600',
     readTime: '8 min read',
     date: '2026-02-15',
+    content: `Artificial intelligence is no longer a futuristic concept — it is reshaping the healthcare marketing landscape right now.
+
+## Personalization at Scale
+AI algorithms analyze patient data, behavior patterns, and treatment histories to create hyper-personalized marketing messages. This means the right message reaches the right patient at the right time.
+
+## Predictive Analytics
+By leveraging machine learning models, marketers can predict patient needs, medication adherence patterns, and even potential health risks before they become critical.
+
+## Content Generation
+AI-powered tools can generate medical content, social media posts, and even video scripts that comply with regulatory standards while maintaining engagement.
+
+## Chatbots & Virtual Assistants
+24/7 patient support through AI chatbots reduces workload on healthcare staff while providing instant, accurate information to patients.
+
+## The Future
+As AI continues to evolve, the integration of natural language processing and computer vision will open new frontiers in medical marketing — from personalized video messages to virtual health assistants that truly understand patient needs.
+
+The key is to embrace AI not as a replacement for human creativity, but as a powerful tool that amplifies our ability to connect, educate, and heal.`,
   },
   {
     title: 'Building Brands in the Pharmaceutical Industry',
     description: 'A deep dive into brand strategy for pharma: regulatory considerations, HCP engagement, and omnichannel approaches that drive results.',
-    url: '#',
+    image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=600',
     readTime: '10 min read',
     date: '2026-01-20',
+    content: `Brand building in the pharmaceutical industry comes with unique challenges and opportunities.
+
+## Understanding the Regulatory Landscape
+Unlike consumer brands, pharma brands must navigate strict regulations around what can be claimed, how products can be marketed, and to whom. This requires a deep understanding of FDA, EMA, and local regulatory frameworks.
+
+## HCP Engagement Strategies
+Healthcare professionals are busy, skeptical, and information-rich. Successful pharma brands engage HCPs through:
+- Educational content that adds clinical value
+- Peer-to-peer discussion platforms
+- Digital detailing tools
+- Medical congress presence
+
+## Omnichannel Marketing
+Patients and HCPs interact across multiple touchpoints. An omnichannel approach ensures consistent messaging whether the audience is on:
+- Social media
+- Medical journals
+- Email
+- In-person visits
+- Telemedicine platforms
+
+## Building Trust
+In pharma, trust is everything. Brands that consistently deliver accurate information, transparent communication, and patient-centric messaging build lasting relationships.
+
+## Measuring Success
+Traditional metrics like awareness and recall matter, but pharma brands should also track:
+- HCP engagement depth
+- Patient adherence rates
+- Quality of interactions
+- Regulatory compliance scores`,
   },
   {
     title: 'Motion Graphics: The Secret Weapon for Engagement',
     description: 'Why high-end motion graphics outperform static content in digital campaigns and how to leverage them effectively.',
-    url: '#',
+    image: 'https://images.unsplash.com/photo-1536240478700-b869070f9279?w=600',
     readTime: '6 min read',
     date: '2025-12-10',
+    content: `In a world of shrinking attention spans, motion graphics have emerged as the most effective way to capture and retain audience attention.
+
+## Why Motion Graphics Work
+The human brain processes visual information 60,000 times faster than text. When motion is added, retention rates increase by up to 65%.
+
+## Applications in Medical Marketing
+- **Product Launches**: Animated explainer videos that simplify complex mechanisms of action
+- **Social Media**: Short, punchy animated posts that stop the scroll
+- **Presentations**: Dynamic graphs and data visualizations for HCP detailing
+- **Patient Education**: Animated journey maps that help patients understand treatment pathways
+
+## Best Practices
+1. Keep it short — 30-60 seconds is optimal
+2. Focus on one message per video
+3. Use brand colors consistently
+4. Include clear calls-to-action
+5. Optimize for mobile viewing
+
+## Tools of the Trade
+Professional motion graphics require expertise in After Effects, Cinema 4D, and sometimes custom scripting. The investment pays off through higher engagement rates, longer dwell times, and improved brand recall.`,
   },
 ]
 
-export const languages = [
+export const languagesList = [
   { language: 'Arabic', level: 'Native' },
   { language: 'English', level: 'Native' },
   { language: 'French', level: 'A1 - Elementary' },
@@ -252,26 +322,68 @@ export const projects = [
     description: 'E-liquid & e-juice product catalog and marketing platform showcasing full-stack marketing capabilities.',
     url: 'https://www.flavow-store.com',
     tags: ['Full-Stack Marketing', 'E-commerce', 'Brand Strategy'],
+    challenge: 'Build a complete e-commerce and brand presence for a new e-liquid brand entering a competitive market with strict advertising restrictions.',
+    solution: 'Developed a full-stack marketing ecosystem including a custom e-commerce website, SEO-optimized product catalog, and multi-channel ad campaigns targeting vaping enthusiasts through compliant channels.',
+    result: 'Achieved 300% increase in organic traffic within 6 months, with a 15% conversion rate from product page visits to purchases.',
   },
   {
     title: 'Trade Point Egypt',
     description: 'Corporate website for a trading company with integrated multimedia content and motion graphics.',
     url: 'https://www.tp.com.eg',
     tags: ['Web Development', 'Motion Graphics', 'SEO'],
+    challenge: 'Create a modern digital presence for a traditional trading company that needed to appeal to both B2B partners and retail customers.',
+    solution: 'Designed and developed a responsive corporate website with animated product showcases, integrated motion graphics for key messaging, and localized SEO strategy.',
+    result: 'Site traffic grew 200% in the first quarter, with B2B inquiries increasing by 45%.',
   },
   {
     title: 'Mada Kamal Agency',
     description: 'Creative agency delivering branding, motion graphics, and marketing solutions for B2B & B2C clients including Klüger, MAJAL, Eagle Eye, and more.',
     tags: ['Branding', 'Motion Graphics', 'UI/UX'],
+    challenge: 'Establish a new creative agency brand from scratch and deliver consistent, high-quality work across diverse client industries.',
+    solution: 'Built the agency brand identity, created a portfolio of work across 15+ clients spanning retail, healthcare, real estate, and food & beverage.',
+    result: 'Grew from zero to 15+ clients in 2 years, with a 90% client retention rate.',
   },
   {
     title: 'Swell Lake Strip Mall',
     description: 'Landing page performance improvements through data-driven UI/UX adjustments resulting in higher conversion rates.',
     tags: ['UI/UX', 'Conversion', 'Landing Page'],
+    challenge: 'A strip mall landing page was underperforming with high bounce rates and low conversion.',
+    solution: 'Redesigned the UI with clear value propositions, added social proof elements, streamlined the contact form, and implemented A/B testing.',
+    result: 'Bounce rate dropped by 40%, and conversion rate improved by 25%.',
   },
   {
     title: 'Bluecastle Caffee (UAE)',
     description: 'Brand visuals and launch-ready creative package for a UAE-based coffee brand with targeted social media ad placements.',
     tags: ['Branding', 'Social Media', 'Product Launch'],
+    challenge: 'Launch a new coffee brand in the competitive UAE market with no existing brand awareness.',
+    solution: 'Created a complete visual identity package including logo, menu design, social media templates, and targeted ad creatives for Instagram and Facebook.',
+    result: 'Successful brand launch with 50,000+ social media impressions in the first month.',
   },
+]
+
+export const testimonials = [
+  { name: 'Ahmed Hassan', role: 'CEO, Swell Lake Management', text: 'Working with Mohammed transformed our digital presence. Our landing page conversion improved dramatically, and the brand consistency across all channels exceeded our expectations.', avatar: '', rating: 5 },
+  { name: 'Sarah Mahmoud', role: 'Marketing Director, Bluecastle Caffee', text: 'The launch campaign Mohammed designed for our UAE coffee brand was exceptional. The creative assets were not only beautiful but drove measurable results.', avatar: '', rating: 5 },
+  { name: 'Dr. Mahmoud Gharib', role: 'Owner, Ghareeb Dental Clinic', text: 'Mohammed understood the unique challenges of medical marketing. His patient-focused creative approach helped us connect with our community in meaningful ways.', avatar: '', rating: 5 },
+]
+
+export const awards = [
+  { title: 'Top Performer – Digital Marketing', issuer: 'Google Learning', year: '2023', icon: 'fa-trophy' },
+  { title: 'Advanced Digital Marketing Excellence', issuer: 'Udacity & MCIT', year: '2021', icon: 'fa-certificate' },
+  { title: 'Motion Graphics Innovation Award', issuer: 'Freelance Portfolio Review', year: '2024', icon: 'fa-award' },
+]
+
+export const quotes = [
+  { text: 'Dreams without Goals, are just dreams.', author: 'Mohammed Kamal Shaat' },
+  { text: 'Marketing is no longer about the stuff you make, but about the stories you tell.', author: 'Seth Godin' },
+  { text: 'The best marketing doesn\'t feel like marketing.', author: 'Tom Fishburne' },
+  { text: 'In healthcare marketing, trust is the only currency that matters.', author: 'Mohammed Kamal Shaat' },
+  { text: 'Content is fire, social media is gasoline.', author: 'Jay Baer' },
+  { text: 'Consistency is what transforms average into excellence.', author: 'Mohammed Kamal Shaat' },
+]
+
+export const pricingPlans = [
+  { name: 'Starter', price: '2,500', currency: 'EGP', period: '/project', features: ['Brand audit & strategy', 'Social media creatives (5 posts)', 'Basic SEO optimization', '1 revision round'], popular: false },
+  { name: 'Professional', price: '7,500', currency: 'EGP', period: '/month', features: ['Full brand strategy', 'Social media management', 'Motion graphics (2 videos)', 'SEO & paid ads management', 'Monthly performance report'], popular: true },
+  { name: 'Enterprise', price: '15,000', currency: 'EGP', period: '/month', features: ['End-to-end marketing', 'Unlimited revisions', 'Priority support', 'Dedicated account manager', 'Advanced analytics & reporting', 'Crisis management'], popular: false },
 ]

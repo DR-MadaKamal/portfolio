@@ -1,38 +1,27 @@
 import { motion } from 'framer-motion'
 import { personalData as defaultPersonal, skillCategories as defaultSkills, experience as defaultExp, education as defaultEdu } from '../data/portfolioData'
 import AnimatedCounter from './AnimatedCounter'
+import SkillsProgress from './SkillsProgress'
+import { useLang } from '../context/LangContext'
 
-const fadeUp = {
-  initial: { opacity: 0, y: 30 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: '-60px' },
-  transition: { duration: 0.5 },
-}
-
-const stagger = {
-  initial: {},
-  whileInView: { transition: { staggerChildren: 0.06 } },
-  viewport: { once: true, margin: '-60px' },
-}
-
-const childUp = {
-  initial: { opacity: 0, y: 20 },
-  whileInView: { opacity: 1, y: 0, transition: { duration: 0.4 } },
-  viewport: { once: true },
-}
+const fadeUp = { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: '-60px' }, transition: { duration: 0.5 } }
+const stagger = { initial: {}, whileInView: { transition: { staggerChildren: 0.06 } }, viewport: { once: true, margin: '-60px' } }
+const childUp = { initial: { opacity: 0, y: 20 }, whileInView: { opacity: 1, y: 0, transition: { duration: 0.4 } }, viewport: { once: true } }
 
 export default function About({ editedData }) {
   const personalData = editedData?.personalData || defaultPersonal
   const skillCategories = editedData?.skillCategories || defaultSkills
   const experience = editedData?.experience || defaultExp
   const education = editedData?.education || defaultEdu
+  const { t } = useLang()
+
   return (
     <section id="about" className="section">
       <div className="container">
         <motion.div {...fadeUp}>
           <h2 className="section-title">
-            <small>Get To Know More</small>
-            About Me
+            <small>{t.about.subtitle}</small>
+            {t.about.title}
           </h2>
         </motion.div>
 
@@ -47,9 +36,7 @@ export default function About({ editedData }) {
                 { num: 9, suffix: '+', label: 'Brands' },
               ].map((s, i) => (
                 <motion.div key={i} className="about-stat" variants={childUp}>
-                  <div className="about-stat-num">
-                    <AnimatedCounter end={s.num} suffix={s.suffix} duration={2} />
-                  </div>
+                  <div className="about-stat-num"><AnimatedCounter end={s.num} suffix={s.suffix} duration={2} /></div>
                   <div className="about-stat-label">{s.label}</div>
                 </motion.div>
               ))}
@@ -61,20 +48,13 @@ export default function About({ editedData }) {
           <motion.div className="about-card" {...fadeUp}>
             <h3 className="about-card-title">
               <i className="fas fa-graduation-cap" style={{ color: 'var(--accent)', marginRight: 8 }} />
-              Education
+              {t.about.education}
             </h3>
             {education.map((edu, i) => (
-              <motion.div
-                key={i}
-                className="edu-item"
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.3, delay: i * 0.1 }}
-              >
-                <div className="edu-icon">
-                  <i className="fas fa-university" />
-                </div>
+              <motion.div key={i} className="edu-item"
+                initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }} transition={{ duration: 0.3, delay: i * 0.1 }}>
+                <div className="edu-icon"><i className="fas fa-university" /></div>
                 <div>
                   <h4>{edu.degree}</h4>
                   <p className="edu-school">{edu.school}</p>
@@ -85,45 +65,26 @@ export default function About({ editedData }) {
           </motion.div>
         </div>
 
-        {/* Skills */}
+        {/* Skills with progress bars */}
         <motion.div {...fadeUp} style={{ marginTop: 60 }}>
-          <h2 className="section-title">
-            <small>My Expertise</small>
-            Skills
+          <h2 className="section-title" style={{ marginBottom: 32 }}>
+            <small>{t.about.expertise}</small>
+            {t.about.skills}
           </h2>
-          <motion.div className="skills-section" variants={stagger} initial="initial" whileInView="whileInView">
-            {skillCategories.map((cat, i) => (
-              <motion.div key={i} className="skill-card" variants={childUp} whileHover={{ y: -4 }}>
-                <div className="skill-card-header">
-                  <i className={`fas ${cat.icon}`} />
-                  <h3>{cat.category}</h3>
-                </div>
-                <div className="skill-card-body">
-                  {cat.skills.map((s, j) => (
-                    <span key={j} className="tag">{s}</span>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
+          <SkillsProgress />
         </motion.div>
 
         {/* Experience */}
         <motion.div {...fadeUp} style={{ marginTop: 80 }}>
           <h2 className="section-title">
-            <small>My Journey</small>
-            Experience
+            <small>{t.experience.subtitle}</small>
+            {t.experience.title}
           </h2>
           <div className="timeline" style={{ maxWidth: 700, margin: '0 auto' }}>
             {experience.map((exp, i) => (
-              <motion.div
-                key={i}
-                className="timeline-item"
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.4, delay: i * 0.08 }}
-              >
+              <motion.div key={i} className="timeline-item"
+                initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: '-40px' }} transition={{ duration: 0.4, delay: i * 0.08 }}>
                 <span className="timeline-dot" />
                 <div className="timeline-item-inner">
                   <div className="timeline-item-header">
@@ -144,9 +105,7 @@ export default function About({ editedData }) {
                   </div>
                   {exp.location && <div className="meta" style={{ marginTop: 2, fontSize: '0.78rem' }}><i className="fas fa-map-marker-alt" style={{ marginRight: 4, fontSize: '0.65rem' }} />{exp.location}</div>}
                   {exp.highlights.length > 0 && (
-                    <ul>
-                      {exp.highlights.map((h, j) => <li key={j}>{h}</li>)}
-                    </ul>
+                    <ul>{exp.highlights.map((h, j) => <li key={j}>{h}</li>)}</ul>
                   )}
                   {exp.links && exp.links.length > 0 && (
                     <div className="timeline-links">
