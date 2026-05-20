@@ -3,11 +3,7 @@ import { personalData } from '../data/portfolioData'
 export default function About() {
   return (
     <aside className="sidebar-card">
-      <div className="sidebar-photo">
-        <img src="/portfolio/photo.png" alt={personalData.firstName} />
-      </div>
-
-      <h2 className="sidebar-name">{personalData.firstName} {personalData.lastName}</h2>
+      <h2 className="sidebar-name" style={{ marginTop: '4px' }}>{personalData.firstName} {personalData.lastName}</h2>
       <p className="sidebar-title">{personalData.title}</p>
       <p className="sidebar-tagline">
         <i className="fas fa-quote-left" /> {personalData.tagline}

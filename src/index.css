@@ -48,6 +48,20 @@ body {
   line-height: 1.7;
   overflow-x: hidden;
   transition: background-color var(--transition), color var(--transition);
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url('/portfolio/photo.png');
+  background-size: min(50vw, 400px);
+  background-position: right bottom;
+  background-repeat: no-repeat;
+  opacity: 0.06;
+  pointer-events: none;
+  z-index: 0;
 }
 
 ::selection { background: var(--accent); color: var(--primary); }
