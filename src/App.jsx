@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import Navbar from './components/Navbar'
-import Hero from './components/Hero'
 import About from './components/About'
 import Experience from './components/Experience'
 import Education from './components/Education'
@@ -26,9 +25,7 @@ function App() {
       <ThemeToggle theme={theme} toggle={toggleTheme} />
       <Navbar />
       <main>
-        <Hero />
-
-        <div className="split-layout">
+        <div className="split-layout" style={{ paddingTop: '100px' }}>
           <div className="split-sidebar">
             <About />
             <Education compact />

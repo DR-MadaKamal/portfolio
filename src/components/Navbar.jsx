@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 
 const links = [
-  { label: 'Home', href: '#hero' },
   { label: 'Experience', href: '#experience' },
   { label: 'Projects', href: '#projects' },
   { label: 'Contact', href: '#contact' },
 ]
+
+const logoHref = '#experience'
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -27,7 +28,7 @@ export default function Navbar() {
   return (
     <nav className={`nav${scrolled ? ' scrolled' : ''}`}>
       <div className="container nav-inner">
-        <a href="#hero" onClick={e => handleClick(e, '#hero')} className="nav-logo">
+        <a href={logoHref} onClick={e => handleClick(e, logoHref)} className="nav-logo">
           <img src="/portfolio/logo.png" alt="MKS" />
         </a>
 
