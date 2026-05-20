@@ -362,8 +362,10 @@ img { max-width: 100%; height: auto; }
 .timeline-item details[open] summary { margin-bottom: 8px; color: var(--accent); }
 
 .timeline-media { display: flex; flex-direction: column; gap: 4px; }
-.timeline-media-item { font-size: 0.82rem; color: var(--text-muted); padding: 3px 0; border-bottom: 1px solid var(--border); }
+.timeline-media-item { font-size: 0.82rem; color: var(--text-muted); padding: 6px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
 .timeline-media-item:last-child { border-bottom: none; }
+
+.media-thumb { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; border: 1px solid var(--border); flex-shrink: 0; background: var(--bg); }
 
 /* ===== PROJECTS ===== */
 .tab-filters { display: flex; gap: 6px; margin-bottom: 28px; flex-wrap: wrap; justify-content: center; }

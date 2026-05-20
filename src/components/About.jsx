@@ -159,8 +159,11 @@ export default function About() {
                       <div className="timeline-media">
                         {exp.media.map((m, j) => (
                           <div key={j} className="timeline-media-item">
-                            <strong style={{ color: 'var(--accent)' }}>{m.title}</strong>
-                            {m.description ? ` — ${m.description}` : ''}
+                            {m.image && <img src={m.image} alt={m.title} className="media-thumb" />}
+                            <div>
+                              <strong style={{ color: 'var(--accent)' }}>{m.title}</strong>
+                              {m.description ? ` — ${m.description}` : ''}
+                            </div>
                           </div>
                         ))}
                       </div>
