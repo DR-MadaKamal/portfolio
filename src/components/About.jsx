@@ -79,25 +79,20 @@ export default function About() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '5rem',
                 background: 'linear-gradient(135deg, rgba(100,255,218,0.08), rgba(72,198,239,0.08))',
                 position: 'relative',
                 overflow: 'hidden',
               }}>
-                <i className="fas fa-user-circle" style={{ color: 'var(--accent)', opacity: 0.6 }} />
-                <div style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  padding: '12px',
-                  textAlign: 'center',
-                  background: 'linear-gradient(transparent, var(--card-bg))',
-                }}>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                    <i className="fas fa-camera" /> Add your photo
-                  </p>
-                </div>
+                <img
+                  src="/portfolio/logo.png"
+                  alt="Mohammed Kamal Shaat"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                    padding: '24px',
+                  }}
+                />
               </div>
             </div>
           </FadeInSection>
