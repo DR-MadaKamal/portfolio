@@ -7,7 +7,7 @@ export default function Hero() {
         <div>
           <div className="hero-badge">Pharmacist & Full-Stack Marketer</div>
           <h1>
-            Turning <span>vision</span> into reality<br />with code and design.
+            Bridging <span>healthcare</span> & <span>marketing</span><br />to drive real impact.
           </h1>
           <p>{personalData.summary}</p>
           <div className="hero-cta">
