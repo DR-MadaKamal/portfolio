@@ -6,6 +6,7 @@ import Projects from './components/Projects'
 import Articles from './components/Articles'
 import SayHello from './components/SayHello'
 import ScrollToTop from './components/ScrollToTop'
+import AnimatedBackground from './components/AnimatedBackground'
 import Footer from './components/Footer'
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
 
   return (
     <>
+      <AnimatedBackground />
       <Navbar activeSection={activeSection} setActiveSection={setActiveSection} />
       <main>
         <Hero />
