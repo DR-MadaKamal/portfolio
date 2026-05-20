@@ -1,7 +1,9 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { personalData as defaultPersonal, experience as defaultExp, projects as defaultProjects, articles as defaultArticles, skillCategories as defaultSkills, education as defaultEdu, courses as defaultCourses, languages as defaultLangs } from '../data/portfolioData'
 
 const STORAGE_KEY = 'portfolio-admin-data'
+const HISTORY_KEY = 'portfolio-admin-history'
+const MAX_HISTORY = 50
 const PASSWORD = 'admin2026'
 
 function loadSaved() {
@@ -15,20 +17,41 @@ function saveToStorage(data) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
 }
 
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY)
+    return raw ? JSON.parse(raw) : []
+  } catch { return [] }
+}
+
+function getDefaults() {
+  return {
+    personalData: defaultPersonal,
+    experience: defaultExp,
+    projects: defaultProjects,
+    articles: defaultArticles,
+    skillCategories: defaultSkills,
+    education: defaultEdu,
+    courses: defaultCourses,
+    languages: defaultLangs,
+  }
+}
+
 export default function AdminPanel({ onDataChange }) {
   const [visible, setVisible] = useState(false)
   const [authed, setAuthed] = useState(false)
   const [password, setPassword] = useState('')
   const [tab, setTab] = useState('personal')
   const [data, setData] = useState(null)
+  const [history, setHistory] = useState([])
+  const [showHistory, setShowHistory] = useState(false)
   const [msg, setMsg] = useState('')
-  const [imageList, setImageList] = useState([])
+  const timerRef = useRef(null)
 
   useEffect(() => {
-    fetch('/portfolio/public/images-list.json')
-      .then(r => r.json()).then(setImageList).catch(() => {})
     const saved = loadSaved()
     if (saved) setData(saved)
+    setHistory(loadHistory())
   }, [])
 
   useEffect(() => {
@@ -42,6 +65,49 @@ export default function AdminPanel({ onDataChange }) {
     return () => window.removeEventListener('keydown', handler)
   }, [])
 
+  const pushToHistory = useCallback((newData, label) => {
+    const entry = { timestamp: Date.now(), label: label || 'Auto-save', data: JSON.parse(JSON.stringify(newData)) }
+    setHistory(prev => {
+      const updated = [entry, ...prev].slice(0, MAX_HISTORY)
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(updated))
+      return updated
+    })
+  }, [])
+
+  const debouncedSave = useCallback((newData, label) => {
+    setData(newData)
+    saveToStorage(newData)
+    if (onDataChange) onDataChange(newData)
+
+    if (timerRef.current) clearTimeout(timerRef.current)
+    timerRef.current = setTimeout(() => {
+      pushToHistory(newData, label)
+      setMsg('Auto-saved')
+      setTimeout(() => setMsg(''), 1500)
+    }, 800)
+  }, [onDataChange, pushToHistory])
+
+  useEffect(() => {
+    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
+  }, [])
+
+  const restoreHistory = (entry) => {
+    if (confirm(`Restore version from ${new Date(entry.timestamp).toLocaleString()}? Current edits will be replaced.`)) {
+      setData(entry.data)
+      saveToStorage(entry.data)
+      if (onDataChange) onDataChange(entry.data)
+      setMsg('History restored')
+      setTimeout(() => setMsg(''), 2000)
+    }
+  }
+
+  const clearHistory = () => {
+    if (confirm('Delete all history versions?')) {
+      setHistory([])
+      localStorage.removeItem(HISTORY_KEY)
+    }
+  }
+
   const login = () => {
     if (password === PASSWORD) {
       setAuthed(true)
@@ -51,16 +117,9 @@ export default function AdminPanel({ onDataChange }) {
     }
   }
 
-  const save = useCallback((newData) => {
-    setData(newData)
-    saveToStorage(newData)
-    if (onDataChange) onDataChange(newData)
-    setMsg('Saved!')
-    setTimeout(() => setMsg(''), 2000)
-  }, [onDataChange])
-
   const reset = () => {
     if (confirm('Reset all edits to default?')) {
+      const defs = getDefaults()
       localStorage.removeItem(STORAGE_KEY)
       setData(null)
       if (onDataChange) onDataChange(null)
@@ -76,25 +135,14 @@ export default function AdminPanel({ onDataChange }) {
     URL.revokeObjectURL(url)
   }
 
-  const getDefaults = () => ({
-    personalData: defaultPersonal,
-    experience: defaultExp,
-    projects: defaultProjects,
-    articles: defaultArticles,
-    skillCategories: defaultSkills,
-    education: defaultEdu,
-    courses: defaultCourses,
-    languages: defaultLangs,
-  })
-
   if (!visible) return null
 
   const current = data || getDefaults()
 
   return (
-    <div className="admin-overlay" onClick={(e) => { if (e.target.className === 'admin-overlay') { setVisible(false); setAuthed(false) } }}>
+    <div className="admin-overlay" onClick={(e) => { if (e.target.className === 'admin-overlay') { setVisible(false); setAuthed(false); setShowHistory(false) } }}>
       <div className="admin-panel">
-        <button className="admin-close" onClick={() => { setVisible(false); setAuthed(false) }}>&times;</button>
+        <button className="admin-close" onClick={() => { setVisible(false); setAuthed(false); setShowHistory(false) }}>&times;</button>
 
         {!authed ? (
           <div className="admin-login">
@@ -104,6 +152,30 @@ export default function AdminPanel({ onDataChange }) {
             <button onClick={login}>Login</button>
             {msg && <p className="admin-msg">{msg}</p>}
           </div>
+        ) : showHistory ? (
+          <>
+            <div className="admin-tabs">
+              <button onClick={() => setShowHistory(false)}>&larr; Back</button>
+              <span style={{flex:1}}></span>
+              <button className="admin-reset" onClick={clearHistory}>Clear History</button>
+              <span style={{fontSize:'0.75rem',color:'var(--text-muted)'}}>{history.length} versions</span>
+            </div>
+            <div className="admin-content">
+              {history.length === 0 ? (
+                <p style={{textAlign:'center',color:'var(--text-muted)',padding:40}}>No history yet. Make edits to create version snapshots.</p>
+              ) : (
+                history.map((entry, i) => (
+                  <div key={i} className="admin-history-item">
+                    <div className="admin-history-info">
+                      <span className="admin-history-time">{new Date(entry.timestamp).toLocaleString()}</span>
+                      <span className="admin-history-label">{entry.label}</span>
+                    </div>
+                    <button className="admin-restore-btn" onClick={() => restoreHistory(entry)}>Restore</button>
+                  </div>
+                ))
+              )}
+            </div>
+          </>
         ) : (
           <>
             <div className="admin-tabs">
@@ -112,16 +184,17 @@ export default function AdminPanel({ onDataChange }) {
                   {t.charAt(0).toUpperCase() + t.slice(1)}
                 </button>
               ))}
+              <button onClick={() => setShowHistory(true)}>History ({history.length})</button>
               <button onClick={exportJSON}>Export</button>
               <button className="admin-reset" onClick={reset}>Reset</button>
-              <span style={{marginLeft:12,fontSize:'0.75rem',color:'var(--accent)'}}>{msg}</span>
+              <span style={{marginLeft:'auto',fontSize:'0.75rem',color:'var(--accent)'}}>{msg}</span>
             </div>
 
             <div className="admin-content">
-              {tab === 'personal' && <PersonalForm data={current} onSave={save} />}
-              {tab === 'experience' && <ExperienceForm data={current} onSave={save} />}
-              {tab === 'projects' && <ProjectsForm data={current} onSave={save} />}
-              {tab === 'articles' && <ArticlesForm data={current} onSave={save} />}
+              {tab === 'personal' && <PersonalForm data={current} onSave={debouncedSave} />}
+              {tab === 'experience' && <ExperienceForm data={current} onSave={debouncedSave} />}
+              {tab === 'projects' && <ProjectsForm data={current} onSave={debouncedSave} />}
+              {tab === 'articles' && <ArticlesForm data={current} onSave={debouncedSave} />}
             </div>
           </>
         )}
@@ -141,124 +214,103 @@ function Input({ label, value, onChange, multiline }) {
   )
 }
 
+function autoSaveForm(DynamicComponent) {
+  return function Wrapper(props) {
+    const [localData, setLocalData] = useState(null)
+    const firstRender = useRef(true)
+
+    useEffect(() => {
+      if (firstRender.current) {
+        firstRender.current = false
+        return
+      }
+      if (localData) {
+        props.onSave(localData, window._lastEditLabel || 'Edited')
+      }
+    }, [localData])
+
+    const handleSave = (newData, label) => {
+      window._lastEditLabel = label
+      setLocalData(newData)
+    }
+
+    return <DynamicComponent {...props} onSave={handleSave} />
+  }
+}
+
 function PersonalForm({ data, onSave }) {
   const [d, setD] = useState(data.personalData)
-  const save = () => onSave({ ...data, personalData: d })
+  const firstRender = useRef(true)
+
+  useEffect(() => {
+    if (firstRender.current) { firstRender.current = false; return }
+    const timer = setTimeout(() => onSave({ ...data, personalData: d }, 'Personal info'), 500)
+    return () => clearTimeout(timer)
+  }, [d])
+
+  const set = (key, val) => setD({ ...d, [key]: val })
+
   return (
     <div>
-      <Input label="First Name" value={d.firstName} onChange={v => setD({...d, firstName: v})} />
-      <Input label="Last Name" value={d.lastName} onChange={v => setD({...d, lastName: v})} />
-      <Input label="Title" value={d.title} onChange={v => setD({...d, title: v})} />
-      <Input label="Phone" value={d.phone} onChange={v => setD({...d, phone: v})} />
-      <Input label="Email" value={d.email} onChange={v => setD({...d, email: v})} />
-      <Input label="Location" value={d.location} onChange={v => setD({...d, location: v})} />
-      <Input label="LinkedIn" value={d.linkedin} onChange={v => setD({...d, linkedin: v})} />
-      <Input label="Tagline" value={d.tagline} onChange={v => setD({...d, tagline: v})} multiline />
-      <Input label="Summary" value={d.summary} onChange={v => setD({...d, summary: v})} multiline />
-      <button className="admin-save-btn" onClick={save}>Save Personal Info</button>
+      <Input label="First Name" value={d.firstName} onChange={v => set('firstName', v)} />
+      <Input label="Last Name" value={d.lastName} onChange={v => set('lastName', v)} />
+      <Input label="Title" value={d.title} onChange={v => set('title', v)} />
+      <Input label="Phone" value={d.phone} onChange={v => set('phone', v)} />
+      <Input label="Email" value={d.email} onChange={v => set('email', v)} />
+      <Input label="Location" value={d.location} onChange={v => set('location', v)} />
+      <Input label="LinkedIn" value={d.linkedin} onChange={v => set('linkedin', v)} />
+      <Input label="Tagline" value={d.tagline} onChange={v => set('tagline', v)} multiline />
+      <Input label="Summary" value={d.summary} onChange={v => set('summary', v)} multiline />
     </div>
   )
 }
 
 function ExperienceForm({ data, onSave }) {
   const [list, setList] = useState(data.experience)
+  const firstRender = useRef(true)
 
-  const update = (i, field, val) => {
-    const copy = [...list]
-    copy[i] = { ...copy[i], [field]: val }
-    setList(copy)
-  }
+  useEffect(() => {
+    if (firstRender.current) { firstRender.current = false; return }
+    const timer = setTimeout(() => onSave({ ...data, experience: list }, 'Experience'), 500)
+    return () => clearTimeout(timer)
+  }, [list])
 
-  const move = (i, dir) => {
+  const update = (i, field, val) => setList(prev => {
+    const copy = [...prev]; copy[i] = { ...copy[i], [field]: val }; return copy
+  })
+
+  const move = (i, dir) => setList(prev => {
     const j = i + dir
-    if (j < 0 || j >= list.length) return
-    const copy = [...list]
-    ;[copy[i], copy[j]] = [copy[j], copy[i]]
-    setList(copy)
-  }
+    if (j < 0 || j >= prev.length) return prev
+    const copy = [...prev]; [copy[i], copy[j]] = [copy[j], copy[i]]; return copy
+  })
 
-  const add = () => {
-    setList([...list, { role: 'New Role', company: 'Company', period: 'Date', location: '', highlights: [], links: [], media: [] }])
-  }
+  const add = () => setList(prev => [...prev, { role: 'New Role', company: 'Company', period: 'Date', location: '', highlights: [], links: [], media: [] }])
+  const remove = (i) => { if (confirm(`Delete "${list[i].role}"?`)) setList(prev => prev.filter((_, idx) => idx !== i)) }
 
-  const remove = (i) => {
-    if (confirm(`Delete "${list[i].role}"?`)) setList(list.filter((_, idx) => idx !== i))
-  }
+  const addHighlight = (i) => setList(prev => { const c = [...prev]; c[i] = { ...c[i], highlights: [...(c[i].highlights || []), ''] }; return c })
+  const updateHighlight = (i, j, v) => setList(prev => { const c = [...prev]; const h = [...(c[i].highlights || [])]; h[j] = v; c[i] = { ...c[i], highlights: h }; return c })
+  const removeHighlight = (i, j) => setList(prev => { const c = [...prev]; c[i] = { ...c[i], highlights: (c[i].highlights || []).filter((_, idx) => idx !== j) }; return c })
 
-  const addHighlight = (i) => {
-    const copy = [...list]
-    copy[i] = { ...copy[i], highlights: [...(copy[i].highlights || []), ''] }
-    setList(copy)
-  }
+  const addMedia = (i) => setList(prev => { const c = [...prev]; c[i] = { ...c[i], media: [...(c[i].media || []), { title: '', description: '', image: '' }] }; return c })
+  const updateMedia = (i, j, field, val) => setList(prev => { const c = [...prev]; const m = [...(c[i].media || [])]; m[j] = { ...m[j], [field]: val }; c[i] = { ...c[i], media: m }; return c })
+  const removeMedia = (i, j) => setList(prev => { const c = [...prev]; c[i] = { ...c[i], media: (c[i].media || []).filter((_, idx) => idx !== j) }; return c })
 
-  const updateHighlight = (i, j, v) => {
-    const copy = [...list]
-    const h = [...(copy[i].highlights || [])]
-    h[j] = v
-    copy[i] = { ...copy[i], highlights: h }
-    setList(copy)
-  }
-
-  const removeHighlight = (i, j) => {
-    const copy = [...list]
-    copy[i] = { ...copy[i], highlights: (copy[i].highlights || []).filter((_, idx) => idx !== j) }
-    setList(copy)
-  }
-
-  const addMedia = (i) => {
-    const copy = [...list]
-    copy[i] = { ...copy[i], media: [...(copy[i].media || []), { title: '', description: '', image: '' }] }
-    setList(copy)
-  }
-
-  const updateMedia = (i, j, field, val) => {
-    const copy = [...list]
-    const m = [...(copy[i].media || [])]
-    m[j] = { ...m[j], [field]: val }
-    copy[i] = { ...copy[i], media: m }
-    setList(copy)
-  }
-
-  const removeMedia = (i, j) => {
-    const copy = [...list]
-    copy[i] = { ...copy[i], media: (copy[i].media || []).filter((_, idx) => idx !== j) }
-    setList(copy)
-  }
-
-  const addLink = (i) => {
-    const copy = [...list]
-    copy[i] = { ...copy[i], links: [...(copy[i].links || []), { label: '', url: '' }] }
-    setList(copy)
-  }
-
-  const updateLink = (i, j, field, val) => {
-    const copy = [...list]
-    const l = [...(copy[i].links || [])]
-    l[j] = { ...l[j], [field]: val }
-    copy[i] = { ...copy[i], links: l }
-    setList(copy)
-  }
-
-  const removeLink = (i, j) => {
-    const copy = [...list]
-    copy[i] = { ...copy[i], links: (copy[i].links || []).filter((_, idx) => idx !== j) }
-    setList(copy)
-  }
+  const addLink = (i) => setList(prev => { const c = [...prev]; c[i] = { ...c[i], links: [...(c[i].links || []), { label: '', url: '' }] }; return c })
+  const updateLink = (i, j, field, val) => setList(prev => { const c = [...prev]; const l = [...(c[i].links || [])]; l[j] = { ...l[j], [field]: val }; c[i] = { ...c[i], links: l }; return c })
+  const removeLink = (i, j) => setList(prev => { const c = [...prev]; c[i] = { ...c[i], links: (c[i].links || []).filter((_, idx) => idx !== j) }; return c })
 
   return (
     <div>
-      <div className="admin-actions-top">
-        <button className="admin-add-btn" onClick={add}>+ Add Experience</button>
-        <button className="admin-save-btn" onClick={() => onSave({...data, experience: list})}>Save All</button>
-      </div>
+      <button className="admin-add-btn" onClick={add} style={{marginBottom:12}}>+ Add Experience</button>
       {list.map((exp, i) => (
         <div key={i} className="admin-card">
           <div className="admin-card-header">
-            <span><strong>{exp.role}</strong> @ {exp.company}</span>
+            <span style={{fontSize:'0.82rem'}}><strong>{exp.role}</strong> @ {exp.company}</span>
             <div className="admin-card-actions">
-              <button onClick={() => move(i, -1)} disabled={i === 0}>&uarr;</button>
-              <button onClick={() => move(i, 1)} disabled={i === list.length - 1}>&darr;</button>
-              <button className="admin-del-btn" onClick={() => remove(i)}>&times;</button>
+              <button onClick={() => move(i, -1)} disabled={i === 0} title="Move up">&uarr;</button>
+              <button onClick={() => move(i, 1)} disabled={i === list.length - 1} title="Move down">&darr;</button>
+              <button className="admin-del-btn" onClick={() => remove(i)} title="Delete">&times;</button>
             </div>
           </div>
           <Input label="Role" value={exp.role} onChange={v => update(i, 'role', v)} />
@@ -310,54 +362,37 @@ function ExperienceForm({ data, onSave }) {
 
 function ProjectsForm({ data, onSave }) {
   const [list, setList] = useState(data.projects)
+  const firstRender = useRef(true)
 
-  const update = (i, field, val) => {
-    const copy = [...list]
-    copy[i] = { ...copy[i], [field]: val }
-    setList(copy)
-  }
+  useEffect(() => {
+    if (firstRender.current) { firstRender.current = false; return }
+    const timer = setTimeout(() => onSave({ ...data, projects: list }, 'Projects'), 500)
+    return () => clearTimeout(timer)
+  }, [list])
 
-  const move = (i, dir) => {
-    const j = i + dir
-    if (j < 0 || j >= list.length) return
-    const copy = [...list]
-    ;[copy[i], copy[j]] = [copy[j], copy[i]]
-    setList(copy)
-  }
+  const update = (i, field, val) => setList(prev => {
+    const copy = [...prev]; copy[i] = { ...copy[i], [field]: val }; return copy
+  })
 
-  const add = () => setList([...list, { title: 'New Project', description: '', url: '', tags: [] }])
-  const remove = (i) => { if (confirm(`Delete "${list[i].title}"?`)) setList(list.filter((_, idx) => idx !== i)) }
+  const move = (i, dir) => setList(prev => {
+    const j = i + dir; if (j < 0 || j >= prev.length) return prev
+    const copy = [...prev]; [copy[i], copy[j]] = [copy[j], copy[i]]; return copy
+  })
 
-  const addTag = (i) => {
-    const copy = [...list]
-    copy[i] = { ...copy[i], tags: [...(copy[i].tags || []), ''] }
-    setList(copy)
-  }
+  const add = () => setList(prev => [...prev, { title: 'New Project', description: '', url: '', tags: [] }])
+  const remove = (i) => { if (confirm(`Delete "${list[i].title}"?`)) setList(prev => prev.filter((_, idx) => idx !== i)) }
 
-  const updateTag = (i, j, v) => {
-    const copy = [...list]
-    const t = [...(copy[i].tags || [])]
-    t[j] = v
-    copy[i] = { ...copy[i], tags: t }
-    setList(copy)
-  }
-
-  const removeTag = (i, j) => {
-    const copy = [...list]
-    copy[i] = { ...copy[i], tags: (copy[i].tags || []).filter((_, idx) => idx !== j) }
-    setList(copy)
-  }
+  const addTag = (i) => setList(prev => { const c = [...prev]; c[i] = { ...c[i], tags: [...(c[i].tags || []), ''] }; return c })
+  const updateTag = (i, j, v) => setList(prev => { const c = [...prev]; const t = [...(c[i].tags || [])]; t[j] = v; c[i] = { ...c[i], tags: t }; return c })
+  const removeTag = (i, j) => setList(prev => { const c = [...prev]; c[i] = { ...c[i], tags: (c[i].tags || []).filter((_, idx) => idx !== j) }; return c })
 
   return (
     <div>
-      <div className="admin-actions-top">
-        <button className="admin-add-btn" onClick={add}>+ Add Project</button>
-        <button className="admin-save-btn" onClick={() => onSave({...data, projects: list})}>Save All</button>
-      </div>
+      <button className="admin-add-btn" onClick={add} style={{marginBottom:12}}>+ Add Project</button>
       {list.map((p, i) => (
         <div key={i} className="admin-card">
           <div className="admin-card-header">
-            <span><strong>{p.title}</strong></span>
+            <span style={{fontSize:'0.82rem'}}><strong>{p.title}</strong></span>
             <div className="admin-card-actions">
               <button onClick={() => move(i, -1)} disabled={i === 0}>&uarr;</button>
               <button onClick={() => move(i, 1)} disabled={i === list.length - 1}>&darr;</button>
@@ -385,26 +420,28 @@ function ProjectsForm({ data, onSave }) {
 
 function ArticlesForm({ data, onSave }) {
   const [list, setList] = useState(data.articles)
+  const firstRender = useRef(true)
 
-  const update = (i, field, val) => {
-    const copy = [...list]
-    copy[i] = { ...copy[i], [field]: val }
-    setList(copy)
-  }
+  useEffect(() => {
+    if (firstRender.current) { firstRender.current = false; return }
+    const timer = setTimeout(() => onSave({ ...data, articles: list }, 'Articles'), 500)
+    return () => clearTimeout(timer)
+  }, [list])
 
-  const add = () => setList([...list, { title: 'New Article', description: '', url: '#', readTime: '5 min', date: new Date().toISOString().slice(0,10) }])
-  const remove = (i) => { if (confirm(`Delete "${list[i].title}"?`)) setList(list.filter((_, idx) => idx !== i)) }
+  const update = (i, field, val) => setList(prev => {
+    const copy = [...prev]; copy[i] = { ...copy[i], [field]: val }; return copy
+  })
+
+  const add = () => setList(prev => [...prev, { title: 'New Article', description: '', url: '#', readTime: '5 min', date: new Date().toISOString().slice(0,10) }])
+  const remove = (i) => { if (confirm(`Delete "${list[i].title}"?`)) setList(prev => prev.filter((_, idx) => idx !== i)) }
 
   return (
     <div>
-      <div className="admin-actions-top">
-        <button className="admin-add-btn" onClick={add}>+ Add Article</button>
-        <button className="admin-save-btn" onClick={() => onSave({...data, articles: list})}>Save All</button>
-      </div>
+      <button className="admin-add-btn" onClick={add} style={{marginBottom:12}}>+ Add Article</button>
       {list.map((a, i) => (
         <div key={i} className="admin-card">
           <div className="admin-card-header">
-            <span><strong>{a.title}</strong></span>
+            <span style={{fontSize:'0.82rem'}}><strong>{a.title}</strong></span>
             <button className="admin-del-btn" onClick={() => remove(i)}>&times;</button>
           </div>
           <Input label="Title" value={a.title} onChange={v => update(i, 'title', v)} />
