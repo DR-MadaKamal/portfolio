@@ -27,9 +27,11 @@ function App() {
       <main>
         <div className="split-layout">
           <div className="split-sidebar">
-            <About />
-            <Education compact />
-            <Skills compact />
+            <div className="sidebar-sticky">
+              <About />
+              <Education compact />
+              <Skills compact />
+            </div>
           </div>
           <div className="split-main">
             <div className="timeline-line" />
