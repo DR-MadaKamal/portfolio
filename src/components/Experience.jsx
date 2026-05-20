@@ -21,17 +21,17 @@ function ExpItem({ exp, index }) {
   return (
     <div ref={ref} className="timeline-card" style={{
       opacity: inView ? 1 : 0,
-      transform: inView ? 'translateX(0)' : 'translateX(-20px)',
+      transform: inView ? 'translateX(0)' : 'translateX(-16px)',
       transition: `all 0.5s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.08}s`,
-      marginBottom: '16px',
+      marginBottom: '14px',
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px', marginBottom: '6px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px', marginBottom: '6px', alignItems: 'flex-start' }}>
         <div>
           <h3 className="timeline-card-title">{exp.role}</h3>
           <p className="timeline-card-sub">{exp.company}</p>
         </div>
-        <div style={{ textAlign: 'right' }}>
-          <span className="timeline-card-meta" style={{ display: 'block' }}>{exp.period}</span>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px', flexShrink: 0 }}>
+          <span className="period-badge"><i className="far fa-calendar-alt" /> {exp.period}</span>
           {exp.location && <span className="timeline-card-meta">{exp.location}</span>}
         </div>
       </div>
@@ -41,7 +41,7 @@ function ExpItem({ exp, index }) {
         </ul>
       )}
       {exp.link && (
-        <a href={exp.link.url} target="_blank" rel="noopener noreferrer" className="timeline-badge" style={{ marginTop: '10px' }}>
+        <a href={exp.link.url} target="_blank" rel="noopener noreferrer" className="timeline-badge" style={{ marginTop: '8px' }}>
           <i className="fas fa-external-link-alt" /> {exp.link.label}
         </a>
       )}
