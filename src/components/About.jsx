@@ -88,8 +88,9 @@ export default function About() {
                   alt="Mohammed Kamal Shaat"
                   style={{
                     width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
+                    height: 'auto',
+                    maxHeight: '280px',
+                    objectFit: 'contain',
                     borderRadius: '14px',
                   }}
                 />
