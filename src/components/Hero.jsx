@@ -20,7 +20,6 @@ export default function Hero() {
           </div>
         </div>
         <div className="hero-image">
-          <div className="hero-image-ring" />
           <img src="/portfolio/photo.png" alt={personalData.firstName} />
         </div>
       </div>
