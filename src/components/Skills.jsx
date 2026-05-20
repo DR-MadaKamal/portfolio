@@ -1,6 +1,22 @@
 import { useEffect, useRef, useState } from 'react'
 import { skillCategories } from '../data/portfolioData'
 
+function CompactSkills() {
+  return (
+    <>
+      <div className="sidebar-divider" />
+      <div className="sidebar-section">
+        <p className="sidebar-label"><i className="fas fa-cogs" /> Skills</p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+          {skillCategories.flatMap(cat => cat.skills).map((skill, i) => (
+            <span key={i} className="skill-tag" style={{ fontSize: '0.62rem', padding: '3px 8px' }}>{skill}</span>
+          ))}
+        </div>
+      </div>
+    </>
+  )
+}
+
 function useInView(ref) {
   const [inView, setInView] = useState(false)
   useEffect(() => {
@@ -44,7 +60,9 @@ function SkillCard({ cat, index }) {
   )
 }
 
-export default function Skills() {
+export default function Skills({ compact }) {
+  if (compact) return <CompactSkills />
+
   return (
     <section id="skills" className="section timeline-section" style={{ background: 'var(--secondary)' }}>
       <div className="container">

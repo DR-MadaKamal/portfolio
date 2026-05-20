@@ -31,12 +31,12 @@ function App() {
         <div className="split-layout">
           <div className="split-sidebar">
             <About />
+            <Education compact />
+            <Skills compact />
           </div>
           <div className="split-main">
             <div className="timeline-line" />
             <Experience />
-            <Education />
-            <Skills />
             <Projects />
             <Contact />
           </div>

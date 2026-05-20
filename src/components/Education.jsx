@@ -1,6 +1,55 @@
 import { useEffect, useRef, useState } from 'react'
 import { education, courses, languages } from '../data/portfolioData'
 
+function SidebarBlock({ title, icon, children }) {
+  return (
+    <div className="sidebar-section" style={{ marginTop: '12px' }}>
+      <p className="sidebar-label"><i className={`fas ${icon}`} /> {title}</p>
+      {children}
+    </div>
+  )
+}
+
+function CompactEducation() {
+  return (
+    <>
+      <div className="sidebar-divider" />
+      <SidebarBlock title="Education" icon="fa-graduation-cap">
+        {education.map((e, i) => (
+          <div key={i} style={{ marginBottom: '6px' }}>
+            <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-primary)' }}>{e.degree}</div>
+            <div style={{ fontSize: '0.7rem', color: 'var(--accent)' }}>{e.school}</div>
+            <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>{e.year} | {e.location}</div>
+          </div>
+        ))}
+      </SidebarBlock>
+
+      <SidebarBlock title="Languages" icon="fa-language">
+        {languages.map((l, i) => (
+          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '2px 0', fontSize: '0.72rem' }}>
+            <span style={{ fontWeight: 500 }}>{l.language}</span>
+            <span style={{ color: 'var(--text-muted)' }}>{l.level}</span>
+          </div>
+        ))}
+      </SidebarBlock>
+
+      <SidebarBlock title="Courses" icon="fa-certificate">
+        {courses.slice(0, 5).map((c, i) => (
+          <div key={i} style={{ padding: '3px 0', fontSize: '0.68rem', color: 'var(--text-secondary)' }}>
+            <span style={{ fontWeight: 500 }}>{c.name}</span>
+            <span style={{ color: 'var(--text-muted)', display: 'block', fontSize: '0.62rem' }}>{c.provider} • {c.year}</span>
+          </div>
+        ))}
+        {courses.length > 5 && (
+          <div style={{ fontSize: '0.65rem', color: 'var(--accent)', marginTop: '4px' }}>
+            +{courses.length - 5} more
+          </div>
+        )}
+      </SidebarBlock>
+    </>
+  )
+}
+
 function useInView(ref) {
   const [inView, setInView] = useState(false)
   useEffect(() => {
@@ -29,7 +78,9 @@ function Card({ children, delay = 0 }) {
   )
 }
 
-export default function Education() {
+export default function Education({ compact }) {
+  if (compact) return <CompactEducation />
+
   return (
     <section id="education" className="section timeline-section">
       <div className="container">
