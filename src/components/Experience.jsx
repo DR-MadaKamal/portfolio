@@ -75,7 +75,7 @@ export default function Experience() {
   })
 
   return (
-    <section id="experience" className="section" style={{ background: 'var(--secondary)' }}>
+    <section id="experience" className="section timeline-section" style={{ background: 'var(--secondary)' }}>
       <div className="container">
         <h2 className="section-title">Experience</h2>
 

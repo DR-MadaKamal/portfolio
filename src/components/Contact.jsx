@@ -20,7 +20,7 @@ export default function Contact() {
   const inView = useInView(ref)
 
   return (
-    <section id="contact" className="section" style={{ background: 'var(--secondary)' }}>
+    <section id="contact" className="section timeline-section" style={{ background: 'var(--secondary)' }}>
       <div className="container" ref={ref} style={{
         textAlign: 'center',
         maxWidth: '600px',

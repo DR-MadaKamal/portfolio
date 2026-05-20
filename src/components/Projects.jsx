@@ -64,7 +64,7 @@ function ProjectCard({ project, index }) {
 
 export default function Projects() {
   return (
-    <section id="projects" className="section">
+    <section id="projects" className="section timeline-section">
       <div className="container">
         <h2 className="section-title">Featured Projects</h2>
         <div style={{

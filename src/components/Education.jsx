@@ -35,7 +35,7 @@ function Card({ children, delay = 0 }) {
 
 export default function Education() {
   return (
-    <section id="education" className="section">
+    <section id="education" className="section timeline-section">
       <div className="container">
         <h2 className="section-title">Education & Credentials</h2>
 

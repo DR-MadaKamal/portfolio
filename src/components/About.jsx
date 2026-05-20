@@ -1,104 +1,76 @@
-import { useEffect, useRef, useState } from 'react'
 import { personalData } from '../data/portfolioData'
-
-function useInView(ref) {
-  const [inView, setInView] = useState(false)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const obs = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) { setInView(true); obs.unobserve(el) }
-    }, { threshold: 0.1 })
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [ref])
-  return inView
-}
-
-function FadeInSection({ children, delay = 0 }) {
-  const ref = useRef(null)
-  const inView = useInView(ref)
-  return (
-    <div ref={ref} style={{
-      opacity: inView ? 1 : 0,
-      transform: inView ? 'translateY(0)' : 'translateY(30px)',
-      transition: `all 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`,
-    }}>
-      {children}
-    </div>
-  )
-}
 
 export default function About() {
   return (
-    <section id="about" className="section">
-      <div className="container">
-        <FadeInSection>
-          <h2 className="section-title">About Me</h2>
-        </FadeInSection>
+    <aside style={{
+      position: 'sticky',
+      top: '100px',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      textAlign: 'center',
+      padding: '40px 24px',
+      borderRadius: '16px',
+      background: 'var(--card-bg)',
+      border: '1px solid var(--card-border)',
+    }}>
+      <div style={{
+        width: '160px',
+        height: '160px',
+        borderRadius: '50%',
+        border: '3px solid var(--accent)',
+        overflow: 'hidden',
+        marginBottom: '20px',
+        flexShrink: 0,
+      }}>
+        <img
+          src="/portfolio/photo.png"
+          alt={personalData.firstName}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
+      </div>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '60px',
-          alignItems: 'center',
-        }} className="about-grid">
-          <FadeInSection delay={0.1}>
-            <div>
-              <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, marginBottom: '16px' }}>
-                {personalData.summary}
-              </p>
-              <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8 }}>
-                Based in <strong style={{ color: 'var(--text-primary)' }}>{personalData.location}</strong>, I bring over a decade of experience spanning healthcare, creative direction, and digital marketing — helping brands grow through strategic, data-driven campaigns.
-              </p>
-              <div style={{ display: 'flex', gap: '30px', marginTop: '30px' }}>
-                <div>
-                  <span style={{ fontSize: '2rem', fontWeight: 700, background: 'var(--gradient-1)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>10+</span>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '4px' }}>Years Experience</p>
-                </div>
-                <div>
-                  <span style={{ fontSize: '2rem', fontWeight: 700, background: 'var(--gradient-2)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>50+</span>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '4px' }}>Projects Delivered</p>
-                </div>
-              </div>
-            </div>
-          </FadeInSection>
+      <h2 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: '4px' }}>
+        {personalData.firstName} {personalData.lastName}
+      </h2>
+      <p style={{ color: 'var(--accent)', fontSize: '0.85rem', fontWeight: 500, marginBottom: '16px' }}>
+        {personalData.title}
+      </p>
 
-          <FadeInSection delay={0.2}>
-            <div style={{
-              position: 'relative',
-              width: '280px',
-              height: '280px',
-              margin: '0 auto',
-            }}>
-              <div style={{
-                width: '100%',
-                height: '100%',
-                borderRadius: '16px',
-                border: '2px solid var(--accent)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'linear-gradient(135deg, rgba(100,255,218,0.08), rgba(72,198,239,0.08))',
-                position: 'relative',
-                overflow: 'hidden',
-              }}>
-                <img
-                  src="/portfolio/photo.png"
-                  alt="Mohammed Kamal Shaat"
-                  style={{
-                    width: '100%',
-                    height: 'auto',
-                    maxHeight: '280px',
-                    objectFit: 'contain',
-                    borderRadius: '14px',
-                  }}
-                />
-              </div>
-            </div>
-          </FadeInSection>
+      <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: 1.7, marginBottom: '24px' }}>
+        {personalData.summary}
+      </p>
+
+      <div style={{ width: '100%', borderTop: '1px solid var(--card-border)', paddingTop: '20px', marginBottom: '16px' }}>
+        {[
+          { icon: 'fa-envelope', text: personalData.email, href: `mailto:${personalData.email}` },
+          { icon: 'fa-phone', text: personalData.phone, href: `tel:${personalData.phone}` },
+          { icon: 'fa-map-marker-alt', text: personalData.location },
+          { icon: 'fa-linkedin-in', text: 'LinkedIn', href: `https://${personalData.linkedin}` },
+        ].map((item, i) => (
+          <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 0', fontSize: '0.82rem' }}>
+            <i className={`fas ${item.icon}`} style={{ color: 'var(--accent)', width: '16px', fontSize: '0.75rem' }} />
+            {item.href ? (
+              <a href={item.href} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)', wordBreak: 'break-all' }}>
+                {item.text}
+              </a>
+            ) : (
+              <span style={{ color: 'var(--text-secondary)' }}>{item.text}</span>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: 'flex', gap: '24px', width: '100%', justifyContent: 'center', borderTop: '1px solid var(--card-border)', paddingTop: '20px' }}>
+        <div>
+          <div style={{ fontSize: '1.5rem', fontWeight: 700, background: 'var(--gradient-1)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>10+</div>
+          <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Years</div>
+        </div>
+        <div>
+          <div style={{ fontSize: '1.5rem', fontWeight: 700, background: 'var(--gradient-2)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>50+</div>
+          <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>Projects</div>
         </div>
       </div>
-    </section>
+    </aside>
   )
 }

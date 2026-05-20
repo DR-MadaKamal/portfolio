@@ -27,12 +27,21 @@ function App() {
       <Navbar />
       <main>
         <Hero />
-        <About />
-        <Experience />
-        <Education />
-        <Skills />
-        <Projects />
-        <Contact />
+
+        <div className="split-layout">
+          <div className="split-sidebar">
+            <About />
+          </div>
+          <div className="split-main">
+            <div className="timeline-line" />
+            <Experience />
+            <Education />
+            <Skills />
+            <Projects />
+            <Contact />
+          </div>
+        </div>
+
       </main>
       <Footer />
     </>

@@ -69,7 +69,7 @@ function SkillCard({ cat, index }) {
 
 export default function Skills() {
   return (
-    <section id="skills" className="section" style={{ background: 'var(--secondary)' }}>
+    <section id="skills" className="section timeline-section" style={{ background: 'var(--secondary)' }}>
       <div className="container">
         <h2 className="section-title">Skills & Expertise</h2>
         <div style={{
