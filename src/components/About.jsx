@@ -31,22 +31,52 @@ export default function About() {
           </h2>
         </motion.div>
 
-        <motion.div className="about-content" style={{ margin: '0 auto' }} {...fadeUp}>
-          <motion.div className="about-stats" style={{ justifyContent: 'center' }} variants={stagger} initial="initial" whileInView="whileInView">
-            {[
-              { num: '10+', label: 'Years Exp.' },
-              { num: '50+', label: 'Projects' },
-              { num: '15+', label: 'Clients' },
-              { num: '9+', label: 'Brands' },
-            ].map((s, i) => (
-              <motion.div key={i} className="about-stat" variants={childUp}>
-                <div className="about-stat-num">{s.num}</div>
-                <div className="about-stat-label">{s.label}</div>
+        <div className="about-education-grid">
+          {/* Left — About */}
+          <motion.div className="about-card" {...fadeUp}>
+            <motion.div className="about-stats" variants={stagger} initial="initial" whileInView="whileInView">
+              {[
+                { num: '10+', label: 'Years Exp.' },
+                { num: '50+', label: 'Projects' },
+                { num: '15+', label: 'Clients' },
+                { num: '9+', label: 'Brands' },
+              ].map((s, i) => (
+                <motion.div key={i} className="about-stat" variants={childUp}>
+                  <div className="about-stat-num">{s.num}</div>
+                  <div className="about-stat-label">{s.label}</div>
+                </motion.div>
+              ))}
+            </motion.div>
+            <motion.p {...fadeUp}>{personalData.summary}</motion.p>
+          </motion.div>
+
+          {/* Right — Education */}
+          <motion.div className="about-card" {...fadeUp}>
+            <h3 className="about-card-title">
+              <i className="fas fa-graduation-cap" style={{ color: 'var(--accent)', marginRight: 8 }} />
+              Education
+            </h3>
+            {education.map((edu, i) => (
+              <motion.div
+                key={i}
+                className="edu-item"
+                initial={{ opacity: 0, y: 10 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.3, delay: i * 0.1 }}
+              >
+                <div className="edu-icon">
+                  <i className="fas fa-university" />
+                </div>
+                <div>
+                  <h4>{edu.degree}</h4>
+                  <p className="edu-school">{edu.school}</p>
+                  <span className="timeline-period">{edu.year}</span>
+                </div>
               </motion.div>
             ))}
           </motion.div>
-          <motion.p {...fadeUp}>{personalData.summary}</motion.p>
-        </motion.div>
+        </div>
 
         {/* Skills */}
         <motion.div {...fadeUp} style={{ marginTop: 60 }}>
@@ -125,35 +155,6 @@ export default function About() {
                       </div>
                     </details>
                   )}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Education */}
-        <motion.div {...fadeUp} style={{ marginTop: 80 }}>
-          <h2 className="section-title">
-            <small>My Education</small>
-            Education
-          </h2>
-          <div className="timeline" style={{ maxWidth: 700, margin: '0 auto' }}>
-            {education.map((edu, i) => (
-              <motion.div
-                key={i}
-                className="timeline-item"
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.4, delay: i * 0.1 }}
-              >
-                <span className="timeline-dot" />
-                <div className="timeline-item-inner">
-                  <h3>{edu.degree}</h3>
-                  <div className="meta">
-                    <i className="fas fa-graduation-cap" style={{ marginRight: 4, fontSize: '0.7rem' }} />
-                    {edu.school} — {edu.year}
-                  </div>
                 </div>
               </motion.div>
             ))}

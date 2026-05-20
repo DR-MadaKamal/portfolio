@@ -240,10 +240,48 @@ img { max-width: 100%; height: auto; }
 .about-content { max-width: 650px; }
 .about-content p { color: var(--text-muted); font-size: 0.92rem; line-height: 1.8; }
 
-.about-stats { display: flex; gap: 40px; margin: 40px 0; flex-wrap: wrap; justify-content: center; }
+.about-stats { display: flex; gap: 40px; margin: 0 0 32px; flex-wrap: wrap; justify-content: center; }
 .about-stat { text-align: center; }
 .about-stat-num { font-size: 2.4rem; font-weight: 800; background: linear-gradient(135deg, var(--accent), #48c6ef); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; }
 .about-stat-label { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.about-education-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.about-card {
+  padding: 28px; border-radius: var(--radius);
+  background: var(--bg-alt); border: 1px solid var(--border);
+}
+
+.about-card-title {
+  font-size: 1.1rem; font-weight: 700; margin-bottom: 20px;
+  display: flex; align-items: center;
+}
+
+.about-card p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.8; }
+
+.edu-item {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 14px 0; border-bottom: 1px solid var(--border);
+}
+.edu-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+.edu-icon {
+  width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(100,255,218,0.08); color: var(--accent); font-size: 1rem;
+}
+
+.edu-item h4 { font-size: 0.85rem; font-weight: 600; margin-bottom: 2px; }
+.edu-school { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 4px !important; }
+
+@media (max-width: 768px) {
+  .about-education-grid { grid-template-columns: 1fr; }
+}
 
 /* ===== SKILLS ===== */
 .skills-section {
