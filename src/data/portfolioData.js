@@ -63,6 +63,8 @@ export const experience = [
       { title: 'Ghareeb Dentist', description: 'Clinic branding and patient-focused marketing creatives.', image: '/portfolio/images/ghareeb-dentist/1.png' },
       { title: 'BuzY DaisY', description: 'Social media design system and branded content library.', image: '/portfolio/images/swelllake/buzy-daisy/full timeline1.png' },
       { title: 'MR Belal (الدينامو)', description: 'Personal brand creatives and social content.', image: '/portfolio/images/mr-belal/1.jpg' },
+      { title: 'Kazoza Mix', description: 'Brand identity and social media content.', image: '/portfolio/images/kazoza-mix/full timeline 1.png' },
+      { title: 'Mlabs-Shabab', description: 'Brand identity and campaign creatives.', image: '/portfolio/images/mlabs-shabab/full timeline.png' },
     ],
   },
   {
