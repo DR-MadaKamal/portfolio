@@ -28,10 +28,15 @@ export const experience = [
     location: 'Abbasiya, Cairo',
     highlights: [
       'Spearhead full-stack marketing initiatives and brand strategy for the e-liquid and e-juice industry.',
-      'Develop comprehensive product catalogs, technical flavor descriptions, and marketing content to boost product visibility.',
-      'Manage strategic budgets, allocating funds towards high-impact digital advertising channels to maximize ROI.',
+      'Develop product catalogs, technical flavor descriptions, and marketing content to boost product visibility.',
+      'Manage strategic budgets across high-impact digital advertising channels to maximize ROI.',
     ],
-    link: { label: 'flavow-store.com', url: 'https://www.flavow-store.com' },
+    links: [
+      { label: 'flavow-store.com', url: 'https://www.flavow-store.com' },
+    ],
+    media: [
+      { title: 'Vape City', description: 'E-commerce catalog + product content + brand marketing assets for the e-liquid line.' },
+    ],
   },
   {
     role: 'Founder & Lead Creative Director',
@@ -39,11 +44,23 @@ export const experience = [
     period: '01/2022 – Present',
     location: 'Remote / Freelance',
     highlights: [
-      'Founded and manage a creative agency delivering premium branding, motion graphics, and full-stack marketing solutions for a diverse portfolio of B2B and B2C clients.',
-      'Swell Lake Strip Mall: Improved landing page performance through data-driven UI/UX adjustments.',
-      'Bluecastle Caffee (UAE): Strengthened online presence with innovative brand messaging and targeted social media ads.',
-      'Adoni\'s & Breath Beauty Centers: Designed high-conversion promotional materials under strict budget constraints.',
-      'Additional clients: Klüger, MAJAL, Toy Station nursery, Eagle Eye, Ghareeb Dentist, BuzY DaisY, Elon\'s Cloud Kitchen, Green Planet Company.',
+      'Founded and manage a creative agency delivering premium branding, motion graphics, and full-stack marketing solutions for B2B and B2C clients.',
+      'Selected work: Swell Lake Strip Mall (UI/UX conversion improvements), Bluecastle Caffee (UAE) product launch messaging + paid social, Adoni\'s & Breath Beauty Centers (high-conversion promo assets).',
+    ],
+    media: [
+      { title: 'Swell Lake', description: 'Landing page + conversion-focused UI/UX assets.' },
+      { title: 'Bluecastle', description: 'Brand visuals and launch-ready creative package.' },
+      { title: 'Adoni\'s (Breath)', description: 'High-conversion promotional designs and campaign creatives.' },
+      { title: 'Elon\'s', description: 'Social media designs and promotional content for offers/launches.' },
+      { title: 'Green Planet', description: 'Logo + brand identity and marketing collateral.' },
+      { title: 'B Way Agency', description: 'Agency branding and multi-format design deliverables.' },
+      { title: 'Klüger', description: 'Brand identity and premium social creatives.' },
+      { title: 'MAJAL', description: 'Brand design assets and seasonal campaign creatives.' },
+      { title: 'Toy Station Nursery', description: 'Family-focused brand visuals and promotional designs.' },
+      { title: 'Eagle Eye (إي إيجيل)', description: 'Visual identity + social media content design.' },
+      { title: 'Ghareeb Dentist', description: 'Clinic branding and patient-focused marketing creatives.' },
+      { title: 'BuzY DaisY', description: 'Social media design system and branded content library.' },
+      { title: 'MR Belal (الدينامو)', description: 'Personal brand creatives and social content.' },
     ],
   },
   {
@@ -52,11 +69,17 @@ export const experience = [
     period: '01/2022 – Present',
     location: 'Al-Faiyum',
     highlights: [
-      'Produce highly polished motion graphics and multimedia content to differentiate the brand.',
-      'Manage business teams including call center agents and sales representatives.',
-      'Direct internal and external marketing programs ensuring cohesive messaging across all platforms.',
+      'Produce polished motion graphics and multimedia content to differentiate the brand.',
+      'Manage business teams (call center + sales) to streamline acquisition and retention.',
+      'Direct internal/external marketing programs with cohesive cross-platform messaging.',
     ],
-    link: { label: 'tp.com.eg', url: 'https://www.tp.com.eg' },
+    links: [
+      { label: 'tp.com.eg', url: 'https://www.tp.com.eg' },
+      { label: 'Facebook', url: 'https://facebook.com/tradepointeg' },
+    ],
+    media: [
+      { title: 'TradePoint', description: 'Motion graphics, promotional videos, and social content used across Trade Point campaigns.' },
+    ],
   },
   {
     role: 'Digital Marketing Manager',
@@ -64,9 +87,12 @@ export const experience = [
     period: '07/2023 – 08/2024',
     location: 'Al-Faiyum',
     highlights: [
-      'Developed and implemented successful digital marketing campaigns across two companies simultaneously.',
-      'Managed social media accounts, generating pre-launch interest for upcoming products.',
-      'Built strong relationships with industry influencers to expand brand reach.',
+      'Led digital campaigns for two companies simultaneously, driving engagement.',
+      'Managed social accounts and built pre-launch interest for upcoming products/services.',
+      'Built influencer relationships to expand brand reach.',
+    ],
+    media: [
+      { title: 'INSTIRES (انستايرز)', description: 'Campaign videos + brand visuals supporting social growth and product promotion.' },
     ],
   },
   {
@@ -75,8 +101,8 @@ export const experience = [
     period: '06/2018 – 07/2023',
     location: '6th of October City & Al-Faiyum',
     highlights: [
-      'Led comprehensive marketing strategies over a 5-year period, establishing a strong regional footprint.',
-      'Optimized digital advertising budgets and generated comprehensive visual reports.',
+      'Led marketing strategies over 5 years, building a strong regional footprint.',
+      'Optimized digital advertising budgets and delivered visual performance reports to internal stakeholders.',
     ],
   },
   {
@@ -85,16 +111,23 @@ export const experience = [
     period: '04/2015 – 11/2018',
     location: 'Abswai, Al-Faiyum',
     highlights: [
-      'Managed daily pharmacy operations and optimized procurement strategies.',
-      'Delivered expert medical counseling on Rx and OTC medications.',
-      'Acted as primary healthcare consultant, increasing daily footfall and patient retention.',
+      'Managed daily operations, procurement, and inventory using sales-trend analysis to prevent stockouts and maximize profitability.',
+      'Provided patient counseling on Rx and OTC medications to ensure therapeutic outcomes and drug safety.',
+      'Trained junior pharmacists/assistants and ensured regulatory compliance.',
     ],
   },
   {
-    role: 'Motion Graphics Artist',
-    company: 'Hisham Food Agency, MGD Company, MAJAL Company & TradePoint',
-    period: '2019 – 2020',
-    location: '',
+    role: 'Senior Pharmacy Trainee',
+    company: 'Dr. Khalid Sayd Pharmacy',
+    period: '07/2014 – 04/2015',
+    location: 'Al-Faiyum',
+    highlights: [],
+  },
+  {
+    role: 'Junior Pharmacy Trainee',
+    company: 'Dr. Rasha Said Pharmacy',
+    period: '04/2013 – 06/2014',
+    location: 'Al-Faiyum',
     highlights: [],
   },
 ]

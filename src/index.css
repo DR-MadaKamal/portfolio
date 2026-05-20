@@ -5,6 +5,7 @@
   --bg-alt: #2b2b2b;
   --text: #e6e6e6;
   --text-muted: #999;
+  --text-secondary: #bbb;
   --text-dim: #666;
   --accent: #64ffda;
   --accent2: #ff6b6b;
@@ -19,6 +20,7 @@
   --bg-alt: #fff;
   --text: #1a1a2e;
   --text-muted: #666;
+  --text-secondary: #444;
   --text-dim: #999;
   --border: #e0e0e0;
   --shadow: 0 4px 20px rgba(0,0,0,0.06);
@@ -243,6 +245,11 @@ img { max-width: 100%; height: auto; }
 .timeline-item .date { color: var(--text-dim); font-size: 0.75rem; }
 .timeline-item ul { margin-top: 8px; padding-left: 18px; }
 .timeline-item li { color: var(--text-muted); font-size: 0.85rem; line-height: 1.6; }
+
+.timeline-item details { margin-top: 8px; }
+.timeline-item summary { color: var(--text-muted); font-size: 0.8rem; cursor: pointer; font-weight: 500; }
+.timeline-item summary:hover { color: var(--accent); }
+.timeline-item details[open] summary { margin-bottom: 6px; }
 
 /* ===== PROJECTS ===== */
 .projects-grid {
