@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { personalData, skillCategories, experience, education } from '../data/portfolioData'
+import AnimatedCounter from './AnimatedCounter'
 
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
@@ -36,13 +37,15 @@ export default function About() {
           <motion.div className="about-card" {...fadeUp}>
             <motion.div className="about-stats" variants={stagger} initial="initial" whileInView="whileInView">
               {[
-                { num: '10+', label: 'Years Exp.' },
-                { num: '50+', label: 'Projects' },
-                { num: '15+', label: 'Clients' },
-                { num: '9+', label: 'Brands' },
+                { num: 10, suffix: '+', label: 'Years Exp.' },
+                { num: 50, suffix: '+', label: 'Projects' },
+                { num: 15, suffix: '+', label: 'Clients' },
+                { num: 9, suffix: '+', label: 'Brands' },
               ].map((s, i) => (
                 <motion.div key={i} className="about-stat" variants={childUp}>
-                  <div className="about-stat-num">{s.num}</div>
+                  <div className="about-stat-num">
+                    <AnimatedCounter end={s.num} suffix={s.suffix} duration={2} />
+                  </div>
                   <div className="about-stat-label">{s.label}</div>
                 </motion.div>
               ))}
