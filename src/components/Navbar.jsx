@@ -42,13 +42,15 @@ export default function Navbar() {
     }}>
       <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <a href="#hero" onClick={e => handleClick(e, '#hero')} style={{
-          fontSize: '1.4rem',
-          fontWeight: 800,
-          background: 'var(--gradient-1)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
+          display: 'flex',
+          alignItems: 'center',
+          height: '40px',
         }}>
-          MKS
+          <img
+            src="/portfolio/logo.png"
+            alt="MKS"
+            style={{ height: '100%', width: 'auto' }}
+          />
         </a>
 
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
