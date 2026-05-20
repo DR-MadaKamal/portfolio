@@ -35,7 +35,21 @@ body {
   line-height: 1.6;
   overflow-x: hidden;
   transition: background var(--transition), color var(--transition);
+  position: relative;
 }
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: url('/portfolio/photo.png') center/cover no-repeat;
+  filter: blur(60px) saturate(1.2);
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body > * { position: relative; z-index: 1; }
 
 ::selection { background: var(--accent); color: #000; }
 ::-webkit-scrollbar { width: 6px; }
