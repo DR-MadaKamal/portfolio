@@ -33,13 +33,29 @@ export default function About() {
       <h2 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: '4px' }}>
         {personalData.firstName} {personalData.lastName}
       </h2>
-      <p style={{ color: 'var(--accent)', fontSize: '0.85rem', fontWeight: 500, marginBottom: '16px' }}>
+      <p style={{ color: 'var(--accent)', fontSize: '0.85rem', fontWeight: 500, marginBottom: '8px' }}>
         {personalData.title}
       </p>
+      <p style={{ color: 'var(--text-muted)', fontSize: '0.75rem', fontStyle: 'italic', marginBottom: '16px' }}>
+        <i className="fas fa-quote-left" style={{ marginRight: '4px', opacity: 0.5 }} />
+        {personalData.tagline}
+      </p>
 
-      <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: 1.7, marginBottom: '24px' }}>
+      <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: 1.7, marginBottom: '16px' }}>
         {personalData.summary}
       </p>
+
+      <div style={{ width: '100%', textAlign: 'left', marginBottom: '20px' }}>
+        <p style={{ color: 'var(--accent)', fontSize: '0.75rem', fontWeight: 600, marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+          <i className="fas fa-stethoscope" style={{ marginRight: '6px' }} />Medical Marketing Focus
+        </p>
+        {personalData.medicalFocus.map((item, i) => (
+          <div key={i} style={{ display: 'flex', gap: '8px', padding: '3px 0', fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+            <span style={{ color: 'var(--accent)', fontSize: '0.5rem', marginTop: '6px' }}>◆</span>
+            <span>{item}</span>
+          </div>
+        ))}
+      </div>
 
       <div style={{ width: '100%', borderTop: '1px solid var(--card-border)', paddingTop: '20px', marginBottom: '16px' }}>
         {[

@@ -59,6 +59,16 @@ export default function Hero() {
           {personalData.title}
         </h2>
         <p style={{
+          color: 'var(--accent)',
+          fontSize: '0.95rem',
+          fontStyle: 'italic',
+          marginBottom: '20px',
+          opacity: 0.8,
+        }}>
+          <i className="fas fa-quote-left" style={{ marginRight: '8px', opacity: 0.4 }} />
+          {personalData.tagline}
+        </p>
+        <p style={{
           maxWidth: '540px',
           color: 'var(--text-secondary)',
           fontSize: '1rem',

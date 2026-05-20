@@ -8,7 +8,16 @@ export const personalData = {
   linkedin: 'linkedin.com/in/mohammedkamal-shaat',
   dob: '26/5/1987',
   portfolioUrl: 'www.flavow-store.com',
-  summary: `Results-driven professional bridging the gap between healthcare and digital marketing. Offers comprehensive expertise in pharmacy management alongside advanced full-stack marketing, brand strategy, and creative direction. Highly skilled in producing high-end motion graphics, utilizing AI development tools, and executing targeted campaigns to enhance customer engagement and drive sustainable business growth.`,
+  tagline: `Dreams without Goals, are just dreams. To achieve your Dreams you must apply discipline, but more important Consistency.`,
+  summary: `Results-driven pharmacist and full-stack marketer with a strong focus on medical marketing and field-oriented healthcare communication. Bridges healthcare knowledge with performance marketing, brand strategy, and creative direction to drive demand generation, HCP engagement, and patient-centric messaging. Highly skilled in producing high-end motion graphics, utilizing AI development tools, and executing targeted campaigns to enhance customer engagement and sustainable business growth.`,
+  medicalFocus: [
+    'Medical representative & medical marketing focus',
+    'HCP targeting & segmentation (specialties, clinics, pharmacies)',
+    'Patient journey mapping and medical content copywriting (Rx/OTC)',
+    'Product launch planning, lifecycle support, and competitor analysis',
+    'Regulatory-aware messaging and compliance-minded campaign execution',
+    'Omnichannel activation: field + digital (Meta/Google), CRM, and reporting',
+  ],
 }
 
 export const experience = [
@@ -34,6 +43,7 @@ export const experience = [
       'Swell Lake Strip Mall: Improved landing page performance through data-driven UI/UX adjustments.',
       'Bluecastle Caffee (UAE): Strengthened online presence with innovative brand messaging and targeted social media ads.',
       'Adoni\'s & Breath Beauty Centers: Designed high-conversion promotional materials under strict budget constraints.',
+      'Additional clients: Klüger, MAJAL, Toy Station nursery, Eagle Eye, Ghareeb Dentist, BuzY DaisY, Elon\'s Cloud Kitchen, Green Planet Company.',
     ],
   },
   {
@@ -186,7 +196,17 @@ export const projects = [
   },
   {
     title: 'Mada Kamal Agency',
-    description: 'Creative agency delivering branding, motion graphics, and marketing solutions for B2B & B2C clients.',
+    description: 'Creative agency delivering branding, motion graphics, and marketing solutions for B2B & B2C clients including Klüger, MAJAL, Eagle Eye, and more.',
     tags: ['Branding', 'Motion Graphics', 'UI/UX'],
+  },
+  {
+    title: 'Swell Lake Strip Mall',
+    description: 'Landing page performance improvements through data-driven UI/UX adjustments resulting in higher conversion rates.',
+    tags: ['UI/UX', 'Conversion', 'Landing Page'],
+  },
+  {
+    title: 'Bluecastle Caffee (UAE)',
+    description: 'Brand visuals and launch-ready creative package for a UAE-based coffee brand with targeted social media ad placements.',
+    tags: ['Branding', 'Social Media', 'Product Launch'],
   },
 ]
