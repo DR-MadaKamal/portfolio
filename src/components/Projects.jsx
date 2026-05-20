@@ -1,57 +1,55 @@
-import { useEffect, useRef, useState } from 'react'
 import { projects } from '../data/portfolioData'
 
-function useInView(ref) {
-  const [inView, setInView] = useState(false)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const obs = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) { setInView(true); obs.unobserve(el) }
-    }, { threshold: 0.1 })
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [ref])
-  return inView
-}
-
-function ProjectCard({ project, index }) {
-  const ref = useRef(null)
-  const inView = useInView(ref)
-
-  return (
-    <div ref={ref} className="project-card" style={{
-      opacity: inView ? 1 : 0,
-      transform: inView ? 'translateY(0)' : 'translateY(20px)',
-      transition: `all 0.5s cubic-bezier(0.16, 1, 0.3, 1) ${index * 0.1}s`,
-    }}>
-      <div className="project-icon">
-        <i className="fas fa-folder-open" />
-      </div>
-      <h3 className="project-card-title">
-        {project.url ? (
-          <a href={project.url} target="_blank" rel="noopener noreferrer">
-            {project.title} <i className="fas fa-external-link-alt" style={{ fontSize: '0.75rem', marginLeft: '4px' }} />
-          </a>
-        ) : project.title}
-      </h3>
-      <p className="project-card-desc">{project.description}</p>
-      <div>
-        {project.tags.map((tag, i) => (
-          <span key={i} className="project-tag">#{tag}</span>
-        ))}
-      </div>
-    </div>
-  )
-}
-
 export default function Projects() {
+  const [featured, ...rest] = projects
+
   return (
-    <section id="projects" className="section timeline-section">
+    <section id="projects" className="section">
       <div className="container">
-        <h2 className="section-title">Featured Projects</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
-          {projects.map((p, i) => <ProjectCard key={i} project={p} index={i} />)}
+        <h2 className="section-title">
+          <small>My Work</small>
+          Projects
+        </h2>
+
+        {featured && (
+          <div className="featured-project">
+            <div>
+              <small style={{ color: 'var(--accent)', fontSize: '0.78rem', fontWeight: 500 }}>Featured Project</small>
+              <h2>{featured.title}</h2>
+              <p>{featured.description}</p>
+              <div className="project-tags">
+                {featured.tags.map((t, i) => <span key={i} className="tag">{t}</span>)}
+              </div>
+              {featured.url && (
+                <a href={featured.url} target="_blank" rel="noopener noreferrer" className="btn btn-sm">
+                  Visit Project <i className="fas fa-external-link-alt" />
+                </a>
+              )}
+            </div>
+            <div className="featured-project-img">
+              <img src="/portfolio/logo.png" alt={featured.title} style={{ width: '100%', height: 'auto', borderRadius: '8px' }} />
+            </div>
+          </div>
+        )}
+
+        <div className="projects-grid">
+          {rest.map((p, i) => (
+            <div key={i} className="project-card flex flex-col">
+              <i className="fas fa-folder project-icon" style={{ fontSize: '1.6rem', color: 'var(--accent)', opacity: 0.4, marginBottom: 10 }} />
+              <h3>
+                {p.url ? <a href={p.url} target="_blank" rel="noopener noreferrer">{p.title}</a> : p.title}
+              </h3>
+              <p>{p.description}</p>
+              <div className="project-tags">
+                {p.tags.map((t, j) => <span key={j} className="tag">{t}</span>)}
+              </div>
+              {p.url && (
+                <a href={p.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginTop: 'auto' }}>
+                  <i className="fas fa-external-link-alt" /> Visit
+                </a>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </section>

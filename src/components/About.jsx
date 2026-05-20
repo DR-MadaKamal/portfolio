@@ -1,62 +1,74 @@
-import { personalData } from '../data/portfolioData'
+import { personalData, skillCategories, experience, education } from '../data/portfolioData'
 
 export default function About() {
   return (
-    <aside className="sidebar-card">
-      <h2 className="sidebar-name" style={{ marginTop: '4px' }}>{personalData.firstName} {personalData.lastName}</h2>
-      <p className="sidebar-title">{personalData.title}</p>
-      <p className="sidebar-tagline">
-        <i className="fas fa-quote-left" /> {personalData.tagline}
-      </p>
+    <section id="about" className="section">
+      <div className="container">
+        <h2 className="section-title">
+          <small>Get To Know More</small>
+          About Me
+        </h2>
 
-      <div className="sidebar-divider" />
-
-      <div className="sidebar-section">
-        <p className="sidebar-label"><i className="fas fa-stethoscope" /> Medical Marketing Focus</p>
-        {personalData.medicalFocus.map((item, i) => (
-          <div key={i} className="sidebar-bullet">
-            <span className="sidebar-dot">◆</span>
-            <span>{item}</span>
+        <div className="about-content" style={{ margin: '0 auto' }}>
+          <div className="about-stats" style={{ justifyContent: 'center' }}>
+            <div className="about-stat">
+              <div className="about-stat-num">10+</div>
+              <div className="about-stat-label">Years Experience</div>
+            </div>
+            <div className="about-stat">
+              <div className="about-stat-num">50+</div>
+              <div className="about-stat-label">Projects</div>
+            </div>
+            <div className="about-stat">
+              <div className="about-stat-num">15+</div>
+              <div className="about-stat-label">Clients</div>
+            </div>
           </div>
-        ))}
-      </div>
 
-      <div className="sidebar-divider" />
+          <p>{personalData.summary}</p>
 
-      <div className="sidebar-section">
-        {[
-          { icon: 'fa-envelope', text: personalData.email, href: `mailto:${personalData.email}` },
-          { icon: 'fa-phone', text: personalData.phone, href: `tel:${personalData.phone}` },
-          { icon: 'fa-map-marker-alt', text: personalData.location },
-          { icon: 'fa-linkedin-in', text: 'LinkedIn', href: `https://${personalData.linkedin}` },
-        ].map((item, i) => (
-          <div key={i} className="sidebar-contact-row">
-            <i className={`fas ${item.icon}`} />
-            {item.href ? (
-              <a href={item.href} target="_blank" rel="noopener noreferrer">{item.text}</a>
-            ) : (
-              <span>{item.text}</span>
-            )}
+          <div className="skills-grid">
+            {skillCategories.flatMap(c => c.skills).map((s, i) => (
+              <span key={i} className="tag">{s}</span>
+            ))}
           </div>
-        ))}
-      </div>
-
-      <div className="sidebar-divider" />
-
-      <div className="sidebar-stats">
-        <div className="sidebar-stat">
-          <span className="sidebar-stat-num gradient-1">10+</span>
-          <span className="sidebar-stat-label">Years</span>
         </div>
-        <div className="sidebar-stat">
-          <span className="sidebar-stat-num gradient-2">50+</span>
-          <span className="sidebar-stat-label">Projects</span>
+
+        <h2 className="section-title" style={{ marginTop: '80px' }}>
+          <small>My Journey</small>
+          Experience
+        </h2>
+
+        <div className="timeline" style={{ maxWidth: '650px', margin: '0 auto' }}>
+          {experience.map((exp, i) => (
+            <div key={i} className="timeline-item">
+              <h3>{exp.role}</h3>
+              <div className="meta">{exp.company}</div>
+              <div className="date">{exp.period}</div>
+              {exp.highlights.length > 0 && (
+                <ul>
+                  {exp.highlights.map((h, j) => <li key={j}>{h}</li>)}
+                </ul>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <h2 className="section-title" style={{ marginTop: '80px' }}>
+          <small>My Education</small>
+          Education
+        </h2>
+
+        <div className="timeline" style={{ maxWidth: '650px', margin: '0 auto' }}>
+          {education.map((edu, i) => (
+            <div key={i} className="timeline-item">
+              <h3>{edu.degree}</h3>
+              <div className="meta">{edu.school}</div>
+              <div className="date">{edu.year}</div>
+            </div>
+          ))}
         </div>
       </div>
-
-      <a href={`mailto:${personalData.email}`} className="sidebar-cta">
-        <i className="fas fa-paper-plane" /> Hire Me
-      </a>
-    </aside>
+    </section>
   )
 }

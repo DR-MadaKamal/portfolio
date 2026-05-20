@@ -1,46 +1,47 @@
 import { useState, useEffect } from 'react'
 import Navbar from './components/Navbar'
+import Hero from './components/Hero'
 import About from './components/About'
-import Experience from './components/Experience'
-import Education from './components/Education'
-import Skills from './components/Skills'
 import Projects from './components/Projects'
-import Contact from './components/Contact'
+import Articles from './components/Articles'
+import SayHello from './components/SayHello'
 import Footer from './components/Footer'
-import ThemeToggle from './components/ThemeToggle'
-import ScrollProgress from './components/ScrollProgress'
 
 function App() {
-  const [theme, setTheme] = useState('dark')
+  const [activeSection, setActiveSection] = useState('home')
 
   useEffect(() => {
-    document.body.className = theme === 'light' ? 'light-theme' : ''
-  }, [theme])
+    const saved = localStorage.getItem('portfolio-theme')
+    if (saved === 'light') document.body.classList.add('light')
+  }, [])
 
-  const toggleTheme = () => setTheme(t => (t === 'dark' ? 'light' : 'dark'))
+  useEffect(() => {
+    const isLight = document.body.classList.contains('light')
+    localStorage.setItem('portfolio-theme', isLight ? 'light' : 'dark')
+  })
+
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          setActiveSection(entry.target.id)
+        }
+      })
+    }, { rootMargin: '-40% 0px -55% 0px' })
+
+    document.querySelectorAll('section[id]').forEach(s => observer.observe(s))
+    return () => observer.disconnect()
+  }, [])
 
   return (
     <>
-      <ScrollProgress />
-      <ThemeToggle theme={theme} toggle={toggleTheme} />
-      <Navbar />
+      <Navbar activeSection={activeSection} setActiveSection={setActiveSection} />
       <main>
-        <div className="split-layout">
-          <div className="split-sidebar">
-            <div className="sidebar-sticky">
-              <About />
-              <Education compact />
-              <Skills compact />
-            </div>
-          </div>
-          <div className="split-main">
-            <div className="timeline-line" />
-            <Experience />
-            <Projects />
-            <Contact />
-          </div>
-        </div>
-
+        <Hero />
+        <About />
+        <Projects />
+        <Articles />
+        <SayHello />
       </main>
       <Footer />
     </>

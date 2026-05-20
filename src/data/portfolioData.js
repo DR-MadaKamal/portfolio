@@ -172,7 +172,31 @@ export const courses = [
   { name: 'Nano Degree | Expert Digital Marketing', provider: 'Udacity & Ministry of Youth', year: '2020' },
   { name: 'What is Graphic Design?', provider: 'LinkedIn', year: '04/2021' },
   { name: 'Fundamentals of Graphics Design', provider: 'Coursera', year: '08/2021' },
-  { name: 'Marketing on Facebook', provider: 'LinkedIn', year: '10/2021' },
+      { name: 'Marketing on Facebook', provider: 'LinkedIn', year: '10/2021' },
+]
+
+export const articles = [
+  {
+    title: 'The Role of AI in Modern Medical Marketing',
+    description: 'How artificial intelligence is transforming healthcare marketing — from patient targeting to personalized content creation and predictive analytics.',
+    url: '#',
+    readTime: '8 min read',
+    date: '2026-02-15',
+  },
+  {
+    title: 'Building Brands in the Pharmaceutical Industry',
+    description: 'A deep dive into brand strategy for pharma: regulatory considerations, HCP engagement, and omnichannel approaches that drive results.',
+    url: '#',
+    readTime: '10 min read',
+    date: '2026-01-20',
+  },
+  {
+    title: 'Motion Graphics: The Secret Weapon for Engagement',
+    description: 'Why high-end motion graphics outperform static content in digital campaigns and how to leverage them effectively.',
+    url: '#',
+    readTime: '6 min read',
+    date: '2025-12-10',
+  },
 ]
 
 export const languages = [

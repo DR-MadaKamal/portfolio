@@ -1,58 +1,59 @@
 import { useState, useEffect } from 'react'
+import { personalData } from '../data/portfolioData'
 
-const links = [
-  { label: 'Experience', href: '#experience' },
-  { label: 'Projects', href: '#projects' },
-  { label: 'Contact', href: '#contact' },
-]
+const links = ['Home', 'About', 'Projects', 'Articles']
 
-const logoHref = '#experience'
-
-export default function Navbar() {
+export default function Navbar({ activeSection, setActiveSection }) {
   const [scrolled, setScrolled] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 60)
-    window.addEventListener('scroll', onScroll, { passive: true })
+    const onScroll = () => setScrolled(window.scrollY > 50)
+    window.addEventListener('scroll', onScroll)
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  const handleClick = (e, href) => {
-    e.preventDefault()
-    setMenuOpen(false)
-    const el = document.querySelector(href)
-    if (el) el.scrollIntoView({ behavior: 'smooth' })
+  const scrollTo = (id) => {
+    setActiveSection(id)
+    setMobileOpen(false)
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
   }
 
   return (
     <nav className={`nav${scrolled ? ' scrolled' : ''}`}>
       <div className="container nav-inner">
-        <a href={logoHref} onClick={e => handleClick(e, logoHref)} className="nav-logo">
-          <img src="/portfolio/logo.png" alt="MKS" />
+        <a href="#home" className="nav-logo" onClick={(e) => { e.preventDefault(); scrollTo('home') }}>
+          MK
         </a>
 
         <div className="nav-links">
           {links.map(l => (
-            <a key={l.href} href={l.href} onClick={e => handleClick(e, l.href)} className="nav-link">
-              {l.label}
-            </a>
+            <button key={l} className={`nav-link${activeSection === l.toLowerCase() ? ' active' : ''}`} onClick={() => scrollTo(l.toLowerCase())}>
+              {l}
+            </button>
           ))}
-          <button onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu" className="nav-mobile-btn">
-            <i className={`fas fa-${menuOpen ? 'times' : 'bars'}`} />
+          <button className="theme-btn nav-link" onClick={() => document.body.classList.toggle('light')} title="Toggle theme">
+            <i className="fas fa-moon" />
           </button>
         </div>
-      </div>
 
-      {menuOpen && (
-        <div className="nav-mobile-menu">
-          {links.map(l => (
-            <a key={l.href} href={l.href} onClick={e => handleClick(e, l.href)} className="nav-mobile-link">
-              {l.label}
-            </a>
-          ))}
-        </div>
-      )}
+        <button className="nav-mobile-btn" onClick={() => setMobileOpen(!mobileOpen)}>
+          <i className={`fas fa-${mobileOpen ? 'times' : 'bars'}`} />
+        </button>
+
+        {mobileOpen && (
+          <div className="nav-mobile-menu">
+            {links.map(l => (
+              <button key={l} className="nav-mobile-link" onClick={() => scrollTo(l.toLowerCase())}>
+                {l}
+              </button>
+            ))}
+            <button className="nav-mobile-link" onClick={() => { document.body.classList.toggle('light'); setMobileOpen(false) }}>
+              <i className="fas fa-moon" /> Theme
+            </button>
+          </div>
+        )}
+      </div>
     </nav>
   )
 }
