@@ -1,36 +1,6 @@
 import { motion } from 'framer-motion'
-import { personalData, experience, education, skillCategories, certifications, projects, awards } from '../data/portfolioData'
 
 function buildCV() {
-  const d = personalData
-
-  const skillsHtml = skillCategories.map(cat =>
-    `<div class="cv-skills-col"><strong>${cat.category}</strong>${cat.skills.map(s => `<span>${s}</span>`).join('')}</div>`
-  ).join('')
-
-  const certHtml = certifications.map(c =>
-    `<span class="cv-cert">${c.title} — ${c.issuer} (${c.year})</span>`
-  ).join('<span class="cv-sep"> | </span>')
-
-  const expHtml = experience.map(e => `
-    <div class="cv-block">
-      <div class="cv-exp-header"><strong>${e.role}</strong> <span class="cv-meta">${e.company} | ${e.period}${e.location ? ` | ${e.location}` : ''}</span></div>
-      <ul class="cv-exp-details">${e.highlights.map(h => `<li>${h}</li>`).join('')}</ul>
-    </div>
-  `).join('')
-
-  const eduHtml = education.map(e =>
-    `<p class="cv-edu"><strong>${e.degree}</strong> — ${e.school} <span class="cv-meta">(${e.year})</span></p>`
-  ).join('')
-
-  const projHtml = projects.filter(p => p.featured).map(p =>
-    `<p class="cv-proj"><strong>${p.title}</strong> — ${p.description}${p.tags?.length ? ` <span class="cv-meta">[${p.tags.join(', ')}]</span>` : ''}</p>`
-  ).join('')
-
-  const awardHtml = awards.map(a =>
-    `<span class="cv-award">${a.title} — ${a.issuer} (${a.year})</span>`
-  ).join('<span class="cv-sep"> | </span>')
-
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -61,32 +31,93 @@ function buildCV() {
   .cv-skills-col span:last-child:after { content: ''; }
   .cv-cert, .cv-award { font-size: 9.5pt; }
   .cv-sep { color: #aaa; font-size: 8pt; margin: 0 2px; }
-  .cv-proj { margin: 2px 0; font-size: 9.5pt; }
 </style>
 </head>
 <body>
-  <h1>${d.firstName} ${d.lastName}</h1>
-  <div class="cv-title">${d.title}</div>
-  <div class="cv-contact">${d.phone} &bull; ${d.email} &bull; ${d.location} &bull; ${d.linkedin}</div>
+  <h1>Mohammed Kamal Shaat</h1>
+  <div class="cv-title">Pharmacist | Full-Stack Marketer | Brand Growth Architect</div>
+  <div class="cv-contact">Cairo / Al-Faiyum, Egypt | +201009852109 | 16491@must.edu.eg | linkedin.com/in/mohammedkamal-shaat</div>
 
-  <h2>Summary</h2>
-  <p style="font-size:9.5pt;line-height:1.3">${d.summary}</p>
-
-  <h2>Experience</h2>
-  ${expHtml}
+  <h2>Professional Summary</h2>
+  <p style="font-size:9.5pt;line-height:1.3">Results-driven Pharmacy graduate and Full-Stack Marketing Professional with extensive experience in pharmaceutical operations, B2B/B2C sales management, and omnichannel marketing. Demonstrated success in managing pharmacy operations, optimizing sales-trend analysis, and executing high-conversion medical marketing campaigns for healthcare providers. Highly adept at bridging clinical knowledge with advanced digital marketing, CRM, and brand strategies to drive product visibility, engage Healthcare Professionals (HCPs), and maximize ROI by up to 35% in competitive markets.</p>
 
   <h2>Education</h2>
-  ${eduHtml}
+  <p class="cv-edu"><strong>Bachelor's Degree in Pharmacy</strong> — Misr University For Science And Technology (Al-Faiyum, Egypt) <span class="cv-meta">(09/2005 – 06/2026)</span></p>
+  <p style="font-size:9pt;color:#555;margin:1px 0 6px 0;">Core coursework: Medicinal Chemistry, Pharmacology, Nephron Histology, and Clinical Pharmacy.</p>
 
-  <h2>Skills</h2>
-  <div class="cv-skills-grid">${skillsHtml}</div>
+  <h2>Professional Experience</h2>
 
-  <h2>Certifications</h2>
-  <p>${certHtml}</p>
+  <div class="cv-block">
+    <div class="cv-exp-header"><strong>Full Stack Marketing Manager</strong> <span class="cv-meta">Vape City E-liquid | 05/2024 – Present | Abbasiya, Cairo, Egypt</span></div>
+    <ul class="cv-exp-details">
+      <li>Spearhead full-stack marketing initiatives and brand strategy, managing strategic budgets across high-impact digital advertising channels to maximize ROI by 35%.</li>
+      <li>Develop comprehensive product catalogs, technical descriptions, and targeted marketing content, boosting product visibility and B2C online engagement by over 40%.</li>
+      <li style="list-style:none;margin-left:-16px;font-size:9pt;color:#555;"><strong>Key Brands &amp; Projects:</strong> Vape City E-liquid (E-commerce catalog &amp; brand assets), Vapsy E-liquid, Flavow Store, Mr-Vape.</li>
+    </ul>
+  </div>
 
-  ${projHtml ? `<h2>Featured Projects</h2>${projHtml}` : ''}
+  <div class="cv-block">
+    <div class="cv-exp-header"><strong>Founder &amp; Lead Creative Director</strong> <span class="cv-meta">Mada Kamal (Creative Agency) | 01/2022 – Present | Remote / Freelance</span></div>
+    <ul class="cv-exp-details">
+      <li>Founded and manage a creative agency delivering premium branding, motion graphics, and full-stack marketing solutions for over 20+ international B2B and B2C clients.</li>
+      <li>Executed product launch messaging, paid social campaigns, and UI/UX conversion improvements, achieving a 25% average increase in user conversion rates for diverse clients.</li>
+      <li style="list-style:none;margin-left:-16px;font-size:9pt;color:#555;"><strong>Key Clients &amp; Projects:</strong> Adoni's Clinics, Breath Beauty Centers, Ghareeb Dentist, Swell Lake Strip Mall, Bluecastle Caffee (UAE), Elon's, Green Planet, B Way Agency, Klüger, MAJAL, Eagle Eye (إي إيجيل), MR Belal (الدينامو), Kazoza Mix, Mlabs-Shabab, Avalance Auto Repair (UAE), Toy's Station Nursery, H&amp;M Perfume's store (KSA), Samir Tito Barber.</li>
+    </ul>
+  </div>
 
-  ${awardHtml ? `<h2>Awards</h2><p>${awardHtml}</p>` : ''}
+  <div class="cv-block">
+    <div class="cv-exp-header"><strong>Marketing Manager &amp; Motion Graphics Editor</strong> <span class="cv-meta">Trade Point | 01/2022 – Present | Al-Faiyum, Egypt</span></div>
+    <ul class="cv-exp-details">
+      <li>Manage and direct business teams, including sales and call center personnel, streamlining customer acquisition and improving client retention rates by 18%.</li>
+      <li>Direct internal and external marketing programs, ensuring cohesive cross-platform messaging and producing polished multimedia content to differentiate the brand in a saturated market.</li>
+      <li style="list-style:none;margin-left:-16px;font-size:9pt;color:#555;"><strong>Key Clients &amp; Projects:</strong> TradePoint, Majal, Nice Ads Agency, Instires, Al-Tayeb, Click &amp; Set.</li>
+    </ul>
+  </div>
+
+  <div class="cv-block">
+    <div class="cv-exp-header"><strong>Digital Marketing Manager</strong> <span class="cv-meta">Al-Tayeb Trading &amp; Supplies (Instires) | 07/2023 – 08/2024 | Al-Faiyum, Egypt</span></div>
+    <ul class="cv-exp-details">
+      <li>Led digital campaigns for the parent company and its major brand Instires, driving a 50% increase in social media engagement and generating over 5,000+ pre-launch leads.</li>
+      <li>Cultivated strategic relationships with 15+ key influencers to significantly expand brand reach and market penetration.</li>
+      <li style="list-style:none;margin-left:-16px;font-size:9pt;color:#555;"><strong>Key Brands &amp; Projects:</strong> Instires (انستايرز), Al-Tayeb.</li>
+    </ul>
+  </div>
+
+  <div class="cv-block">
+    <div class="cv-exp-header"><strong>Marketing Manager</strong> <span class="cv-meta">Aldoha Engineering | 06/2018 – 07/2023 | 6th of October City &amp; Al-Faiyum, Egypt</span></div>
+    <ul class="cv-exp-details">
+      <li>Led comprehensive marketing strategies over 5 years, establishing a strong regional footprint and increasing qualified leads by 45%.</li>
+      <li>Optimized digital advertising budgets and delivered detailed visual performance reports, reducing cost-per-acquisition (CPA) by 20% for internal stakeholders.</li>
+      <li style="list-style:none;margin-left:-16px;font-size:9pt;color:#555;"><strong>Key Clients &amp; Projects:</strong> Aldoha Engineering, Summit View Real Estate, The Groove Strip Mall.</li>
+    </ul>
+  </div>
+
+  <div class="cv-block">
+    <div class="cv-exp-header"><strong>Pharmacy Operations Supervisor</strong> <span class="cv-meta">Dr. Hamada Hamdi El-Gendy Pharmacy | 04/2015 – 11/2018 | Abswai, Al-Faiyum, Egypt</span></div>
+    <ul class="cv-exp-details">
+      <li>Managed daily pharmacy operations, procurement, and inventory, utilizing sales-trend analysis to maintain 95% inventory accuracy, prevent stockouts, and increase overall profitability by 15%.</li>
+      <li>Provided expert patient counseling on Rx and OTC medications to 80+ patients daily, ensuring optimal therapeutic outcomes, drug safety, and excellent customer retention.</li>
+      <li>Trained and mentored junior pharmacists and assistants while ensuring strict regulatory compliance.</li>
+    </ul>
+  </div>
+
+  <div class="cv-block">
+    <div class="cv-exp-header"><strong>Pharmacy Trainee (Senior &amp; Junior)</strong> <span class="cv-meta">Dr. Khalid Sayd Pharmacy &amp; Dr. Rasha Said Pharmacy | 04/2013 – 04/2015 | Al-Faiyum, Egypt</span></div>
+    <ul class="cv-exp-details">
+      <li>Gained foundational clinical experience in patient communication, healthcare facility operations, and pharmaceutical care.</li>
+    </ul>
+  </div>
+
+  <h2>Core Competencies &amp; Skills</h2>
+  <div class="cv-skills-grid">
+    <div class="cv-skills-col"><strong>Medical Sales &amp; Marketing</strong><span>Healthcare Professional (HCP) Engagement</span><span>Medical Detailing</span><span>B2B/B2C Sales</span><span>Clinical Campaign Management</span><span>Omnichannel Marketing</span></div>
+    <div class="cv-skills-col"><strong>Pharmacy &amp; Clinical Knowledge</strong><span>Pharmacology</span><span>Patient Counseling</span><span>Inventory &amp; Procurement</span><span>Prescription Analysis</span><span>Regulatory Compliance</span></div>
+    <div class="cv-skills-col"><strong>Business Operations</strong><span>Customer Relationship Management (CRM)</span><span>Sales-Trend Analysis</span><span>Team Leadership</span><span>Budget Management</span></div>
+    <div class="cv-skills-col"><strong>Digital &amp; Creative Tools</strong><span>Full-Stack Marketing</span><span>Entity-Based SEO</span><span>Motion Graphics (After Effects)</span><span>UI/UX Conversion</span><span>AI Prompts (Gemini)</span></div>
+  </div>
+
+  <h2>Certifications &amp; Awards</h2>
+  <p><span class="cv-cert">Top Performer in Digital Marketing — Google Learning (2023)</span><span class="cv-sep"> | </span><span class="cv-cert">Advanced Digital Marketing Excellence — Udacity &amp; MCIT (2021)</span><span class="cv-sep"> | </span><span class="cv-cert">Customer Relationship Management (CRM) — HP LIFE</span><span class="cv-sep"> | </span><span class="cv-cert">The Art of Sales — HP LIFE</span><span class="cv-sep"> | </span><span class="cv-cert">Social Media Marketing Foundations — LinkedIn</span><span class="cv-sep"> | </span><span class="cv-cert">Skills for Passing Personal Interviews — Misr University for Science and Technology</span></p>
 </body>
 </html>`
 }
