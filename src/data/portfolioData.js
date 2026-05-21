@@ -481,13 +481,3 @@ export const newsItems = [
   { date: '2025-10', text: 'Published new framework for HCP digital engagement in pharma' },
 ]
 
-export const marketingServices = [
-  { icon: 'fa-bullseye', title: 'Brand Strategy & Positioning', desc: 'Market research, competitor analysis, brand identity development, and strategic positioning to elevate market value and audience connection.' },
-  { icon: 'fa-chart-line', title: 'Full-Funnel Performance Marketing', desc: 'Data-driven campaigns across Meta, Google, LinkedIn, and TikTok — from awareness to conversion with continuous A/B testing and ROI optimization.' },
-  { icon: 'fa-film', title: 'Motion Graphics & Video Production', desc: 'High-end motion design, explainer videos, social ads, and brand films using After Effects, Premiere Pro, and AI-assisted workflows.' },
-  { icon: 'fa-users', title: 'Social Media Growth & Management', desc: 'Content calendars, community management, viral content strategy, and organic growth systems tailored to each brand\'s voice and goals.' },
-  { icon: 'fa-search', title: 'SEO & Content Marketing', desc: 'On-page/off-page SEO, keyword strategy, blog/content engines, and authority-building to drive sustainable organic traffic.' },
-  { icon: 'fa-solid fa-syringe', title: 'Medical & HCP Marketing', desc: 'Specialized in pharmaceutical brand launches, HCP targeting & segmentation, medical content copywriting (Rx/Otc), regulatory-compliant campaigns, and patient journey mapping.' },
-  { icon: 'fa-paint-brush', title: 'UI/UX & Web Development', desc: 'User-centered design, responsive web development, landing page optimization, and conversion-focused interfaces for brands and campaigns.' },
-  { icon: 'fa-solid fa-robot', title: 'AI-Powered Content & Automation', desc: 'AI image generation, copywriting automation, chatbot integration, and workflow optimization to scale content production efficiently.' },
-]
