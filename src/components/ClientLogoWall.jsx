@@ -2,6 +2,16 @@ import { motion } from 'framer-motion'
 import { clientLogos } from '../data/portfolioData'
 import { useLang } from '../context/LangContext'
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.04 } }
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20, scale: 0.9 },
+  visible: { opacity: 0.75, y: 0, scale: 1, transition: { duration: 0.4 } }
+}
+
 export default function ClientLogoWall() {
   const { t } = useLang()
   return (
@@ -12,11 +22,15 @@ export default function ClientLogoWall() {
           <small>{t.about.subtitle}</small>Trusted By
         </motion.h2>
         <motion.div className="client-logos"
-          initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+          variants={containerVariants}
+          initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-40px' }}>
           {clientLogos.map((c, i) => (
-            <div key={i} className="client-logo-item" title={c.name}>
+            <motion.div key={i} className="client-logo-item" title={c.name}
+              variants={itemVariants}
+              whileHover={{ opacity: 1, scale: 1.15, transition: { duration: 0.25 } }}
+              whileTap={{ scale: 0.95 }}>
               <img src={c.src} alt={c.name} loading="lazy" />
-            </div>
+            </motion.div>
           ))}
         </motion.div>
       </div>
