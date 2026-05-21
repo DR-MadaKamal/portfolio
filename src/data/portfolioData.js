@@ -419,6 +419,8 @@ export const clientLogos = [
   { src: '/portfolio/images/logos/vapsy-logo.png', name: 'Vapsy' },
   { src: '/portfolio/images/logos/\u0644\u0648\u062C\u0648 \u0627\u0644\u0632\u0639\u064A\u0645 2.png', name: 'Al-Zaeem' },
   { src: '/portfolio/images/logos/\u0644\u0648\u062C\u0648 \u062D\u0632\u0628 \u0645\u0633\u062A\u0642\u0628\u0644 \u0648\u0637\u0646.png', name: 'Mostaqbal Watan' },
+  { src: '/portfolio/images/logos/breathe logo - white.png', name: 'Breathe' },
+  { src: '/portfolio/images/logos/tito style barber .png', name: 'Tito Style Barber' },
 ]
 
 export const faq = [
