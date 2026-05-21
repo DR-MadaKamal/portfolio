@@ -393,7 +393,7 @@ export const clientLogos = [
   { src: '/portfolio/images/logos/Trade point logo.jpg', name: 'Trade Point Egypt' },
   { src: '/portfolio/images/logos/flavow-logo.png', name: 'Flavow Store' },
   { src: '/portfolio/images/logos/Mada Kamal Agency.png', name: 'Mada Kamal Agency' },
-  { src: '/portfolio/images/logos/swell lake mall logo.jpg', name: 'Swell Lake' },
+  { src: '/portfolio/images/logos/347029559_271030172008871_3862549720575985620_n.jpg', name: 'Swell Lake' },
   { src: '/portfolio/images/logos/BlueCastle Caffee.png', name: 'Bluecastle Caffee' },
   { src: '/portfolio/images/logos/305633335_457890299716313_2478224452526733934_n.jpg', name: 'Klüger' },
   { src: '/portfolio/images/logos/263380167_5173855415961443_6431828736852671287_n.jpg', name: 'MAJAL' },
