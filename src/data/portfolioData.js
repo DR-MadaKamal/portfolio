@@ -395,7 +395,7 @@ export const clientLogos = [
   { src: '/portfolio/images/logos/Mada Kamal Agency.png', name: 'Mada Kamal Agency' },
   { src: '/portfolio/images/logos/swell lake mall logo.jpg', name: 'Swell Lake' },
   { src: '/portfolio/images/logos/BlueCastle Caffee.png', name: 'Bluecastle Caffee' },
-  { src: '/portfolio/images/logos/kluger logo.jpg', name: 'Klüger' },
+  { src: '/portfolio/images/logos/305633335_457890299716313_2478224452526733934_n.jpg', name: 'Klüger' },
   { src: '/portfolio/images/logos/Majal Logo.jpg', name: 'MAJAL' },
   { src: '/portfolio/images/logos/244676964_1240855479671550_5981509515233517187_n.png', name: 'Eagle Eye' },
   { src: '/portfolio/images/logos/Ghareeb Dentist logo.png', name: 'Ghareeb Dental' },
