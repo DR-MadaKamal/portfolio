@@ -5,7 +5,7 @@ function buildCV() {
   const d = personalData
   const skillsHtml = skillCategories.map(cat => `
     <h3>${cat.category}</h3>
-    <ul>${cat.skills.map(s => `<li>${s.name}</li>`).join('')}</ul>
+    <ul>${cat.skills.map(s => `<li>${s}</li>`).join('')}</ul>
   `).join('')
 
   const certHtml = certifications.map(c => `
