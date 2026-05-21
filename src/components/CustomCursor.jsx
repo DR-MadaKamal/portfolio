@@ -1,28 +1,45 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { motion } from 'framer-motion'
 
-const TRAIL_LENGTH = 6
+const TRAIL_LENGTH = 16
 
 export default function CustomCursor() {
   const [pos, setPos] = useState({ x: -100, y: -100 })
   const [hovering, setHovering] = useState(false)
-  const trail = useRef(Array.from({ length: TRAIL_LENGTH }, () => ({ x: -100, y: -100 })))
-  const [trailState, setTrailState] = useState(trail.current)
+  const points = useRef(Array.from({ length: TRAIL_LENGTH }, () => ({ x: -100, y: -100 })))
+  const mouseRef = useRef({ x: -100, y: -100 })
+  const raf = useRef(null)
+  const [path, setPath] = useState('')
 
-  const updateTrail = useCallback((x, y) => {
-    trail.current = trail.current.map((_, i) =>
-      i === 0 ? { x, y } : {
-        x: trail.current[i - 1].x + (trail.current[i].x - trail.current[i - 1].x) * 0.45,
-        y: trail.current[i - 1].y + (trail.current[i].y - trail.current[i - 1].y) * 0.45,
-      }
-    )
-    setTrailState([...trail.current])
+  const tick = useCallback(() => {
+    const { x, y } = mouseRef.current
+    const pts = points.current
+    for (let i = pts.length - 1; i > 0; i--) {
+      pts[i].x += (pts[i - 1].x - pts[i].x) * 0.18
+      pts[i].y += (pts[i - 1].y - pts[i].y) * 0.18
+    }
+    pts[0].x = x; pts[0].y = y
+
+    let d = `M${pts[0].x},${pts[0].y}`
+    for (let i = 1; i < pts.length - 1; i++) {
+      const mx = (pts[i].x + pts[i + 1].x) / 2
+      const my = (pts[i].y + pts[i + 1].y) / 2
+      d += `Q${pts[i].x},${pts[i].y} ${mx},${my}`
+    }
+    const last = pts[pts.length - 1]
+    d += `L${last.x},${last.y}`
+    setPath(d)
+    raf.current = requestAnimationFrame(tick)
   }, [])
 
   useEffect(() => {
+    raf.current = requestAnimationFrame(tick)
+    return () => { if (raf.current) cancelAnimationFrame(raf.current) }
+  }, [tick])
+
+  useEffect(() => {
     const move = (e) => {
+      mouseRef.current = { x: e.clientX, y: e.clientY }
       setPos({ x: e.clientX, y: e.clientY })
-      updateTrail(e.clientX, e.clientY)
     }
     const over = (e) => { if (e.target.closest('a, button, .btn, .project-card, .article-card, .skill-card')) setHovering(true) }
     const out = () => setHovering(false)
@@ -35,27 +52,27 @@ export default function CustomCursor() {
       document.removeEventListener('mouseover', over)
       document.removeEventListener('mouseout', out)
     }
-  }, [updateTrail])
+  }, [])
 
   return (
     <>
+      <svg className="cursor-trail-svg" aria-hidden="true">
+        <linearGradient id="trailGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="var(--accent)" stopOpacity="0" />
+          <stop offset="60%" stopColor="var(--accent)" stopOpacity="0.25" />
+          <stop offset="100%" stopColor="var(--accent)" stopOpacity="0.5" />
+        </linearGradient>
+        <path d={path} fill="none" stroke="url(#trailGrad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
       <div className="custom-cursor" style={{ left: pos.x, top: pos.y }}>
         <svg width="26" height="34" viewBox="0 0 26 34" className="cursor-svg">
           <path d="M3 2L3 23L8 17.5L14 28.5L16.5 27L10.5 16L23 16L3 2Z"
-            fill="var(--accent)" opacity="0.8"
+            fill="var(--accent)" opacity="0.85"
             stroke="var(--accent)" strokeWidth="1.2"
             strokeLinejoin="round" strokeLinecap="round" />
         </svg>
       </div>
       <div className={`custom-cursor-dot ${hovering ? 'hover' : ''}`} style={{ left: pos.x, top: pos.y }} />
-      {trailState.map((t, i) => (
-        <div key={i} className="cursor-trail-dot" style={{
-          left: t.x, top: t.y,
-          width: 5 - i * 0.5,
-          height: 5 - i * 0.5,
-          opacity: 0.3 - i * 0.04,
-        }} />
-      ))}
     </>
   )
 }

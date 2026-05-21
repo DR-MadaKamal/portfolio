@@ -94,7 +94,6 @@ img { max-width: 100%; height: auto; }
 .custom-cursor {
   position: fixed; pointer-events: none; z-index: 99999;
   transform: translate(-30%, -30%); mix-blend-mode: difference;
-  transition: filter 0.3s;
 }
 .custom-cursor .cursor-svg path { transition: opacity 0.25s; }
 .custom-cursor.hover .cursor-svg { transform: scale(1.15); transform-origin: 0 0; }
@@ -106,10 +105,9 @@ img { max-width: 100%; height: auto; }
   transition: width 0.15s, height 0.15s, opacity 0.15s;
 }
 .custom-cursor-dot.hover { width: 0; height: 0; opacity: 0; }
-.cursor-trail-dot {
-  position: fixed; border-radius: 50%; pointer-events: none; z-index: 99998;
-  background: var(--accent); transform: translate(-50%, -50%);
-  mix-blend-mode: difference; transition: width 0.1s, height 0.1s, opacity 0.1s;
+.cursor-trail-svg {
+  position: fixed; inset: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 99998; mix-blend-mode: difference;
 }
 
 /* ===== NAVBAR ===== */
