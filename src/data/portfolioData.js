@@ -362,9 +362,9 @@ export const projects = [
 ]
 
 export const testimonials = [
-  { name: 'Ahmed Hassan', role: 'CEO, Swell Lake Management', text: 'Working with Mohammed transformed our digital presence. Our landing page conversion improved dramatically, and the brand consistency across all channels exceeded our expectations.', avatar: '', rating: 5 },
-  { name: 'Sarah Mahmoud', role: 'Marketing Director, Bluecastle Caffee', text: 'The launch campaign Mohammed designed for our UAE coffee brand was exceptional. The creative assets were not only beautiful but drove measurable results.', avatar: '', rating: 5 },
-  { name: 'Dr. Mahmoud Gharib', role: 'Owner, Ghareeb Dental Clinic', text: 'Mohammed understood the unique challenges of medical marketing. His patient-focused creative approach helped us connect with our community in meaningful ways.', avatar: '', rating: 5 },
+  { name: 'Hamada Hamdy', role: 'CEO, Swell Lake Management', text: 'Working with Mohammed transformed our digital presence. Our landing page conversion improved dramatically, and the brand consistency across all channels exceeded our expectations.', avatar: '', rating: 5 },
+  { name: 'Mohammed Fattoh', role: 'Marketing Director, Bluecastle Caffee', text: 'The launch campaign Mohammed designed for our UAE coffee brand was exceptional. The creative assets were not only beautiful but drove measurable results.', avatar: '', rating: 5 },
+  { name: 'Dr Mahmoud Ghareeb', role: 'Owner, Ghareeb Dental Clinic', text: 'Mohammed understood the unique challenges of medical marketing. His patient-focused creative approach helped us connect with our community in meaningful ways.', avatar: '', rating: 5 },
 ]
 
 export const awards = [
