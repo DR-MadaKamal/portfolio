@@ -117,7 +117,14 @@ function buildCV() {
   </div>
 
   <h2>Certifications &amp; Awards</h2>
-  <p><span class="cv-cert">Top Performer in Digital Marketing — Google Learning (2023)</span><span class="cv-sep"> | </span><span class="cv-cert">Advanced Digital Marketing Excellence — Udacity &amp; MCIT (2021)</span><span class="cv-sep"> | </span><span class="cv-cert">Customer Relationship Management (CRM) — HP LIFE</span><span class="cv-sep"> | </span><span class="cv-cert">The Art of Sales — HP LIFE</span><span class="cv-sep"> | </span><span class="cv-cert">Social Media Marketing Foundations — LinkedIn</span><span class="cv-sep"> | </span><span class="cv-cert">Skills for Passing Personal Interviews — Misr University for Science and Technology</span></p>
+  <ul>
+    <li><span class="cv-cert">Top Performer in Digital Marketing — Google Learning (2023)</span></li>
+    <li><span class="cv-cert">Advanced Digital Marketing Excellence — Udacity &amp; MCIT (2021)</span></li>
+    <li><span class="cv-cert">Customer Relationship Management (CRM) — HP LIFE</span></li>
+    <li><span class="cv-cert">The Art of Sales — HP LIFE</span></li>
+    <li><span class="cv-cert">Social Media Marketing Foundations — LinkedIn</span></li>
+    <li><span class="cv-cert">Skills for Passing Personal Interviews — Misr University for Science and Technology</span></li>
+  </ul>
 </body>
 </html>`
 }
