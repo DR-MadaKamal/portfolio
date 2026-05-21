@@ -413,7 +413,7 @@ export const clientLogos = [
   { src: '/portfolio/images/logos/instires logo.png', name: 'Instires' },
   { src: '/portfolio/images/logos/kazoza mix logo.jpg', name: 'Kazoza Mix' },
   { src: '/portfolio/images/logos/logo_4.png', name: 'Logo 4' },
-  { src: '/portfolio/images/logos/Mlabs Shabab logo.png', name: 'Mlabs Shabab' },
+  { src: '/portfolio/images/logos/347879829_293786866330729_4448696274287037175_n.png', name: 'Mlabs Shabab' },
   { src: '/portfolio/images/logos/MR Belal logo.jpg', name: 'Mr Belal' },
   { src: '/portfolio/images/logos/Nice Ads Agency.jpg', name: 'Nice Ads Agency' },
   { src: '/portfolio/images/logos/vapsy-logo.png', name: 'Vapsy' },
