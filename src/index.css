@@ -606,10 +606,10 @@ img { max-width: 100%; height: auto; }
 .news-ticker-sep { color: var(--border); margin-left: 4px; }
 
 /* ===== CLIENT LOGO WALL ===== */
-.clients-section { padding: 50px 24px; }
-.client-logos { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 32px 48px; }
-.client-logo-item { display: flex; align-items: center; justify-content: center; padding: 12px 20px; border-radius: 10px; background: var(--bg-alt); border: 1px solid var(--border); cursor: default; }
-.client-logo-item img { height: 40px; max-width: 150px; object-fit: contain; }
+.clients-section { padding: 60px 24px; }
+.client-logos { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 40px 56px; }
+.client-logo-item { display: flex; align-items: center; justify-content: center; cursor: default; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15)); }
+.client-logo-item img { height: 52px; max-width: 180px; object-fit: contain; }
 
 /* ===== SEARCH ===== */
 .search-trigger { background: none; border: none; color: var(--text-dim); font-size: 1rem; cursor: pointer; padding: 6px 10px; transition: color 0.3s; }
