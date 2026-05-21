@@ -41,7 +41,7 @@ export default function CustomCursor() {
       mouseRef.current = { x: e.clientX, y: e.clientY }
       setPos({ x: e.clientX, y: e.clientY })
     }
-    const over = (e) => { if (e.target.closest('a, button, .btn, .project-card, .article-card, .skill-card')) setHovering(true) }
+    const over = (e) => { if (e.target.closest('a, button, .btn, .project-card, .article-card, .skill-card, .section-title, h2')) setHovering(true) }
     const out = () => setHovering(false)
 
     document.addEventListener('mousemove', move)
