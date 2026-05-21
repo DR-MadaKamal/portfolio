@@ -460,11 +460,17 @@ export const servicesTimeline = [
 ]
 
 export const certifications = [
-  { title: 'Google Digital Marketing Certificate', issuer: 'Google', year: '2023', url: '#', icon: 'fa-certificate' },
-  { title: 'Advanced Digital Marketing Nanodegree', issuer: 'Udacity & MCIT', year: '2021', url: '#', icon: 'fa-graduation-cap' },
-  { title: 'Meta Certified Digital Marketing Associate', issuer: 'Meta', year: '2023', url: '#', icon: 'fa-certificate' },
-  { title: 'SEO Fundamentals', issuer: 'Ahrefs', year: '2022', url: '#', icon: 'fa-search' },
-  { title: 'Motion Graphics Masterclass', issuer: 'School of Motion', year: '2022', url: '#', icon: 'fa-film' },
+  { title: 'Customer Relationship Management', issuer: 'HP LIFE', year: 'May 2026', url: '#', icon: 'fa-certificate' },
+  { title: 'The Art of Sales: Fundamentals of Selling', issuer: 'HP LIFE', year: 'May 2026', url: '#', icon: 'fa-certificate' },
+  { title: 'Skills for Passing Personal Interviews', issuer: 'Misr University for Science and Technology', year: 'Oct 2025', url: '#', icon: 'fa-user-graduate' },
+  { title: 'Marketing on Facebook (2020)', issuer: 'LinkedIn', year: 'Oct 2021', url: '#', icon: 'fa-certificate' },
+  { title: 'Social Media Marketing Foundations', issuer: 'LinkedIn', year: 'Mar 2022', url: '#', icon: 'fa-certificate' },
+  { title: 'Advanced Digital Marketing', issuer: 'Udacity', year: 'Dec 2021', url: '#', icon: 'fa-certificate' },
+  { title: 'Marketing on Facebook', issuer: 'LinkedIn', year: 'Oct 2021', url: '#', icon: 'fa-certificate' },
+  { title: 'Bachelor of Pharmacy', issuer: 'Misr University for Science and Technology', year: 'May 2026', url: '#', icon: 'fa-graduation-cap' },
+  { title: 'Fundamentals of Graphics Design', issuer: 'Coursera', year: 'Aug 2021', url: '#', icon: 'fa-certificate' },
+  { title: 'What is Graphic Design?', issuer: 'LinkedIn', year: 'Apr 2021', url: '#', icon: 'fa-certificate' },
+  { title: 'Graphic Design Careers: First Steps', issuer: 'LinkedIn', year: 'Apr 2021', url: '#', icon: 'fa-certificate' },
 ]
 
 export const businessHours = [
