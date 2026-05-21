@@ -2,6 +2,16 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useLang } from '../context/LangContext'
 
+const FORM_KEY = 'portfolio-contact-submissions'
+
+function saveSubmission(data) {
+  try {
+    const existing = JSON.parse(localStorage.getItem(FORM_KEY) || '[]')
+    existing.unshift({ ...data, timestamp: Date.now(), id: Date.now() })
+    localStorage.setItem(FORM_KEY, JSON.stringify(existing.slice(0, 200)))
+  } catch {}
+}
+
 export default function SayHello() {
   const { t } = useLang()
   const [form, setForm] = useState({ name: '', email: '', message: '' })
@@ -12,6 +22,7 @@ export default function SayHello() {
     if (!form.name || !form.email || !form.message) {
       setStatus(t.contact.error); return
     }
+    saveSubmission({ name: form.name, email: form.email, message: form.message })
     window.location.href = `mailto:16491@must.edu.eg?subject=Portfolio Contact from ${form.name}&body=${encodeURIComponent(form.message)}`
     setStatus(t.contact.success)
     setForm({ name: '', email: '', message: '' })
