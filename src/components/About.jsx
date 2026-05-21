@@ -42,6 +42,23 @@ export default function About({ editedData }) {
               ))}
             </motion.div>
             <motion.p {...fadeUp}>{personalData.summary}</motion.p>
+            <motion.div className="domain-bridge" {...fadeUp}>
+              <div className="domain-side">
+                <i className="fas fa-mortar-pestle" />
+                <span>Pharmacy</span>
+                <small>Clinical precision, HCP insights, regulatory mastery</small>
+              </div>
+              <div className="domain-connector">
+                <span className="domain-plus">+</span>
+                <div className="domain-line" />
+                <span className="domain-equals">=</span>
+              </div>
+              <div className="domain-side">
+                <i className="fas fa-chart-simple" />
+                <span>Marketing</span>
+                <small>Brand strategy, performance campaigns, creative direction</small>
+              </div>
+            </motion.div>
           </motion.div>
 
           {/* Right — Education */}

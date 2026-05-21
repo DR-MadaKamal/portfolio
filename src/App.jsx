@@ -22,10 +22,11 @@ import FAQSection from './components/FAQSection'
 import ToolsShowcase from './components/ToolsShowcase'
 import ServicesTimeline from './components/ServicesTimeline'
 import SearchBar from './components/SearchBar'
+import MarketingServices from './components/MarketingServices'
 import PortfolioDownload from './components/PortfolioDownload'
 import CookieConsent from './components/CookieConsent'
 import NewsletterSignup from './components/NewsletterSignup'
-import VideoTestimonials from './components/VideoTestimonials'
+
 import ShareButtons from './components/ShareButtons'
 import LiveChatWidget from './components/LiveChatWidget'
 import GoogleMapsEmbed from './components/GoogleMapsEmbed'
@@ -89,10 +90,11 @@ function App() {
   const sectionMap = [
     { key: 'hero', comp: <Hero personalData={d?.personalData} /> },
     { key: 'about', comp: <About editedData={d} /> },
+    { key: 'services', comp: <MarketingServices /> },
     { key: 'logos', comp: <ClientLogoWall /> },
     { key: 'projects', comp: <Projects projects={d?.projects} /> },
     { key: 'testimonials', comp: <Testimonials /> },
-    { key: 'video-testimonials', comp: <VideoTestimonials /> },
+
     { key: 'achievements', comp: <Achievements /> },
     { key: 'process', comp: <ServicesTimeline /> },
     { key: 'quote', comp: <QuoteRotator /> },

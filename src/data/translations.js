@@ -16,6 +16,7 @@ export const en = {
   chat: 'Chat on WhatsApp',
   newsletter: { title: 'Stay Updated', desc: 'Get the latest articles and updates.', success: 'Thanks for subscribing!', placeholder: 'Your email address' },
   search: { placeholder: 'Search articles, projects...', noResults: 'No results found for' },
+  services: { subtitle: 'What I Do', title: 'Integrated Marketing Services', cta: 'Let\'s Talk' },
 }
 
 export const ar = {
@@ -36,4 +37,5 @@ export const ar = {
   chat: 'تواصل عبر واتساب',
   newsletter: { title: 'ابق على اطلاع', desc: 'احصل على أحدث المقالات والتحديثات.', success: 'شكراً للاشتراك!', placeholder: 'بريدك الإلكتروني' },
   search: { placeholder: 'ابحث في المقالات والمشاريع...', noResults: 'لا توجد نتائج لـ' },
+  services: { subtitle: 'ماذا أقدم', title: 'خدمات التسويق المتكامل', cta: 'تواصل معي' },
 }

@@ -1,7 +1,7 @@
 export const personalData = {
   firstName: 'Mohammed',
   lastName: 'Kamal Shaat',
-  title: 'Pharmacist & Full-Stack Digital Marketer',
+  title: 'Pharmacist | Full-Stack Marketer | Brand Growth Architect',
   phone: '+201009852109',
   email: '16491@must.edu.eg',
   location: 'Al-Faiyum, Egypt',
@@ -9,7 +9,7 @@ export const personalData = {
   dob: '26/5/1987',
   portfolioUrl: 'www.flavow-store.com',
   tagline: `Dreams without Goals, are just dreams. To achieve your Dreams you must apply discipline, but more important Consistency.`,
-  summary: `Results-driven pharmacist and full-stack marketer with a strong focus on medical marketing and field-oriented healthcare communication. Bridges healthcare knowledge with performance marketing, brand strategy, and creative direction to drive demand generation, HCP engagement, and patient-centric messaging. Highly skilled in producing high-end motion graphics, utilizing AI development tools, and executing targeted campaigns to enhance customer engagement and sustainable business growth.`,
+  summary: `I bridge two worlds — pharmaceutical science and performance marketing — to engineer brand growth from the ground up. With deep expertise in medical marketing, HCP engagement, and omnichannel strategy, I help brands build authority, expand reach, and drive measurable revenue. My approach combines clinical precision with creative storytelling: brand strategy, motion graphics, AI-powered content, SEO, paid ads, and data-driven optimization — all tailored to elevate market position and deliver sustainable business impact.`,
   medicalFocus: [
     'Medical representative & medical marketing focus',
     'HCP targeting & segmentation (specialties, clinics, pharmacies)',
@@ -479,4 +479,15 @@ export const newsItems = [
   { date: '2026-01', text: 'Speaker at Digital Marketing Summit Cairo 2026' },
   { date: '2025-12', text: 'Reached 15+ active clients across healthcare, F&B, and retail' },
   { date: '2025-10', text: 'Published new framework for HCP digital engagement in pharma' },
+]
+
+export const marketingServices = [
+  { icon: 'fa-bullseye', title: 'Brand Strategy & Positioning', desc: 'Market research, competitor analysis, brand identity development, and strategic positioning to elevate market value and audience connection.' },
+  { icon: 'fa-chart-line', title: 'Full-Funnel Performance Marketing', desc: 'Data-driven campaigns across Meta, Google, LinkedIn, and TikTok — from awareness to conversion with continuous A/B testing and ROI optimization.' },
+  { icon: 'fa-film', title: 'Motion Graphics & Video Production', desc: 'High-end motion design, explainer videos, social ads, and brand films using After Effects, Premiere Pro, and AI-assisted workflows.' },
+  { icon: 'fa-users', title: 'Social Media Growth & Management', desc: 'Content calendars, community management, viral content strategy, and organic growth systems tailored to each brand\'s voice and goals.' },
+  { icon: 'fa-search', title: 'SEO & Content Marketing', desc: 'On-page/off-page SEO, keyword strategy, blog/content engines, and authority-building to drive sustainable organic traffic.' },
+  { icon: 'fa-solid fa-syringe', title: 'Medical & HCP Marketing', desc: 'Specialized in pharmaceutical brand launches, HCP targeting & segmentation, medical content copywriting (Rx/Otc), regulatory-compliant campaigns, and patient journey mapping.' },
+  { icon: 'fa-paint-brush', title: 'UI/UX & Web Development', desc: 'User-centered design, responsive web development, landing page optimization, and conversion-focused interfaces for brands and campaigns.' },
+  { icon: 'fa-solid fa-robot', title: 'AI-Powered Content & Automation', desc: 'AI image generation, copywriting automation, chatbot integration, and workflow optimization to scale content production efficiently.' },
 ]

@@ -31,10 +31,11 @@ const DAILY_KEY = 'portfolio-daily-visits'
 const defaultSections = {
   hero: { visible: true, order: 0, bg: '', animation: 'fade', spacing: 'normal' },
   about: { visible: true, order: 1, bg: '', animation: 'fade', spacing: 'normal' },
-  logos: { visible: true, order: 2, bg: '', animation: 'fade', spacing: 'compact' },
+  services: { visible: true, order: 2, bg: '', animation: 'fade', spacing: 'normal' },
+  logos: { visible: true, order: 3, bg: '', animation: 'fade', spacing: 'compact' },
   projects: { visible: true, order: 4, bg: '', animation: 'fade', spacing: 'normal' },
   testimonials: { visible: true, order: 5, bg: '', animation: 'fade', spacing: 'normal' },
-  'video-testimonials': { visible: true, order: 6, bg: '', animation: 'fade', spacing: 'normal' },
+
   achievements: { visible: true, order: 7, bg: '', animation: 'fade', spacing: 'normal' },
   process: { visible: true, order: 8, bg: '', animation: 'slide', spacing: 'normal' },
   quote: { visible: true, order: 9, bg: '', animation: 'fade', spacing: 'compact' },
