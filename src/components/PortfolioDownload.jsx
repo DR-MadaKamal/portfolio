@@ -5,7 +5,7 @@ function buildCV() {
   const d = personalData
 
   const skillsHtml = skillCategories.map(cat =>
-    `<p class="cv-skills-cat"><strong>${cat.category}:</strong> ${cat.skills.join(', ')}</p>`
+    `<div class="cv-skills-col"><strong>${cat.category}</strong>${cat.skills.map(s => `<span>${s}</span>`).join('')}</div>`
   ).join('')
 
   const certHtml = certifications.map(c =>
@@ -54,6 +54,10 @@ function buildCV() {
   .cv-exp-details li { font-size: 9.5pt; }
   .cv-edu { margin: 1px 0; }
   .cv-skills-cat { margin: 1px 0; font-size: 9.5pt; }
+  .cv-skills-grid { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 2px 0; }
+  .cv-skills-col { flex: 1 1 22%; min-width: 140px; font-size: 9pt; }
+  .cv-skills-col strong { display: block; font-size: 9.5pt; margin-bottom: 1px; }
+  .cv-skills-col span { display: block; color: #333; }
   .cv-cert, .cv-award { font-size: 9.5pt; }
   .cv-sep { color: #aaa; font-size: 8pt; margin: 0 2px; }
   .cv-proj { margin: 2px 0; font-size: 9.5pt; }
@@ -74,7 +78,7 @@ function buildCV() {
   ${eduHtml}
 
   <h2>Skills</h2>
-  ${skillsHtml}
+  <div class="cv-skills-grid">${skillsHtml}</div>
 
   <h2>Certifications</h2>
   <p>${certHtml}</p>
