@@ -198,6 +198,7 @@ function Input({ label, value, onChange, multiline, type }) {
     <div className="admin-field">
       <label>{label}</label>
       {multiline ? <textarea rows={4} value={value || ''} onChange={e => onChange(e.target.value)} />
+        : type === 'checkbox' ? <input type="checkbox" checked={!!value} onChange={e => onChange(e.target.checked)} />
         : <input type={type || 'text'} value={value || ''} onChange={e => onChange(e.target.value)} />}
     </div>
   )

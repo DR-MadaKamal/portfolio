@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { articles as allArticles } from '../data/portfolioData'
-import { useLang } from '../context/LangContext'
 import ArticleTOC from './ArticleTOC'
 import RelatedArticles from './RelatedArticles'
 import ReadingProgress from './ReadingProgress'
@@ -10,7 +9,6 @@ import ShareButtons from './ShareButtons'
 const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December']
 
 export default function ArticlePage({ articleIdx, onClose }) {
-  const { t } = useLang()
   const [idx, setIdx] = useState(articleIdx)
   const a = allArticles[idx]
   useEffect(() => { setIdx(articleIdx) }, [articleIdx])

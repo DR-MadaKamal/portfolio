@@ -40,7 +40,7 @@ export default function SkillsProgress() {
     <div className="skills-progress-section">
       <h3 className="about-card-title" style={{ marginBottom: 20 }}>
         <i className="fas fa-chart-bar" style={{ color: 'var(--accent)', marginRight: 8 }} />
-        {t.skills}
+        {t.about.skills}
       </h3>
       {skillCategories.map((cat, i) => (
         <div key={i} className="skill-cat-progress" style={{ marginBottom: 16 }}>
