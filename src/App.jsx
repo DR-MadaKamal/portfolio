@@ -22,7 +22,6 @@ import FAQSection from './components/FAQSection'
 import ToolsShowcase from './components/ToolsShowcase'
 import ServicesTimeline from './components/ServicesTimeline'
 import SearchBar from './components/SearchBar'
-import NewsTicker from './components/NewsTicker'
 import PortfolioDownload from './components/PortfolioDownload'
 import CookieConsent from './components/CookieConsent'
 import NewsletterSignup from './components/NewsletterSignup'
@@ -90,7 +89,6 @@ function App() {
   const sectionMap = [
     { key: 'hero', comp: <Hero personalData={d?.personalData} /> },
     { key: 'about', comp: <About editedData={d} /> },
-    { key: 'news-ticker', comp: <NewsTicker /> },
     { key: 'logos', comp: <ClientLogoWall /> },
     { key: 'projects', comp: <Projects projects={d?.projects} /> },
     { key: 'testimonials', comp: <Testimonials /> },

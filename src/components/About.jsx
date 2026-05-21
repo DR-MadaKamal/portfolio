@@ -90,7 +90,7 @@ export default function About({ editedData }) {
                   <div className="timeline-item-header">
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                       {exp.logo && (
-                        <img src={exp.logo} alt={exp.company}
+                        <img src={exp.logo} alt={exp.company} loading="lazy"
                           style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'contain', background: 'var(--bg)', border: '1px solid var(--border)', padding: 4 }} />
                       )}
                       <div>
@@ -122,7 +122,7 @@ export default function About({ editedData }) {
                       <div className="timeline-media">
                         {exp.media.map((m, j) => (
                           <div key={j} className="timeline-media-item">
-                            {m.image && <img src={m.image} alt={m.title} className="media-thumb" />}
+                            {m.image && <img src={m.image} alt={m.title} className="media-thumb" loading="lazy" />}
                             <div>
                               <strong style={{ color: 'var(--accent)' }}>{m.title}</strong>
                               {m.description ? ` — ${m.description}` : ''}

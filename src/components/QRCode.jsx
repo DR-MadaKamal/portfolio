@@ -15,6 +15,7 @@ export default function QRCode() {
         src={`https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(url)}`}
         alt="QR Code"
         className="qr-img"
+        loading="lazy"
       />
     </div>
   )

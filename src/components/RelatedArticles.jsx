@@ -13,7 +13,7 @@ export default function RelatedArticles({ current, articles }) {
           <motion.a key={i} href={`#article-${i}`} className="related-card article-card"
             onClick={(e) => { e.preventDefault(); window.openArticle?.(a) }}
             initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            {a.image && <img src={a.image} alt={a.title} className="related-img" />}
+            {a.image && <img src={a.image} alt={a.title} className="related-img" loading="lazy" />}
             <div className="article-card-body">
               <h3>{a.title}</h3>
               <p>{a.description}</p>

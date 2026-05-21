@@ -27,7 +27,7 @@ export default function Testimonials() {
               </div>
               <p className="testimonial-text">&ldquo;{item.text}&rdquo;</p>
               <div className="testimonial-author">
-                {item.avatar ? <img src={item.avatar} alt={item.name} /> : <div className="testimonial-avatar">{item.name[0]}</div>}
+                {item.avatar ? <img src={item.avatar} alt={item.name} loading="lazy" /> : <div className="testimonial-avatar">{item.name[0]}</div>}
                 <div>
                   <strong>{item.name}</strong>
                   <span>{item.role}</span>

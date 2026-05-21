@@ -40,7 +40,7 @@ export default function ArticlePage({ articleIdx, onClose }) {
           <ReadingProgress />
           <button className="article-page-close" onClick={onClose}>&times;</button>
 
-          {a.image && <img src={a.image} alt={a.title} className="article-page-img" />}
+          {a.image && <img src={a.image} alt={a.title} className="article-page-img" loading="lazy" />}
 
           <div className="article-page-body">
             <div className="article-page-meta">

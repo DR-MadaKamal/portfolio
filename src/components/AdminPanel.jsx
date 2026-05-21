@@ -31,8 +31,7 @@ const DAILY_KEY = 'portfolio-daily-visits'
 const defaultSections = {
   hero: { visible: true, order: 0, bg: '', animation: 'fade', spacing: 'normal' },
   about: { visible: true, order: 1, bg: '', animation: 'fade', spacing: 'normal' },
-  'news-ticker': { visible: true, order: 2, bg: '', animation: 'none', spacing: 'compact' },
-  logos: { visible: true, order: 3, bg: '', animation: 'fade', spacing: 'compact' },
+  logos: { visible: true, order: 2, bg: '', animation: 'fade', spacing: 'compact' },
   projects: { visible: true, order: 4, bg: '', animation: 'fade', spacing: 'normal' },
   testimonials: { visible: true, order: 5, bg: '', animation: 'fade', spacing: 'normal' },
   'video-testimonials': { visible: true, order: 6, bg: '', animation: 'fade', spacing: 'normal' },
@@ -647,7 +646,7 @@ function MediaForm({ data, onSave }) {
       {cats.map(c => <button key={c} className={`admin-tab-sm ${filter === c ? 'active' : ''}`} onClick={() => setFilter(c)}>{c} ({images.filter(i => i.category === c).length})</button>)}
     </div>}
     <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(140px,1fr))',gap:8}}>
-      {filtered.map(img => (<div key={img.id} className="admin-img-card"><img src={img.url} alt={img.label} onError={e => e.target.style.display='none'} /><div className="admin-img-info"><span className="admin-img-label">{img.label}</span><span className="admin-img-cat">{img.category}</span></div><button className="admin-img-del" onClick={() => remove(img.id)} title="Remove">&times;</button></div>))}
+      {filtered.map(img => (<div key={img.id} className="admin-img-card"><img src={img.url} alt={img.label} loading="lazy" onError={e => e.target.style.display='none'} /><div className="admin-img-info"><span className="admin-img-label">{img.label}</span><span className="admin-img-cat">{img.category}</span></div><button className="admin-img-del" onClick={() => remove(img.id)} title="Remove">&times;</button></div>))}
       {images.length === 0 && <p style={{fontSize:'0.78rem',color:'var(--text-muted)',gridColumn:'1/-1',textAlign:'center',padding:40}}>No images yet.</p>}
     </div>
   </div>)

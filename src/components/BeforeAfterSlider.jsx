@@ -22,9 +22,9 @@ export default function BeforeAfterSlider({ before, after, alt }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
     >
-      <img src={after} alt={`${alt} after`} className="ba-img" />
+      <img src={after} alt={`${alt} after`} className="ba-img" loading="lazy" />
       <div className="ba-overlay" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
-        <img src={before} alt={`${alt} before`} className="ba-img" />
+        <img src={before} alt={`${alt} before`} className="ba-img" loading="lazy" />
       </div>
       <div className="ba-handle" style={{ left: `${pos}%` }}>
         <i className="fas fa-arrows-alt-h" />

@@ -7,7 +7,7 @@ export default function Lightbox({ images, index, onClose }) {
     <div className="lightbox-overlay" onClick={onClose}>
       <div className="lightbox-content" onClick={e => e.stopPropagation()}>
         <button className="lightbox-close" onClick={onClose}>&times;</button>
-        <img src={src} alt="" />
+        <img src={src} alt="" loading="lazy" />
       </div>
     </div>
   )
