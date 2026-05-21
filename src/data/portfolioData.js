@@ -400,7 +400,7 @@ export const clientLogos = [
   { src: '/portfolio/images/logos/Eagle Eye logo.png', name: 'Eagle Eye' },
   { src: '/portfolio/images/logos/Ghareeb Dentist logo.png', name: 'Ghareeb Dental' },
   { src: '/portfolio/images/logos/MGD company logo.jpg', name: 'MGD' },
-  { src: '/portfolio/images/logos/310385000 logo.jpg', name: '310385000' },
+  { src: '/portfolio/images/logos/310385000_108501575368547_2424709495730499217_n.jpg', name: '310385000' },
   { src: '/portfolio/images/logos/Adonis logo.png', name: 'Adonis' },
   { src: '/portfolio/images/logos/Ahmed Samy Logo - Final-01.png', name: 'Ahmed Samy' },
   { src: '/portfolio/images/logos/Al-Doha Engineering logo.jpg', name: 'Al-Doha Engineering' },
