@@ -53,11 +53,12 @@ function buildCV() {
   .cv-exp-details { margin-top: 1px; }
   .cv-exp-details li { font-size: 9.5pt; }
   .cv-edu { margin: 1px 0; }
-  .cv-skills-cat { margin: 1px 0; font-size: 9.5pt; }
-  .cv-skills-grid { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 2px 0; }
-  .cv-skills-col { flex: 1 1 22%; min-width: 140px; font-size: 9pt; }
-  .cv-skills-col strong { display: block; font-size: 9.5pt; margin-bottom: 1px; }
-  .cv-skills-col span { display: block; color: #333; }
+  .cv-skills-grid { margin: 2px 0; }
+  .cv-skills-col { margin: 3px 0; font-size: 9.5pt; }
+  .cv-skills-col strong { font-size: 9.5pt; }
+  .cv-skills-col span { display: inline; }
+  .cv-skills-col span:after { content: ', '; }
+  .cv-skills-col span:last-child:after { content: ''; }
   .cv-cert, .cv-award { font-size: 9.5pt; }
   .cv-sep { color: #aaa; font-size: 8pt; margin: 0 2px; }
   .cv-proj { margin: 2px 0; font-size: 9.5pt; }
