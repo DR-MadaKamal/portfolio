@@ -24,6 +24,29 @@ function loadHistory() {
   } catch { return [] }
 }
 
+const defaultSections = {
+  hero: { visible: true, order: 0 },
+  about: { visible: true, order: 1 },
+  projects: { visible: true, order: 2 },
+  testimonials: { visible: true, order: 3 },
+  achievements: { visible: true, order: 4 },
+  quote: { visible: true, order: 5 },
+  articles: { visible: true, order: 6 },
+  contact: { visible: true, order: 7 },
+}
+
+const defaultTheme = {
+  accent: '#64ffda',
+  accent2: '#ff6b6b',
+  bg: '#0f0f1a',
+  bgAlt: '#1a1a2e',
+  text: '#e0e0e0',
+  textSecondary: '#a0a0b0',
+  textDim: '#666',
+  textMuted: '#888',
+  border: '#2a2a3e',
+}
+
 function getDefaults() {
   return {
     personalData: defaultPersonal,
@@ -33,8 +56,20 @@ function getDefaults() {
     skillCategories: defaultSkills,
     education: defaultEdu,
     courses: defaultCourses,
-    languages: defaultLangs,
+    settings: {
+      sections: { ...defaultSections },
+      theme: { ...defaultTheme },
+      images: [],
+    },
   }
+}
+
+function applyTheme(theme) {
+  const root = document.documentElement
+  Object.entries(theme).forEach(([key, val]) => {
+    const cssKey = '--' + key.replace(/([A-Z])/g, '-$1').toLowerCase()
+    root.style.setProperty(cssKey, val)
+  })
 }
 
 export default function AdminPanel({ onDataChange }) {
@@ -50,7 +85,10 @@ export default function AdminPanel({ onDataChange }) {
 
   useEffect(() => {
     const saved = loadSaved()
-    if (saved) setData(saved)
+    if (saved) {
+      setData(saved)
+      if (saved.settings?.theme) applyTheme(saved.settings.theme)
+    }
     setHistory(loadHistory())
   }, [])
 
@@ -78,7 +116,6 @@ export default function AdminPanel({ onDataChange }) {
     setData(newData)
     saveToStorage(newData)
     if (onDataChange) onDataChange(newData)
-
     if (timerRef.current) clearTimeout(timerRef.current)
     timerRef.current = setTimeout(() => {
       pushToHistory(newData, label)
@@ -96,6 +133,7 @@ export default function AdminPanel({ onDataChange }) {
       setData(entry.data)
       saveToStorage(entry.data)
       if (onDataChange) onDataChange(entry.data)
+      if (entry.data.settings?.theme) applyTheme(entry.data.settings.theme)
       setMsg('History restored')
       setTimeout(() => setMsg(''), 2000)
     }
@@ -119,10 +157,11 @@ export default function AdminPanel({ onDataChange }) {
 
   const reset = () => {
     if (confirm('Reset all edits to default?')) {
-      const defs = getDefaults()
       localStorage.removeItem(STORAGE_KEY)
+      const defs = getDefaults()
       setData(null)
       if (onDataChange) onDataChange(null)
+      applyTheme(defaultTheme)
       setMsg('Reset to default')
     }
   }
@@ -179,7 +218,7 @@ export default function AdminPanel({ onDataChange }) {
         ) : (
           <>
             <div className="admin-tabs">
-              {['personal','experience','projects','articles'].map(t => (
+              {['personal','experience','projects','articles','sections','theme','images'].map(t => (
                 <button key={t} className={tab === t ? 'active' : ''} onClick={() => setTab(t)}>
                   {t.charAt(0).toUpperCase() + t.slice(1)}
                 </button>
@@ -195,6 +234,9 @@ export default function AdminPanel({ onDataChange }) {
               {tab === 'experience' && <ExperienceForm data={current} onSave={debouncedSave} />}
               {tab === 'projects' && <ProjectsForm data={current} onSave={debouncedSave} />}
               {tab === 'articles' && <ArticlesForm data={current} onSave={debouncedSave} />}
+              {tab === 'sections' && <SectionsForm data={current} onSave={debouncedSave} />}
+              {tab === 'theme' && <ThemeForm data={current} onSave={debouncedSave} />}
+              {tab === 'images' && <ImagesForm data={current} onSave={debouncedSave} />}
             </div>
           </>
         )}
@@ -212,30 +254,6 @@ function Input({ label, value, onChange, multiline }) {
         : <input value={value || ''} onChange={e => onChange(e.target.value)} />}
     </div>
   )
-}
-
-function autoSaveForm(DynamicComponent) {
-  return function Wrapper(props) {
-    const [localData, setLocalData] = useState(null)
-    const firstRender = useRef(true)
-
-    useEffect(() => {
-      if (firstRender.current) {
-        firstRender.current = false
-        return
-      }
-      if (localData) {
-        props.onSave(localData, window._lastEditLabel || 'Edited')
-      }
-    }, [localData])
-
-    const handleSave = (newData, label) => {
-      window._lastEditLabel = label
-      setLocalData(newData)
-    }
-
-    return <DynamicComponent {...props} onSave={handleSave} />
-  }
 }
 
 function PersonalForm({ data, onSave }) {
@@ -432,7 +450,7 @@ function ArticlesForm({ data, onSave }) {
     const copy = [...prev]; copy[i] = { ...copy[i], [field]: val }; return copy
   })
 
-  const add = () => setList(prev => [...prev, { title: 'New Article', description: '', url: '#', readTime: '5 min', date: new Date().toISOString().slice(0,10) }])
+  const add = () => setList(prev => [...prev, { title: 'New Article', description: '', image: '', content: '', readTime: '5 min', date: new Date().toISOString().slice(0,10) }])
   const remove = (i) => { if (confirm(`Delete "${list[i].title}"?`)) setList(prev => prev.filter((_, idx) => idx !== i)) }
 
   return (
@@ -446,11 +464,174 @@ function ArticlesForm({ data, onSave }) {
           </div>
           <Input label="Title" value={a.title} onChange={v => update(i, 'title', v)} />
           <Input label="Description" value={a.description} onChange={v => update(i, 'description', v)} multiline />
-          <Input label="URL" value={a.url} onChange={v => update(i, 'url', v)} />
+          <Input label="Image URL" value={a.image || ''} onChange={v => update(i, 'image', v)} />
+          <Input label="Content" value={a.content || ''} onChange={v => update(i, 'content', v)} multiline />
           <Input label="Read Time" value={a.readTime} onChange={v => update(i, 'readTime', v)} />
           <Input label="Date" value={a.date} onChange={v => update(i, 'date', v)} />
         </div>
       ))}
+    </div>
+  )
+}
+
+function SectionsForm({ data, onSave }) {
+  const [sections, setSections] = useState(data.settings?.sections || {})
+  const firstRender = useRef(true)
+
+  useEffect(() => {
+    if (firstRender.current) { firstRender.current = false; return }
+    const timer = setTimeout(() => {
+      const newSettings = { ...data.settings, sections }
+      onSave({ ...data, settings: newSettings }, 'Sections')
+    }, 400)
+    return () => clearTimeout(timer)
+  }, [sections])
+
+  const toggle = (key) => setSections(prev => ({ ...prev, [key]: { ...prev[key], visible: !prev[key]?.visible } }))
+  const setOrder = (key, val) => setSections(prev => ({ ...prev, [key]: { ...prev[key], order: parseInt(val) || 0 } }))
+
+  return (
+    <div>
+      <p style={{fontSize:'0.75rem',color:'var(--text-muted)',marginBottom:12}}>Show/hide sections and set their display order.</p>
+      {Object.entries(sections).sort((a, b) => (a[1]?.order || 0) - (b[1]?.order || 0)).map(([key, s]) => (
+        <div key={key} className="admin-card" style={{display:'flex',alignItems:'center',gap:12,padding:'12px 16px'}}>
+          <label className="admin-toggle">
+            <input type="checkbox" checked={s.visible !== false} onChange={() => toggle(key)} />
+            <span className="admin-toggle-slider"></span>
+          </label>
+          <span style={{flex:1,fontSize:'0.82rem',textTransform:'capitalize'}}>{key}</span>
+          <label style={{fontSize:'0.72rem',color:'var(--text-muted)',display:'flex',alignItems:'center',gap:4}}>
+            Order:
+            <input type="number" value={s.order || 0} onChange={e => setOrder(key, e.target.value)}
+              style={{width:48,padding:'2px 4px',fontSize:'0.8rem',background:'var(--bg)',border:'1px solid var(--border)',borderRadius:4,color:'var(--text)'}} />
+          </label>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function ThemeForm({ data, onSave }) {
+  const [theme, setTheme] = useState(data.settings?.theme || {})
+  const firstRender = useRef(true)
+
+  useEffect(() => {
+    if (firstRender.current) { firstRender.current = false; return }
+    const timer = setTimeout(() => {
+      const newSettings = { ...data.settings, theme }
+      onSave({ ...data, settings: newSettings }, 'Theme')
+      applyTheme(theme)
+    }, 400)
+    return () => clearTimeout(timer)
+  }, [theme])
+
+  const set = (key, val) => setTheme(prev => ({ ...prev, [key]: val }))
+
+  const labels = {
+    accent: 'Accent Color',
+    accent2: 'Secondary Accent',
+    bg: 'Background',
+    bgAlt: 'Card Background',
+    text: 'Text Color',
+    textSecondary: 'Secondary Text',
+    textDim: 'Dim Text',
+    textMuted: 'Muted Text',
+    border: 'Border Color',
+  }
+
+  return (
+    <div>
+      <p style={{fontSize:'0.75rem',color:'var(--text-muted)',marginBottom:12}}>Customize the website colors. Changes apply immediately.</p>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+        {Object.entries(labels).map(([key, label]) => (
+          <div key={key} className="admin-field" style={{margin:0}}>
+            <label>{label}</label>
+            <div style={{display:'flex',gap:6,alignItems:'center'}}>
+              <input type="color" value={theme[key] || '#000'} onChange={e => set(key, e.target.value)}
+                style={{width:36,height:36,padding:0,border:'1px solid var(--border)',borderRadius:4,cursor:'pointer',background:'none'}} />
+              <input value={theme[key] || ''} onChange={e => set(key, e.target.value)}
+                style={{flex:1,padding:'6px 8px',fontSize:'0.78rem',background:'var(--bg)',border:'1px solid var(--border)',borderRadius:4,color:'var(--text)',fontFamily:'monospace'}} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function ImagesForm({ data, onSave }) {
+  const [images, setImages] = useState(data.settings?.images || [])
+  const firstRender = useRef(true)
+
+  useEffect(() => {
+    if (firstRender.current) { firstRender.current = false; return }
+    const timer = setTimeout(() => {
+      const newSettings = { ...data.settings, images }
+      onSave({ ...data, settings: newSettings }, 'Images')
+    }, 400)
+    return () => clearTimeout(timer)
+  }, [images])
+
+  const [newUrl, setNewUrl] = useState('')
+  const [newLabel, setNewLabel] = useState('')
+  const [newCat, setNewCat] = useState('general')
+
+  const addImage = () => {
+    if (!newUrl.trim()) return
+    setImages(prev => [...prev, { id: Date.now(), url: newUrl.trim(), label: newLabel.trim() || 'Untitled', category: newCat }])
+    setNewUrl(''); setNewLabel('')
+  }
+
+  const removeImage = (id) => {
+    if (confirm('Remove this image from the database?')) setImages(prev => prev.filter(img => img.id !== id))
+  }
+
+  const cats = [...new Set(images.map(i => i.category))]
+  const [filterCat, setFilterCat] = useState('all')
+
+  const filtered = filterCat === 'all' ? images : images.filter(i => i.category === filterCat)
+
+  return (
+    <div>
+      <div className="admin-card" style={{marginBottom:16}}>
+        <strong style={{fontSize:'0.82rem'}}>Add Image URL</strong>
+        <div style={{display:'flex',flexDirection:'column',gap:6,marginTop:8}}>
+          <input value={newLabel} onChange={e => setNewLabel(e.target.value)} placeholder="Label / name" style={{padding:'6px 8px',fontSize:'0.82rem',background:'var(--bg)',border:'1px solid var(--border)',borderRadius:4,color:'var(--text)'}} />
+          <input value={newUrl} onChange={e => setNewUrl(e.target.value)} placeholder="Image URL" style={{padding:'6px 8px',fontSize:'0.82rem',background:'var(--bg)',border:'1px solid var(--border)',borderRadius:4,color:'var(--text)',fontFamily:'monospace'}} />
+          <div style={{display:'flex',gap:6}}>
+            <select value={newCat} onChange={e => setNewCat(e.target.value)} style={{flex:1,padding:'6px',fontSize:'0.78rem',background:'var(--bg)',border:'1px solid var(--border)',borderRadius:4,color:'var(--text)'}}>
+              <option value="general">General</option>
+              <option value="logos">Logos</option>
+              <option value="backgrounds">Backgrounds</option>
+              <option value="icons">Icons</option>
+            </select>
+            <button className="admin-add-small" onClick={addImage}>Add</button>
+          </div>
+        </div>
+      </div>
+
+      {images.length > 0 && (
+        <div style={{display:'flex',gap:6,marginBottom:12,flexWrap:'wrap'}}>
+          <button className={`admin-tab-sm ${filterCat === 'all' ? 'active' : ''}`} onClick={() => setFilterCat('all')}>All ({images.length})</button>
+          {cats.map(c => (
+            <button key={c} className={`admin-tab-sm ${filterCat === c ? 'active' : ''}`} onClick={() => setFilterCat(c)}>{c} ({images.filter(i => i.category === c).length})</button>
+          ))}
+        </div>
+      )}
+
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(140px,1fr))',gap:8}}>
+        {filtered.map(img => (
+          <div key={img.id} className="admin-img-card">
+            <img src={img.url} alt={img.label} onError={e => e.target.style.display='none'} />
+            <div className="admin-img-info">
+              <span className="admin-img-label">{img.label}</span>
+              <span className="admin-img-cat">{img.category}</span>
+            </div>
+            <button className="admin-img-del" onClick={() => removeImage(img.id)} title="Remove">&times;</button>
+          </div>
+        ))}
+        {images.length === 0 && <p style={{fontSize:'0.78rem',color:'var(--text-muted)',gridColumn:'1/-1',textAlign:'center',padding:40}}>No images yet. Add image URLs above.</p>}
+      </div>
     </div>
   )
 }

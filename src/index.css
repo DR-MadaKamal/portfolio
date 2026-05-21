@@ -167,8 +167,7 @@ img { max-width: 100%; height: auto; }
 .hero-image { position: relative; display: flex; align-items: center; justify-content: center; }
 .hero-image img {
   width: 320px; height: 320px; border-radius: 50%;
-  object-fit: cover; border: 3px solid var(--accent);
-  box-shadow: 0 0 60px rgba(100,255,218,0.15);
+  object-fit: cover;
   position: relative; z-index: 1;
 }
 .hero-glow {
@@ -349,29 +348,6 @@ img { max-width: 100%; height: auto; }
 .award-item i { font-size: 1.5rem; color: var(--accent2); }
 .award-item strong { font-size: 0.85rem; display: block; }
 .award-item span { font-size: 0.72rem; color: var(--text-muted); }
-
-/* ===== PRICING ===== */
-.pricing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; align-items: start; }
-.pricing-card {
-  padding: 32px 24px; border-radius: var(--radius); background: var(--bg-alt);
-  border: 1px solid var(--border); position: relative; transition: all var(--transition);
-  display: flex; flex-direction: column;
-}
-.pricing-card:hover { border-color: var(--accent); box-shadow: var(--shadow); }
-.pricing-card.popular { border-color: var(--accent); box-shadow: 0 0 30px rgba(100,255,218,0.08); }
-.pricing-badge {
-  position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
-  padding: 4px 16px; border-radius: 50px; background: var(--accent);
-  color: #0f0f1a; font-size: 0.7rem; font-weight: 700; white-space: nowrap;
-}
-.pricing-card h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; }
-.pricing-price { margin-bottom: 20px; }
-.pricing-amount { font-size: 2rem; font-weight: 800; color: var(--accent); }
-.pricing-currency { font-size: 0.9rem; color: var(--text-muted); }
-.pricing-period { font-size: 0.82rem; color: var(--text-muted); }
-.pricing-features { list-style: none; margin-bottom: 24px; flex: 1; }
-.pricing-features li { padding: 8px 0; font-size: 0.82rem; color: var(--text-muted); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
-.pricing-features li i { color: var(--accent); font-size: 0.7rem; }
 
 /* ===== QUOTE ===== */
 .quote-section { padding: 60px 24px !important; }
@@ -554,6 +530,28 @@ img { max-width: 100%; height: auto; }
 .admin-add-small { padding: 4px 12px; border-radius: 4px; border: 1px dashed var(--accent); background: transparent; color: var(--accent); cursor: pointer; font-size: 0.75rem; margin-top: 4px; }
 .admin-msg { color: var(--accent); font-size: 0.82rem; margin-top: 8px; }
 
+/* === Admin Toggle Switch === */
+.admin-toggle { position: relative; display: inline-block; width: 36px; height: 20px; flex-shrink: 0; }
+.admin-toggle input { opacity: 0; width: 0; height: 0; }
+.admin-toggle-slider { position: absolute; cursor: pointer; inset: 0; background: var(--border); border-radius: 20px; transition: 0.3s; }
+.admin-toggle-slider::before { content: ''; position: absolute; left: 2px; bottom: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--text-muted); transition: 0.3s; }
+.admin-toggle input:checked + .admin-toggle-slider { background: var(--accent); }
+.admin-toggle input:checked + .admin-toggle-slider::before { transform: translateX(16px); background: #0f0f1a; }
+
+/* === Admin Image Card === */
+.admin-img-card { position: relative; border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; background: var(--bg); }
+.admin-img-card img { width: 100%; height: 100px; object-fit: cover; display: block; }
+.admin-img-info { padding: 6px 8px; display: flex; flex-direction: column; gap: 2px; }
+.admin-img-label { font-size: 0.72rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.admin-img-cat { font-size: 0.62rem; color: var(--text-muted); }
+.admin-img-del { position: absolute; top: 4px; right: 4px; width: 20px; height: 20px; border-radius: 50%; border: none; background: rgba(0,0,0,0.6); color: #fff; font-size: 0.75rem; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
+.admin-img-card:hover .admin-img-del { opacity: 1; }
+
+/* === Admin Small Tab === */
+.admin-tab-sm { padding: 4px 12px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; font-size: 0.72rem; transition: all var(--transition); }
+.admin-tab-sm.active { background: var(--accent); color: #0f0f1a; border-color: var(--accent); }
+.admin-tab-sm:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+
 /* ===== ADMIN HISTORY ===== */
 .admin-history-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 8px; background: rgba(255,255,255,0.02); }
 .admin-history-info { display: flex; flex-direction: column; gap: 2px; }
@@ -580,7 +578,6 @@ img { max-width: 100%; height: auto; }
   .projects-grid { grid-template-columns: 1fr; }
   .articles-grid { grid-template-columns: 1fr; }
   .testimonials-grid { grid-template-columns: 1fr; }
-  .pricing-grid { grid-template-columns: 1fr; }
   .awards-ribbon { flex-direction: column; align-items: center; }
   .nav-links .nav-link { display: none; }
   .nav-links .lang-toggle { display: none; }
@@ -596,5 +593,4 @@ img { max-width: 100%; height: auto; }
 @media (max-width: 500px) {
   .skills-section { grid-template-columns: 1fr; }
   .hero h1 { font-size: 1.6rem; }
-  .pricing-grid { grid-template-columns: 1fr; }
 }

@@ -6,7 +6,6 @@ import Projects from './components/Projects'
 import Articles from './components/Articles'
 import Testimonials from './components/Testimonials'
 import Achievements from './components/Achievements'
-import PricingTable from './components/PricingTable'
 import QuoteRotator from './components/QuoteRotator'
 import SayHello from './components/SayHello'
 import ScrollToTop from './components/ScrollToTop'
@@ -39,11 +38,24 @@ function trackVisit() {
   } catch {}
 }
 
+function applyTheme(theme) {
+  if (!theme) return
+  const root = document.documentElement
+  const map = { accent:'--accent', accent2:'--accent2', bg:'--bg', bgAlt:'--bg-alt', text:'--text', textSecondary:'--text-secondary', textDim:'--text-dim', textMuted:'--text-muted', border:'--border' }
+  Object.entries(map).forEach(([key, cssVar]) => {
+    if (theme[key]) root.style.setProperty(cssVar, theme[key])
+  })
+}
+
 function App() {
   const [activeSection, setActiveSection] = useState('home')
   const [editedData, setEditedData] = useState(loadSaved)
 
   useEffect(() => { trackVisit() }, [])
+
+  useEffect(() => {
+    if (editedData?.settings?.theme) applyTheme(editedData.settings.theme)
+  }, [editedData])
 
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
@@ -55,6 +67,21 @@ function App() {
     return () => observer.disconnect()
   }, [])
 
+  const sections = editedData?.settings?.sections || {}
+  const sec = (key) => sections[key]?.visible !== false
+
+  const sectionMap = [
+    { key: 'hero', comp: <Hero personalData={editedData?.personalData} /> },
+    { key: 'about', comp: <About editedData={editedData} /> },
+    { key: 'projects', comp: <Projects projects={editedData?.projects} /> },
+    { key: 'testimonials', comp: <Testimonials /> },
+    { key: 'achievements', comp: <Achievements /> },
+    { key: 'quote', comp: <QuoteRotator /> },
+    { key: 'articles', comp: <Articles articles={editedData?.articles} /> },
+    { key: 'contact', comp: <SayHello /> },
+  ].filter(s => sec(s.key))
+   .sort((a, b) => (sections[a.key]?.order ?? 99) - (sections[b.key]?.order ?? 99))
+
   return (
     <LangProvider>
       <AnimatedBackground />
@@ -63,15 +90,7 @@ function App() {
       <AdminPanel onDataChange={setEditedData} />
       <Navbar activeSection={activeSection} setActiveSection={setActiveSection} />
       <main>
-        <Hero personalData={editedData?.personalData} />
-        <About editedData={editedData} />
-        <Projects projects={editedData?.projects} />
-        <Testimonials />
-        <Achievements />
-        <PricingTable />
-        <QuoteRotator />
-        <Articles articles={editedData?.articles} />
-        <SayHello />
+        {sectionMap.map(s => <span key={s.key}>{s.comp}</span>)}
       </main>
       <WhatsAppButton />
       <ScrollToTop />
