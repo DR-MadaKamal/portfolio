@@ -415,7 +415,7 @@ export const clientLogos = [
   { src: '/portfolio/images/logos/logo_4.png', name: 'Logo 4' },
   { src: '/portfolio/images/logos/347879829_293786866330729_4448696274287037175_n.png', name: 'Mlabs Shabab' },
   { src: '/portfolio/images/logos/MR Belal logo.jpg', name: 'Mr Belal' },
-  { src: '/portfolio/images/logos/Nice Ads Agency.jpg', name: 'Nice Ads Agency' },
+  { src: '/portfolio/images/logos/300285902_456445189829190_7594357484335375349_n.jpg', name: 'Nice Ads Agency' },
   { src: '/portfolio/images/logos/vapsy-logo.png', name: 'Vapsy' },
   { src: '/portfolio/images/logos/\u0644\u0648\u062C\u0648 \u0627\u0644\u0632\u0639\u064A\u0645 2.png', name: 'Al-Zaeem' },
   { src: '/portfolio/images/logos/\u0644\u0648\u062C\u0648 \u062D\u0632\u0628 \u0645\u0633\u062A\u0642\u0628\u0644 \u0648\u0637\u0646.png', name: 'Mostaqbal Watan' },
