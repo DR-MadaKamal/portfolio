@@ -1,51 +1,35 @@
 import { motion } from 'framer-motion'
-import { personalData, experience, education, skillCategories, certifications, projects, articles, testimonials, awards, courses } from '../data/portfolioData'
+import { personalData, experience, education, skillCategories, certifications, projects, awards } from '../data/portfolioData'
 
 function buildCV() {
   const d = personalData
-  const skillsHtml = skillCategories.map(cat => `
-    <h3>${cat.category}</h3>
-    <ul>${cat.skills.map(s => `<li>${s}</li>`).join('')}</ul>
-  `).join('')
 
-  const certHtml = certifications.map(c => `
-    <p><strong>${c.title}</strong> — ${c.issuer} (${c.year})</p>
-  `).join('')
+  const skillsHtml = skillCategories.map(cat =>
+    `<p class="cv-skills-cat"><strong>${cat.category}:</strong> ${cat.skills.join(', ')}</p>`
+  ).join('')
+
+  const certHtml = certifications.map(c =>
+    `<span class="cv-cert">${c.title} — ${c.issuer} (${c.year})</span>`
+  ).join('<span class="cv-sep"> | </span>')
 
   const expHtml = experience.map(e => `
     <div class="cv-block">
-      <h3>${e.role}</h3>
-      <p class="cv-meta">${e.company} | ${e.period}${e.location ? ` | ${e.location}` : ''}</p>
-      <ul>${e.highlights.map(h => `<li>${h}</li>`).join('')}</ul>
+      <div class="cv-exp-header"><strong>${e.role}</strong> <span class="cv-meta">${e.company} | ${e.period}${e.location ? ` | ${e.location}` : ''}</span></div>
+      <ul class="cv-exp-details">${e.highlights.map(h => `<li>${h}</li>`).join('')}</ul>
     </div>
   `).join('')
 
-  const eduHtml = education.map(e => `
-    <p><strong>${e.degree}</strong> — ${e.school} (${e.year})</p>
-  `).join('')
+  const eduHtml = education.map(e =>
+    `<p class="cv-edu"><strong>${e.degree}</strong> — ${e.school} <span class="cv-meta">(${e.year})</span></p>`
+  ).join('')
 
-  const projHtml = projects.filter(p => p.featured).map(p => `
-    <div class="cv-block">
-      <h3>${p.title}</h3>
-      <p>${p.description}</p>
-      <p class="cv-meta">${p.tags?.join(', ') || ''}${p.client ? ` | Client: ${p.client}` : ''}</p>
-    </div>
-  `).join('')
+  const projHtml = projects.filter(p => p.featured).map(p =>
+    `<p class="cv-proj"><strong>${p.title}</strong> — ${p.description}${p.tags?.length ? ` <span class="cv-meta">[${p.tags.join(', ')}]</span>` : ''}</p>`
+  ).join('')
 
-  const awardHtml = awards.map(a => `
-    <p><strong>${a.title}</strong> — ${a.issuer} (${a.year})</p>
-  `).join('')
-
-  const articleHtml = articles.slice(0, 5).map(a => `
-    <p><strong>${a.title}</strong> — ${a.date}</p>
-  `).join('')
-
-  const testHtml = testimonials.map(t => `
-    <div class="cv-block">
-      <p>"${t.text}"</p>
-      <p class="cv-meta">— ${t.name}, ${t.role}</p>
-    </div>
-  `).join('')
+  const awardHtml = awards.map(a =>
+    `<span class="cv-award">${a.title} — ${a.issuer} (${a.year})</span>`
+  ).join('<span class="cv-sep"> | </span>')
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -53,38 +37,51 @@ function buildCV() {
 <meta charset="UTF-8">
 <title>Mohammed Kamal Shaat - CV</title>
 <style>
-  @page { margin: 0.7in 0.8in; size: A4; }
+  @page { margin: 0.4in 0.5in; size: A4; }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Calibri', 'Arial', 'Helvetica', sans-serif; font-size: 10.5pt; color: #1a1a1a; line-height: 1.5; }
-  h1 { font-size: 16pt; margin-bottom: 2px; }
-  h2 { font-size: 12pt; border-bottom: 1.5px solid #333; padding-bottom: 3px; margin: 18px 0 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-  h3 { font-size: 10.5pt; margin: 6px 0 2px; }
-  p { margin: 2px 0; }
-  ul { margin: 2px 0 4px 18px; }
-  li { margin-bottom: 1px; }
-  .cv-meta { color: #555; font-size: 9.5pt; }
-  .cv-contact { margin: 4px 0; font-size: 9.5pt; color: #444; }
-  .cv-block { margin-bottom: 6px; }
-  .cv-section { page-break-inside: avoid; }
-  hr { border: none; border-top: 1px solid #ddd; margin: 14px 0; }
+  body { font-family: 'Calibri', 'Arial', 'Helvetica', sans-serif; font-size: 10pt; color: #111; line-height: 1.2; }
+  h1 { font-size: 15pt; margin-bottom: 1px; }
+  .cv-title { font-size: 10pt; color: #444; margin-bottom: 2px; }
+  .cv-contact { font-size: 9pt; color: #444; margin-bottom: 10px; }
+  h2 { font-size: 11pt; border-bottom: 1px solid #333; padding-bottom: 1px; margin: 12px 0 4px; text-transform: uppercase; letter-spacing: 0.3px; }
+  p { margin: 1px 0; }
+  ul { margin: 1px 0 2px 16px; }
+  li { margin-bottom: 0; }
+  .cv-meta { color: #555; font-size: 9pt; }
+  .cv-block { margin-bottom: 4px; }
+  .cv-exp-header { display: flex; justify-content: space-between; }
+  .cv-exp-details { margin-top: 1px; }
+  .cv-exp-details li { font-size: 9.5pt; }
+  .cv-edu { margin: 1px 0; }
+  .cv-skills-cat { margin: 1px 0; font-size: 9.5pt; }
+  .cv-cert, .cv-award { font-size: 9.5pt; }
+  .cv-sep { color: #aaa; font-size: 8pt; margin: 0 2px; }
+  .cv-proj { margin: 2px 0; font-size: 9.5pt; }
 </style>
 </head>
 <body>
   <h1>${d.firstName} ${d.lastName}</h1>
-  <p class="cv-meta">${d.title}</p>
-  <p class="cv-contact">${d.phone} | ${d.email} | ${d.location} | ${d.linkedin}</p>
-  <hr>
-  <h2>Professional Summary</h2>
-  <p>${d.summary}</p>
-  <div class="cv-section"><h2>Experience</h2>${expHtml}</div>
-  <div class="cv-section"><h2>Education</h2>${eduHtml}</div>
-  <div class="cv-section"><h2>Skills & Expertise</h2>${skillsHtml}</div>
-  <div class="cv-section"><h2>Licenses & Certifications</h2>${certHtml}</div>
-  <div class="cv-section"><h2>Featured Projects</h2>${projHtml}</div>
-  <div class="cv-section"><h2>Awards & Recognition</h2>${awardHtml}</div>
-  <div class="cv-section"><h2>Publications</h2>${articleHtml}</div>
-  <hr>
-  <p class="cv-meta" style="text-align:center;">References available upon request</p>
+  <div class="cv-title">${d.title}</div>
+  <div class="cv-contact">${d.phone} &bull; ${d.email} &bull; ${d.location} &bull; ${d.linkedin}</div>
+
+  <h2>Summary</h2>
+  <p style="font-size:9.5pt;line-height:1.3">${d.summary}</p>
+
+  <h2>Experience</h2>
+  ${expHtml}
+
+  <h2>Education</h2>
+  ${eduHtml}
+
+  <h2>Skills</h2>
+  ${skillsHtml}
+
+  <h2>Certifications</h2>
+  <p>${certHtml}</p>
+
+  ${projHtml ? `<h2>Featured Projects</h2>${projHtml}` : ''}
+
+  ${awardHtml ? `<h2>Awards</h2><p>${awardHtml}</p>` : ''}
 </body>
 </html>`
 }
