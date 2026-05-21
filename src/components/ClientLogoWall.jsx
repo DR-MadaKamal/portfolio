@@ -25,7 +25,7 @@ export default function ClientLogoWall() {
           variants={containerVariants}
           initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-40px' }}>
           {clientLogos.map((c, i) => (
-            <motion.div key={i} className="client-logo-item" title={c.name}
+            <motion.div key={i} className={`client-logo-item${['Vape City','Flavow Store','Vapsy','Ahmed Samy','Adonis'].includes(c.name) ? ' featured' : ''}`} title={c.name}
               variants={itemVariants}
               whileHover={{ opacity: 1, scale: 1.15, transition: { duration: 0.25 } }}
               whileTap={{ scale: 0.95 }}>
