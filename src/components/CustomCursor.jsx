@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion } from 'framer-motion'
 
-const TRAIL_LENGTH = 8
+const TRAIL_LENGTH = 6
 
 export default function CustomCursor() {
   const [pos, setPos] = useState({ x: -100, y: -100 })
@@ -12,8 +12,8 @@ export default function CustomCursor() {
   const updateTrail = useCallback((x, y) => {
     trail.current = trail.current.map((_, i) =>
       i === 0 ? { x, y } : {
-        x: trail.current[i - 1].x + (trail.current[i].x - trail.current[i - 1].x) * 0.5,
-        y: trail.current[i - 1].y + (trail.current[i].y - trail.current[i - 1].y) * 0.5,
+        x: trail.current[i - 1].x + (trail.current[i].x - trail.current[i - 1].x) * 0.45,
+        y: trail.current[i - 1].y + (trail.current[i].y - trail.current[i - 1].y) * 0.45,
       }
     )
     setTrailState([...trail.current])
@@ -39,20 +39,21 @@ export default function CustomCursor() {
 
   return (
     <>
-      <div className={`custom-cursor ${hovering ? 'hover' : ''}`} style={{ left: pos.x, top: pos.y }}>
-        <svg width="40" height="40" viewBox="0 0 40 40" className="cursor-ring-svg">
-          <circle cx="20" cy="20" r="17" fill="none" stroke="currentColor" strokeWidth="1.5"
-            strokeDasharray={`${hovering ? 120 : 90} ${hovering ? 120 : 120}`}
-            strokeLinecap="round" opacity="0.7" />
+      <div className="custom-cursor" style={{ left: pos.x, top: pos.y }}>
+        <svg width="26" height="34" viewBox="0 0 26 34" className="cursor-svg">
+          <path d="M3 2L3 23L8 17.5L14 28.5L16.5 27L10.5 16L23 16L3 2Z"
+            fill="var(--accent)" opacity="0.8"
+            stroke="var(--accent)" strokeWidth="1.2"
+            strokeLinejoin="round" strokeLinecap="round" />
         </svg>
       </div>
       <div className={`custom-cursor-dot ${hovering ? 'hover' : ''}`} style={{ left: pos.x, top: pos.y }} />
       {trailState.map((t, i) => (
         <div key={i} className="cursor-trail-dot" style={{
           left: t.x, top: t.y,
-          width: 6 - i * 0.6,
-          height: 6 - i * 0.6,
-          opacity: 0.35 - i * 0.04,
+          width: 5 - i * 0.5,
+          height: 5 - i * 0.5,
+          opacity: 0.3 - i * 0.04,
         }} />
       ))}
     </>

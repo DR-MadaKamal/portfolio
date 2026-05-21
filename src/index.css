@@ -92,22 +92,24 @@ img { max-width: 100%; height: auto; }
 
 /* ===== CUSTOM CURSOR ===== */
 .custom-cursor {
-  position: fixed; width: 40px; height: 40px; pointer-events: none; z-index: 99999;
-  transform: translate(-50%, -50%); color: var(--accent);
-  transition: color 0.25s, transform 0.15s;
-  mix-blend-mode: difference;
+  position: fixed; pointer-events: none; z-index: 99999;
+  transform: translate(-30%, -30%); mix-blend-mode: difference;
+  transition: filter 0.3s;
 }
-.custom-cursor.hover { color: var(--accent2); transform: translate(-50%, -50%) scale(1.2); }
+.custom-cursor .cursor-svg path { transition: opacity 0.25s; }
+.custom-cursor.hover .cursor-svg { transform: scale(1.15); transform-origin: 0 0; }
+.custom-cursor.hover .cursor-svg path { opacity: 1; }
 .custom-cursor-dot {
   position: fixed; width: 5px; height: 5px; background: var(--accent);
   border-radius: 50%; pointer-events: none; z-index: 99999;
-  transform: translate(-50%, -50%); transition: background 0.2s, width 0.2s, height 0.2s;
+  transform: translate(-50%, -50%); mix-blend-mode: difference;
+  transition: width 0.15s, height 0.15s, opacity 0.15s;
 }
-.custom-cursor-dot.hover { width: 8px; height: 8px; background: var(--accent2); }
+.custom-cursor-dot.hover { width: 0; height: 0; opacity: 0; }
 .cursor-trail-dot {
   position: fixed; border-radius: 50%; pointer-events: none; z-index: 99998;
   background: var(--accent); transform: translate(-50%, -50%);
-  transition: width 0.1s, height 0.1s, opacity 0.1s;
+  mix-blend-mode: difference; transition: width 0.1s, height 0.1s, opacity 0.1s;
 }
 
 /* ===== NAVBAR ===== */
