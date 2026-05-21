@@ -24,14 +24,23 @@ export default function ClientLogoWall() {
         <motion.div className="client-logos"
           variants={containerVariants}
           initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-40px' }}>
-          {clientLogos.map((c, i) => (
-            <motion.div key={i} className={`client-logo-item${['Vape City','Flavow Store','Vapsy','Ahmed Samy','Adonis'].includes(c.name) ? ' featured' : ''}`} title={c.name}
-              variants={itemVariants}
-              whileHover={{ opacity: 1, scale: 1.15, transition: { duration: 0.25 } }}
-              whileTap={{ scale: 0.95 }}>
-              <img src={c.src} alt={c.name} loading="lazy" />
-            </motion.div>
-          ))}
+          {clientLogos.map((c, i) => {
+            const isFeatured = ['Vape City','Flavow Store','Vapsy','Ahmed Samy','Adonis'].includes(c.name)
+            const content = (
+              <motion.div className={`client-logo-item${isFeatured ? ' featured' : ''}`} title={c.name}
+                variants={itemVariants}
+                whileHover={{ opacity: 1, scale: isFeatured ? 1.2 : 1.15, y: -4, transition: { duration: 0.25 } }}
+                whileTap={{ scale: 0.95 }}>
+                <div className="client-logo-glow" />
+                <img src={c.src} alt={c.name} loading="lazy" />
+              </motion.div>
+            )
+            return c.link ? (
+              <a key={i} href={c.link} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>{content}</a>
+            ) : (
+              <span key={i}>{content}</span>
+            )
+          })}
         </motion.div>
       </div>
     </section>

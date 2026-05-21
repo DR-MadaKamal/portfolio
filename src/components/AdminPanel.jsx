@@ -277,9 +277,9 @@ function ContentForm({ data, onSave }) {
   return (
     <div>
       <div className="admin-sub-tabs">
-        {['personal','experience','projects','articles','skills','education','courses','testimonials','awards'].map(t => (
-          <button key={t} className={`admin-tab-sm ${contentTab === t ? 'active' : ''}`} onClick={() => setContentTab(t)}>{t}</button>
-        ))}
+          {['personal','experience','projects','articles','skills','education','courses','testimonials','awards','clients'].map(t => (
+            <button key={t} className={`admin-tab-sm ${contentTab === t ? 'active' : ''}`} onClick={() => setContentTab(t)}>{t}</button>
+          ))}
       </div>
       {contentTab === 'personal' && <PersonalForm data={data} onSave={onSave} />}
       {contentTab === 'experience' && <ExperienceForm data={data} onSave={onSave} />}
@@ -290,6 +290,7 @@ function ContentForm({ data, onSave }) {
       {contentTab === 'courses' && <CoursesForm data={data} onSave={onSave} />}
       {contentTab === 'testimonials' && <TestimonialsForm data={data} onSave={onSave} />}
       {contentTab === 'awards' && <AwardsForm data={data} onSave={onSave} />}
+      {contentTab === 'clients' && <ClientsForm data={data} onSave={onSave} />}
     </div>
   )
 }
@@ -477,6 +478,26 @@ function AwardsForm({ data, onSave }) {
   const add = () => setList(p => [...p, { title: 'Award', issuer: 'Issuer', year: '', icon: 'fa-trophy' }])
   const remove = (i) => setList(p => p.filter((_, idx) => idx !== i))
   return (<div>{list.map((a, i) => (<div key={i} className="admin-card"><div className="admin-card-header"><strong>{a.title}</strong><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div><Input label="Title" value={a.title} onChange={v => update(i, 'title', v)} /><Input label="Issuer" value={a.issuer} onChange={v => update(i, 'issuer', v)} /><Input label="Year" value={a.year} onChange={v => update(i, 'year', v)} /><Input label="Icon Class" value={a.icon} onChange={v => update(i, 'icon', v)} /></div>))}<button className="admin-add-btn" onClick={add}>+ Add Award</button></div>)
+}
+
+function ClientsForm({ data, onSave }) {
+  const [list, setList] = useState(data.clientLogos || [])
+  const r = useRef(true)
+  useEffect(() => { if (r.current) { r.current = false; return }; const timer = setTimeout(() => onSave({ ...data, clientLogos: list }, 'Clients'), 500); return () => clearTimeout(timer) }, [list])
+  const update = (i, f, v) => setList(p => { const c = [...p]; c[i] = { ...c[i], [f]: v }; return c })
+  const move = (i, d) => setList(p => { const j = i + d; if (j < 0 || j >= p.length) return p; const c = [...p]; [c[i], c[j]] = [c[j], c[i]]; return c })
+  const add = () => setList(p => [...p, { src: '/portfolio/images/logos/new-logo.png', name: 'New Client', link: '' }])
+  const remove = (i) => { if (confirm('Delete this client?')) setList(p => p.filter((_, idx) => idx !== i)) }
+  return (<div>
+    <p style={{fontSize:'0.75rem',color:'var(--text-muted)',marginBottom:12}}>Manage client logos. Add their logo image URL, display name, and an optional work link (Google Drive, OneDrive, etc.).</p>
+    {list.map((c, i) => (<div key={i} className="admin-card">
+      <div className="admin-card-header"><strong>{c.name || 'Client'}</strong><div className="admin-card-actions"><button onClick={() => move(i, -1)} disabled={i === 0}>&uarr;</button><button onClick={() => move(i, 1)} disabled={i === list.length - 1}>&darr;</button><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div></div>
+      <Input label="Company Name" value={c.name} onChange={v => update(i, 'name', v)} />
+      <Input label="Logo Image URL" value={c.src} onChange={v => update(i, 'src', v)} />
+      <Input label="Work Link (Google Drive / OneDrive)" value={c.link || ''} onChange={v => update(i, 'link', v)} />
+    </div>))}
+    <button className="admin-add-btn" onClick={add}>+ Add Client</button>
+  </div>)
 }
 
 /* ========== SECTIONS (visibility + custom sections) ========== */

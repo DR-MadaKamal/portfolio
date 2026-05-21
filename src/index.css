@@ -608,9 +608,11 @@ img { max-width: 100%; height: auto; }
 /* ===== CLIENT LOGO WALL ===== */
 .clients-section { padding: 60px 24px; }
 .client-logos { display: grid; grid-template-columns: repeat(4, 1fr); justify-items: center; align-items: center; gap: 40px; }
-.client-logo-item { width: 100%; height: 160px; display: flex; align-items: center; justify-content: center; cursor: default; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.2)); }
+.client-logo-item { width: 100%; height: 160px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.2)); transition: filter 0.3s; }
 .client-logo-item.featured { height: 200px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
-.client-logo-item img { width: 100%; height: 100%; object-fit: contain; }
+.client-logo-item .client-logo-glow { position: absolute; inset: -4px; border-radius: 12px; opacity: 0; transition: opacity 0.3s; background: radial-gradient(ellipse at center, var(--accent) 0%, transparent 70%); }
+.client-logo-item:hover .client-logo-glow { opacity: 0.15; }
+.client-logo-item img { width: 100%; height: 100%; object-fit: contain; position: relative; z-index: 1; }
 
 /* ===== SEARCH ===== */
 .search-trigger { background: none; border: none; color: var(--text-dim); font-size: 1rem; cursor: pointer; padding: 6px 10px; transition: color 0.3s; }
