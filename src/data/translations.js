@@ -13,6 +13,8 @@ export const en = {
   available: 'Available for work',
   download: 'Download CV',
   chat: 'Chat on WhatsApp',
+  newsletter: { title: 'Stay Updated', desc: 'Get the latest articles and updates.', success: 'Thanks for subscribing!', placeholder: 'Your email address' },
+  search: { placeholder: 'Search articles, projects...', noResults: 'No results found for' },
 }
 
 export const ar = {
@@ -30,4 +32,6 @@ export const ar = {
   available: 'متاح للعمل',
   download: 'تحميل السيرة الذاتية',
   chat: 'تواصل عبر واتساب',
+  newsletter: { title: 'ابق على اطلاع', desc: 'احصل على أحدث المقالات والتحديثات.', success: 'شكراً للاشتراك!', placeholder: 'بريدك الإلكتروني' },
+  search: { placeholder: 'ابحث في المقالات والمشاريع...', noResults: 'لا توجد نتائج لـ' },
 }

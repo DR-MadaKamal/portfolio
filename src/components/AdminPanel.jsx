@@ -47,6 +47,33 @@ const defaultTheme = {
   border: '#2a2a3e',
 }
 
+const defaultTools = {
+  googleAnalyticsId: '',
+  facebookPixelId: '',
+  searchConsoleMeta: '',
+  chatCode: '',
+  calendlyLink: '',
+  newsletterEnabled: true,
+  cookieConsentEnabled: true,
+  pwaEnabled: true,
+  rssEnabled: true,
+  fontFamily: 'Inter',
+  imageCdn: '',
+  businessHours: [
+    { day: 'Sunday – Thursday', hours: '10:00 AM – 7:00 PM' },
+    { day: 'Friday', hours: 'Closed' },
+    { day: 'Saturday', hours: '11:00 AM – 4:00 PM' },
+  ],
+  socialLinks: [
+    { label: 'Facebook', url: 'https://facebook.com/DR.MadaKamal', icon: 'fab fa-facebook-f' },
+    { label: 'Instagram', url: 'https://instagram.com/mada_kamal_', icon: 'fab fa-instagram' },
+    { label: 'LinkedIn', url: 'https://linkedin.com/in/mohammedkamal-shaat', icon: 'fab fa-linkedin-in' },
+    { label: 'WhatsApp', url: 'https://wa.me/201009852109', icon: 'fab fa-whatsapp' },
+  ],
+  projectsEnabled: true,
+  articlesEnabled: true,
+}
+
 function getDefaults() {
   return {
     personalData: defaultPersonal,
@@ -60,6 +87,7 @@ function getDefaults() {
       sections: { ...defaultSections },
       theme: { ...defaultTheme },
       images: [],
+      tools: { ...defaultTools },
     },
   }
 }
@@ -218,7 +246,7 @@ export default function AdminPanel({ onDataChange }) {
         ) : (
           <>
             <div className="admin-tabs">
-              {['personal','experience','projects','articles','sections','theme','images'].map(t => (
+              {['personal','experience','projects','articles','sections','theme','images','tools'].map(t => (
                 <button key={t} className={tab === t ? 'active' : ''} onClick={() => setTab(t)}>
                   {t.charAt(0).toUpperCase() + t.slice(1)}
                 </button>
@@ -237,6 +265,7 @@ export default function AdminPanel({ onDataChange }) {
               {tab === 'sections' && <SectionsForm data={current} onSave={debouncedSave} />}
               {tab === 'theme' && <ThemeForm data={current} onSave={debouncedSave} />}
               {tab === 'images' && <ImagesForm data={current} onSave={debouncedSave} />}
+              {tab === 'tools' && <ToolsForm data={current} onSave={debouncedSave} />}
             </div>
           </>
         )}
@@ -554,6 +583,95 @@ function ThemeForm({ data, onSave }) {
             </div>
           </div>
         ))}
+      </div>
+    </div>
+  )
+}
+
+function ToolsForm({ data, onSave }) {
+  const settings = data.settings || {}
+  const tools = settings.tools || {}
+  const [d, setD] = useState(tools)
+  const firstRender = useRef(true)
+
+  useEffect(() => {
+    if (firstRender.current) { firstRender.current = false; return }
+    const timer = setTimeout(() => {
+      onSave({ ...data, settings: { ...settings, tools: d } }, 'Tools')
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [d])
+
+  const set = (key, val) => setD(prev => ({ ...prev, [key]: val }))
+  const updateSocial = (i, field, val) => setD(prev => {
+    const links = [...(prev.socialLinks || [])]; links[i] = { ...links[i], [field]: val }; return { ...prev, socialLinks: links }
+  })
+  const addSocial = () => setD(prev => ({ ...prev, socialLinks: [...(prev.socialLinks || []), { label: '', url: '', icon: 'fas fa-link' }] }))
+  const removeSocial = (i) => setD(prev => ({ ...prev, socialLinks: (prev.socialLinks || []).filter((_, idx) => idx !== i) }))
+  const updateHours = (i, field, val) => setD(prev => {
+    const hours = [...(prev.businessHours || [])]; hours[i] = { ...hours[i], [field]: val }; return { ...prev, businessHours: hours }
+  })
+  const addHour = () => setD(prev => ({ ...prev, businessHours: [...(prev.businessHours || []), { day: '', hours: '' }] }))
+  const removeHour = (i) => setD(prev => ({ ...prev, businessHours: (prev.businessHours || []).filter((_, idx) => idx !== i) }))
+
+  return (
+    <div>
+      <p style={{fontSize:'0.75rem',color:'var(--text-muted)',marginBottom:12}}>Configure analytics, chat, SEO, and site-wide tools.</p>
+
+      <div className="admin-card">
+        <strong style={{fontSize:'0.82rem'}}>Analytics & Tracking</strong>
+        <Input label="Google Analytics ID (e.g. G-XXXXXXX)" value={d.googleAnalyticsId || ''} onChange={v => set('googleAnalyticsId', v)} />
+        <Input label="Facebook Pixel ID (e.g. 1234567890)" value={d.facebookPixelId || ''} onChange={v => set('facebookPixelId', v)} />
+        <Input label="Google Search Console Meta Tag" value={d.searchConsoleMeta || ''} onChange={v => set('searchConsoleMeta', v)} multiline />
+      </div>
+
+      <div className="admin-card">
+        <strong style={{fontSize:'0.82rem'}}>Live Chat & Booking</strong>
+        <Input label="Live Chat Embed Code (Tawk.to / Crisp HTML)" value={d.chatCode || ''} onChange={v => set('chatCode', v)} multiline />
+        <Input label="Calendly Link (e.g. https://calendly.com/...)" value={d.calendlyLink || ''} onChange={v => set('calendlyLink', v)} />
+      </div>
+
+      <div className="admin-card">
+        <strong style={{fontSize:'0.82rem'}}>SEO & Performance</strong>
+        <Input label="Font Family (e.g. Inter, Poppins, Roboto)" value={d.fontFamily || 'Inter'} onChange={v => set('fontFamily', v)} />
+        <Input label="Image CDN URL (optional, e.g. https://cdn.example.com/)" value={d.imageCdn || ''} onChange={v => set('imageCdn', v)} />
+        <div className="admin-subsection">
+          <strong>Toggles</strong>
+          {['newsletterEnabled','cookieConsentEnabled','pwaEnabled','rssEnabled'].map(key => (
+            <div key={key} className="admin-toggle-label">
+              <span>{key.replace(/Enabled$/, '').replace(/([A-Z])/g, ' $1').trim()}</span>
+              <label className="admin-toggle">
+                <input type="checkbox" checked={!!d[key]} onChange={() => set(key, !d[key])} />
+                <span className="admin-toggle-slider"></span>
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="admin-card">
+        <strong style={{fontSize:'0.82rem'}}>Social Links</strong>
+        {(d.socialLinks || []).map((link, i) => (
+          <div key={i} className="admin-inline-row">
+            <input value={link.label} placeholder="Label" onChange={e => updateSocial(i, 'label', e.target.value)} style={{flex:1}} />
+            <input value={link.url} placeholder="URL" onChange={e => updateSocial(i, 'url', e.target.value)} style={{flex:2}} />
+            <input value={link.icon} placeholder="Icon class" onChange={e => updateSocial(i, 'icon', e.target.value)} style={{flex:1}} />
+            <button className="admin-del-btn-sm" onClick={() => removeSocial(i)}>&times;</button>
+          </div>
+        ))}
+        <button className="admin-add-small" onClick={addSocial}>+ Add Social Link</button>
+      </div>
+
+      <div className="admin-card">
+        <strong style={{fontSize:'0.82rem'}}>Business Hours</strong>
+        {(d.businessHours || []).map((h, i) => (
+          <div key={i} className="admin-inline-row">
+            <input value={h.day} placeholder="Day" onChange={e => updateHours(i, 'day', e.target.value)} style={{flex:1}} />
+            <input value={h.hours} placeholder="Hours" onChange={e => updateHours(i, 'hours', e.target.value)} style={{flex:1}} />
+            <button className="admin-del-btn-sm" onClick={() => removeHour(i)}>&times;</button>
+          </div>
+        ))}
+        <button className="admin-add-small" onClick={addHour}>+ Add Hours</button>
       </div>
     </div>
   )

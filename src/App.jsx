@@ -9,6 +9,7 @@ import Achievements from './components/Achievements'
 import QuoteRotator from './components/QuoteRotator'
 import SayHello from './components/SayHello'
 import ScrollToTop from './components/ScrollToTop'
+import ScrollProgressBar from './components/ScrollProgressBar'
 import AnimatedBackground from './components/AnimatedBackground'
 import AdminPanel from './components/AdminPanel'
 import WhatsAppButton from './components/WhatsAppButton'
@@ -16,7 +17,21 @@ import CustomCursor from './components/CustomCursor'
 import SoundEffects from './components/SoundEffects'
 import AnalyticsDashboard from './components/AnalyticsDashboard'
 import Footer from './components/Footer'
+import ClientLogoWall from './components/ClientLogoWall'
+import FAQSection from './components/FAQSection'
+import ToolsShowcase from './components/ToolsShowcase'
+import ServicesTimeline from './components/ServicesTimeline'
+import SearchBar from './components/SearchBar'
+import NewsTicker from './components/NewsTicker'
+import PortfolioDownload from './components/PortfolioDownload'
+import CookieConsent from './components/CookieConsent'
+import NewsletterSignup from './components/NewsletterSignup'
+import VideoTestimonials from './components/VideoTestimonials'
+import ShareButtons from './components/ShareButtons'
+import LiveChatWidget from './components/LiveChatWidget'
+import GoogleMapsEmbed from './components/GoogleMapsEmbed'
 import { LangProvider } from './context/LangContext'
+import { personalData, projects as defaultProjects, articles as defaultArticles } from './data/portfolioData'
 
 const STORAGE_KEY = 'portfolio-admin-data'
 const VISITS_KEY = 'portfolio-visits'
@@ -67,19 +82,30 @@ function App() {
     return () => observer.disconnect()
   }, [])
 
-  const sections = editedData?.settings?.sections || {}
+  const d = editedData
+  const sections = d?.settings?.sections || {}
+  const tools = d?.settings?.tools || {}
   const sec = (key) => sections[key]?.visible !== false
 
   const sectionMap = [
-    { key: 'hero', comp: <Hero personalData={editedData?.personalData} /> },
-    { key: 'about', comp: <About editedData={editedData} /> },
-    { key: 'projects', comp: <Projects projects={editedData?.projects} /> },
+    { key: 'hero', comp: <Hero personalData={d?.personalData} /> },
+    { key: 'about', comp: <About editedData={d} /> },
+    { key: 'news-ticker', comp: <NewsTicker /> },
+    { key: 'logos', comp: <ClientLogoWall /> },
+    { key: 'projects', comp: <Projects projects={d?.projects} /> },
     { key: 'testimonials', comp: <Testimonials /> },
+    { key: 'video-testimonials', comp: <VideoTestimonials /> },
     { key: 'achievements', comp: <Achievements /> },
+    { key: 'process', comp: <ServicesTimeline /> },
     { key: 'quote', comp: <QuoteRotator /> },
-    { key: 'articles', comp: <Articles articles={editedData?.articles} /> },
+    { key: 'tools', comp: <ToolsShowcase /> },
+    { key: 'faq', comp: <FAQSection /> },
+    { key: 'articles', comp: <Articles articles={d?.articles} /> },
+    { key: 'portfolio-download', comp: <PortfolioDownload /> },
     { key: 'contact', comp: <SayHello /> },
-  ].filter(s => sec(s.key))
+    { key: 'map', comp: <GoogleMapsEmbed location={d?.personalData?.location} /> },
+    { key: 'newsletter', comp: tools.newsletterEnabled !== false ? <NewsletterSignup /> : null },
+  ].filter(s => s.comp && sec(s.key))
    .sort((a, b) => (sections[a.key]?.order ?? 99) - (sections[b.key]?.order ?? 99))
 
   return (
@@ -87,15 +113,28 @@ function App() {
       <AnimatedBackground />
       <CustomCursor />
       <SoundEffects />
+      <ScrollProgressBar />
       <AdminPanel onDataChange={setEditedData} />
+      <LiveChatWidget chatCode={tools.chatCode} />
       <Navbar activeSection={activeSection} setActiveSection={setActiveSection} />
+      {tools.cookieConsentEnabled !== false && <CookieConsent />}
       <main>
         {sectionMap.map(s => <span key={s.key}>{s.comp}</span>)}
       </main>
       <WhatsAppButton />
       <ScrollToTop />
       <AnalyticsDashboard />
-      <Footer personalData={editedData?.personalData} />
+      <Footer personalData={d?.personalData} />
+      {tools.googleAnalyticsId && (
+        <script dangerouslySetInnerHTML={{
+          __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${tools.googleAnalyticsId}');`
+        }} />
+      )}
+      {tools.facebookPixelId && (
+        <script dangerouslySetInnerHTML={{
+          __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${tools.facebookPixelId}');fbq('track','PageView');`
+        }} />
+      )}
     </LangProvider>
   )
 }

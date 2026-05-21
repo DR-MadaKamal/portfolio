@@ -387,3 +387,79 @@ export const pricingPlans = [
   { name: 'Professional', price: '7,500', currency: 'EGP', period: '/month', features: ['Full brand strategy', 'Social media management', 'Motion graphics (2 videos)', 'SEO & paid ads management', 'Monthly performance report'], popular: true },
   { name: 'Enterprise', price: '15,000', currency: 'EGP', period: '/month', features: ['End-to-end marketing', 'Unlimited revisions', 'Priority support', 'Dedicated account manager', 'Advanced analytics & reporting', 'Crisis management'], popular: false },
 ]
+
+export const clientLogos = [
+  { src: '/portfolio/images/logos/vape-city.png', name: 'Vape City' },
+  { src: '/portfolio/images/logos/trade-point.png', name: 'Trade Point Egypt' },
+  { src: '/portfolio/images/logos/flavow.png', name: 'Flavow Store' },
+  { src: '/portfolio/images/logos/mada-kamal.png', name: 'Mada Kamal Agency' },
+  { src: '/portfolio/images/logos/swell-lake.png', name: 'Swell Lake' },
+  { src: '/portfolio/images/logos/bluecastle.png', name: 'Bluecastle Caffee' },
+  { src: '/portfolio/images/logos/kluger.png', name: 'Klüger' },
+  { src: '/portfolio/images/logos/majal.png', name: 'MAJAL' },
+  { src: '/portfolio/images/logos/eagle-eye.png', name: 'Eagle Eye' },
+  { src: '/portfolio/images/logos/ghareeb.png', name: 'Ghareeb Dental' },
+  { src: '/portfolio/images/logos/mgd.png', name: 'MGD' },
+  { src: '/portfolio/images/logos/lily.png', name: 'Lily' },
+  { src: '/portfolio/images/logos/roche.png', name: 'Roche' },
+  { src: '/portfolio/images/logos/novartis.png', name: 'Novartis' },
+  { src: '/portfolio/images/logos/sanofi.png', name: 'Sanofi' },
+]
+
+export const faq = [
+  { q: 'What services do you offer?', a: 'I offer full-stack digital marketing including branding, motion graphics, social media management, SEO, paid ads, UI/UX design, and medical marketing consultancy.' },
+  { q: 'What industries do you specialize in?', a: 'Healthcare/pharma, retail/e-commerce, F&B, and real estate — with a primary focus on medical marketing and HCP engagement.' },
+  { q: 'How long does a typical project take?', a: 'Timelines vary by scope. A brand identity package takes 2-3 weeks, while a full marketing campaign can take 4-8 weeks from strategy to execution.' },
+  { q: 'Do you work with international clients?', a: 'Absolutely. I work remotely with clients across the Middle East, Europe, and North America.' },
+  { q: 'Can you handle both creative and analytics?', a: 'Yes. I bridge creative production (motion graphics, design) with performance marketing (data analysis, ROI tracking, A/B testing).' },
+  { q: 'What is your pricing model?', a: 'I offer project-based pricing, monthly retainers, and hourly consulting. Each proposal is tailored to the client\'s needs and budget.' },
+]
+
+export const tools = [
+  { name: 'Adobe After Effects', category: 'Motion', icon: 'fa-film' },
+  { name: 'Adobe Premiere Pro', category: 'Motion', icon: 'fa-video' },
+  { name: 'Adobe Photoshop', category: 'Design', icon: 'fa-image' },
+  { name: 'Adobe Illustrator', category: 'Design', icon: 'fa-pen-nib' },
+  { name: 'Figma', category: 'Design', icon: 'fa-cubes' },
+  { name: 'Meta Ads Manager', category: 'Marketing', icon: 'fa-chart-line' },
+  { name: 'Google Ads', category: 'Marketing', icon: 'fa-google' },
+  { name: 'Google Analytics', category: 'Analytics', icon: 'fa-chart-bar' },
+  { name: 'Google Search Console', category: 'Analytics', icon: 'fa-search' },
+  { name: 'SEO Tools (Ahrefs, SEMrush)', category: 'SEO', icon: 'fa-tachometer-alt' },
+  { name: 'WordPress', category: 'Web', icon: 'fa-wordpress' },
+  { name: 'React / Next.js', category: 'Web', icon: 'fa-code' },
+  { name: 'CRM Systems', category: 'Marketing', icon: 'fa-users-cog' },
+  { name: 'Mailchimp', category: 'Marketing', icon: 'fa-envelope-open-text' },
+  { name: 'ChatGPT / AI Tools', category: 'AI', icon: 'fa-robot' },
+]
+
+export const servicesTimeline = [
+  { step: 1, title: 'Discovery', desc: 'Understanding your brand, goals, audience, and competition through in-depth research and consultation.' },
+  { step: 2, title: 'Strategy', desc: 'Crafting a data-driven marketing plan with clear KPIs, target segments, channel mix, and content roadmap.' },
+  { step: 3, title: 'Creation', desc: 'Producing high-end creative assets — motion graphics, designs, copy, and ad creatives tailored to each platform.' },
+  { step: 4, title: 'Execution', desc: 'Launching campaigns across selected channels with precise targeting, scheduling, and monitoring.' },
+  { step: 5, title: 'Optimization', desc: 'Continuous A/B testing, performance analysis, and refinement to maximize ROI and meet objectives.' },
+  { step: 6, title: 'Reporting', desc: 'Delivering transparent monthly reports with insights, learnings, and recommendations for the next phase.' },
+]
+
+export const certifications = [
+  { title: 'Google Digital Marketing Certificate', issuer: 'Google', year: '2023', url: '#', icon: 'fa-certificate' },
+  { title: 'Advanced Digital Marketing Nanodegree', issuer: 'Udacity & MCIT', year: '2021', url: '#', icon: 'fa-graduation-cap' },
+  { title: 'Meta Certified Digital Marketing Associate', issuer: 'Meta', year: '2023', url: '#', icon: 'fa-certificate' },
+  { title: 'SEO Fundamentals', issuer: 'Ahrefs', year: '2022', url: '#', icon: 'fa-search' },
+  { title: 'Motion Graphics Masterclass', issuer: 'School of Motion', year: '2022', url: '#', icon: 'fa-film' },
+]
+
+export const businessHours = [
+  { day: 'Sunday – Thursday', hours: '10:00 AM – 7:00 PM' },
+  { day: 'Friday', hours: 'Closed' },
+  { day: 'Saturday', hours: '11:00 AM – 4:00 PM' },
+]
+
+export const newsItems = [
+  { date: '2026-04', text: 'Launched new brand identity for MGD Pharmaceuticals' },
+  { date: '2026-03', text: 'Completed motion graphics campaign for Lily Egypt product launch' },
+  { date: '2026-01', text: 'Speaker at Digital Marketing Summit Cairo 2026' },
+  { date: '2025-12', text: 'Reached 15+ active clients across healthcare, F&B, and retail' },
+  { date: '2025-10', text: 'Published new framework for HCP digital engagement in pharma' },
+]

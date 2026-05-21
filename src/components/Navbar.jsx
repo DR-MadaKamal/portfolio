@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import LanguageToggle from './LanguageToggle'
+import SearchBar from './SearchBar'
 import { useLang } from '../context/LangContext'
+import { projects as defaultProjects, articles as defaultArticles } from '../data/portfolioData'
 
 export default function Navbar({ activeSection, setActiveSection }) {
   const { t } = useLang()
@@ -35,6 +37,7 @@ export default function Navbar({ activeSection, setActiveSection }) {
             <button key={i} className={`nav-link${activeSection === ids[i] ? ' active' : ''}`}
               onClick={() => scrollTo(ids[i])}>{l}</button>
           ))}
+          <SearchBar articles={defaultArticles} projects={defaultProjects} />
           <LanguageToggle />
         </div>
 

@@ -3,10 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/portfolio/logo.png" />
+    <link rel="apple-touch-icon" href="/portfolio/logo.png" />
+    <link rel="manifest" href="/portfolio/manifest.json" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Portfolio of Mohammed Kamal Shaat — Pharmacist & Full-Stack Digital Marketer. Branding, motion graphics, medical marketing, and digital strategy." />
     <meta name="keywords" content="pharmacist, digital marketer, medical marketing, motion graphics, branding, SEO, Egypt" />
     <meta name="author" content="Mohammed Kamal Shaat" />
+    <meta name="theme-color" content="#0f0f1a" />
     <meta property="og:title" content="Mohammed Kamal Shaat | Pharmacist & Full-Stack Digital Marketer" />
     <meta property="og:image" content="https://DR-MadaKamal.github.io/portfolio/logo.png" />
     <meta property="og:image:type" content="image/png" />
@@ -18,6 +21,26 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Mohammed Kamal Shaat",
+      "jobTitle": "Pharmacist & Full-Stack Digital Marketer",
+      "url": "https://DR-MadaKamal.github.io/portfolio",
+      "email": "16491@must.edu.eg",
+      "telephone": "+201009852109",
+      "address": { "@type": "PostalAddress", "addressLocality": "Al-Faiyum, Egypt" },
+      "sameAs": ["https://linkedin.com/in/mohammedkamal-shaat","https://facebook.com/DR.MadaKamal","https://instagram.com/mada_kamal_"]
+    }
+    </script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/portfolio/sw.js')
+        })
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
