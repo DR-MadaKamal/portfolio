@@ -397,7 +397,7 @@ export const clientLogos = [
   { src: '/portfolio/images/logos/BlueCastle Caffee.png', name: 'Bluecastle Caffee' },
   { src: '/portfolio/images/logos/kluger logo.jpg', name: 'Klüger' },
   { src: '/portfolio/images/logos/Majal Logo.jpg', name: 'MAJAL' },
-  { src: '/portfolio/images/logos/Eagle Eye logo.png', name: 'Eagle Eye' },
+  { src: '/portfolio/images/logos/244676964_1240855479671550_5981509515233517187_n.png', name: 'Eagle Eye' },
   { src: '/portfolio/images/logos/Ghareeb Dentist logo.png', name: 'Ghareeb Dental' },
   { src: '/portfolio/images/logos/MGD company logo.jpg', name: 'MGD' },
   { src: '/portfolio/images/logos/310385000_108501575368547_2424709495730499217_n.jpg', name: '310385000' },
