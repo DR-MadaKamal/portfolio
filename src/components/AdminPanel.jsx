@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { personalData as defaultPersonal, experience as defaultExp, projects as defaultProjects, articles as defaultArticles, skillCategories as defaultSkills, education as defaultEdu, courses as defaultCourses, languages as defaultLangs } from '../data/portfolioData'
+import { personalData as defaultPersonal, experience as defaultExp, projects as defaultProjects, articles as defaultArticles, skillCategories as defaultSkills, education as defaultEdu, courses as defaultCourses } from '../data/portfolioData'
 
 const STORAGE_KEY = 'portfolio-admin-data'
 const HISTORY_KEY = 'portfolio-admin-history'
