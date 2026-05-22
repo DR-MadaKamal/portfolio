@@ -55,7 +55,7 @@ export default function Hero({ personalData: editedPersonalData }) {
         <motion.div className="hero-image" variants={imgChild}>
           <div className="hero-glow" />
           <div className="hero-glow hero-glow-2" />
-          <img src="/portfolio/photo.png" alt={data.firstName} loading="lazy" />
+          <div className="hero-image-frame"><img src="/portfolio/photo.png" alt={data.firstName} loading="lazy" /></div>
         </motion.div>
       </motion.div>
 
