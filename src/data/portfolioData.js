@@ -31,9 +31,12 @@ export const experience = [
     location: 'Abbasiya, Cairo',
     logo: '/portfolio/images/flavow-logo.png',
     highlights: [
-      'Spearhead full-stack marketing initiatives and brand strategy for the e-liquid and e-juice industry.',
-      'Develop product catalogs, technical flavor descriptions, and marketing content to boost product visibility.',
-      'Manage strategic budgets across high-impact digital advertising channels to maximize ROI.',
+      'Established full brand presence from scratch including social media profiles across Facebook, Instagram, LinkedIn and a fully custom e-commerce website designed to serve branding and direct sales.',
+      'Designed and launched comprehensive product catalogs for both Vape City and Vapsy brands, increasing product visibility and customer engagement across all channels.',
+      'Planned, organized, and attended 3 major industry events for product promotion and brand awareness, expanding market reach and direct customer acquisition.',
+      'Executed targeted Facebook and Instagram ad campaigns for brand awareness and recruitment, driving qualified traffic and applicant flow.',
+      'Launched LinkedIn recruitment campaigns to attract qualified professionals, supporting company growth and talent acquisition.',
+      'Led the successful brand launch of Vapsy, a new e-liquid brand under the Flavow umbrella, from identity development to market introduction.',
     ],
     links: [
       { label: 'flavow-store.com', url: 'https://www.flavow-store.com' },
