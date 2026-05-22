@@ -29,7 +29,7 @@ export const experience = [
     company: 'Vape City E-liquid',
     period: '05/2024 – Present',
     location: 'Abbasiya, Cairo',
-    logo: '/portfolio/images/flavow-logo.png',
+    logo: '/portfolio/images/logos/flavow-logo.png',
     highlights: [
       'Established full brand presence from scratch including social media profiles across Facebook, Instagram, LinkedIn and a fully custom e-commerce website designed to serve branding and direct sales.',
       'Designed and launched comprehensive product catalogs for both Vape City and Vapsy brands, increasing product visibility and customer engagement across all channels.',
