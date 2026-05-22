@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { personalData as defaultPersonal, skillCategories as defaultSkills, experience as defaultExp, education as defaultEdu } from '../data/portfolioData'
 import AnimatedCounter from './AnimatedCounter'
 import SkillsProgress from './SkillsProgress'
+import TextReveal from './TextReveal'
 import { useLang } from '../context/LangContext'
 
 const fadeUp = { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: '-60px' }, transition: { duration: 0.5 } }
@@ -21,7 +22,7 @@ export default function About({ editedData }) {
         <motion.div {...fadeUp}>
           <h2 className="section-title">
             <small>{t.about.subtitle}</small>
-            {t.about.title}
+            <TextReveal text={t.about.title} as="span" />
           </h2>
         </motion.div>
 
@@ -87,7 +88,7 @@ export default function About({ editedData }) {
         <motion.div {...fadeUp} style={{ marginTop: 60 }}>
           <h2 className="section-title" style={{ marginBottom: 32 }}>
             <small>{t.about.expertise}</small>
-            {t.about.skills}
+            <TextReveal text={t.about.skills} as="span" />
           </h2>
           <SkillsProgress />
         </motion.div>
@@ -96,7 +97,7 @@ export default function About({ editedData }) {
         <motion.div {...fadeUp} style={{ marginTop: 80 }}>
           <h2 className="section-title">
             <small>{t.experience.subtitle}</small>
-            {t.experience.title}
+            <TextReveal text={t.experience.title} as="span" />
           </h2>
           <div className="timeline" style={{ maxWidth: 700, margin: '0 auto' }}>
             {experience.map((exp, i) => (

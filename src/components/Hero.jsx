@@ -1,7 +1,8 @@
-import { motion } from 'framer-motion'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import { personalData } from '../data/portfolioData'
 import TypeWriter from './TypeWriter'
 import DownloadCV from './DownloadCV'
+import MagneticButton from './MagneticButton'
 import { useLang } from '../context/LangContext'
 
 const container = { animate: { transition: { staggerChildren: 0.12 } } }
@@ -11,6 +12,9 @@ const imgChild = { initial: { opacity: 0, scale: 0.8 }, animate: { opacity: 1, s
 export default function Hero({ personalData: editedPersonalData }) {
   const data = editedPersonalData || personalData
   const { t } = useLang()
+  const { scrollY } = useScroll()
+  const imgY = useTransform(scrollY, [0, 500], [0, -40])
+  const glowY = useTransform(scrollY, [0, 500], [0, -70])
 
   return (
     <section id="home" className="hero">
@@ -33,15 +37,14 @@ export default function Hero({ personalData: editedPersonalData }) {
           <motion.p variants={child}>{data.heroSummary || data.summary}</motion.p>
 
           <motion.div className="hero-cta" variants={child}>
-            <motion.a href={`mailto:${data.email}`} className="btn btn-solid"
-              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}>
+            <MagneticButton as={motion.a} href={`mailto:${data.email}`} className="btn btn-solid"
+              whileTap={{ scale: 0.97 }}>
               <i className="fas fa-paper-plane" /> {t.hero.hire}
-            </motion.a>
-            <motion.a href="#projects" className="btn"
-              whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.97 }}
+            </MagneticButton>
+            <MagneticButton as={motion.a} href="#projects" className="btn"
               onClick={(e) => { e.preventDefault(); document.getElementById('projects')?.scrollIntoView({ behavior: 'smooth' }) }}>
               <i className="fas fa-code-branch" /> {t.hero.view}
-            </motion.a>
+            </MagneticButton>
             <DownloadCV />
           </motion.div>
 
@@ -52,9 +55,9 @@ export default function Hero({ personalData: editedPersonalData }) {
           )}
         </div>
 
-        <motion.div className="hero-image" variants={imgChild}>
-          <div className="hero-glow" />
-          <div className="hero-glow hero-glow-2" />
+        <motion.div className="hero-image" variants={imgChild} style={{ y: imgY }}>
+          <motion.div className="hero-glow" style={{ y: glowY }} />
+          <motion.div className="hero-glow hero-glow-2" style={{ y: glowY }} />
           <div className="hero-image-frame"><img src="/portfolio/photo.png" alt={data.firstName} loading="lazy" /></div>
         </motion.div>
       </motion.div>

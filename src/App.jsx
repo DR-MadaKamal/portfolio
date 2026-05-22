@@ -110,6 +110,7 @@ function App() {
 
   return (
     <LangProvider>
+      <a href="#main-content" className="skip-link">Skip to content</a>
       <AnimatedBackground />
       <CustomCursor />
       <SoundEffects />
@@ -118,7 +119,7 @@ function App() {
       <LiveChatWidget chatCode={tools.chatCode} />
       <Navbar activeSection={activeSection} setActiveSection={setActiveSection} />
       {tools.cookieConsentEnabled !== false && <CookieConsent />}
-      <main>
+      <main id="main-content">
         {sectionMap.map(s => <span key={s.key}>{s.comp}</span>)}
       </main>
       <WhatsAppButton />
