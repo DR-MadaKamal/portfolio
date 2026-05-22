@@ -1,11 +1,12 @@
-import { useState, useEffect, useRef } from 'react'
-import { motion } from 'framer-motion'
+import { useEffect, useRef } from 'react'
+
+const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0
 
 export default function SoundEffects() {
   const initialized = useRef(false)
 
   useEffect(() => {
-    if (initialized.current) return
+    if (isMobile || initialized.current) return
     initialized.current = true
 
     const ctx = new (window.AudioContext || window.webkitAudioContext)()

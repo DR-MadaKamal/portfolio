@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 
 const TRAIL_LENGTH = 16
+const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0
 
 export default function CustomCursor() {
   const [pos, setPos] = useState({ x: -100, y: -100 })
@@ -8,7 +9,7 @@ export default function CustomCursor() {
   const points = useRef(Array.from({ length: TRAIL_LENGTH }, () => ({ x: -100, y: -100 })))
   const mouseRef = useRef({ x: -100, y: -100 })
   const raf = useRef(null)
-  const [path, setPath] = useState('')
+  const pathRef = useRef(null)
 
   const tick = useCallback(() => {
     const { x, y } = mouseRef.current
@@ -27,16 +28,19 @@ export default function CustomCursor() {
     }
     const last = pts[pts.length - 1]
     d += `L${last.x},${last.y}`
-    setPath(d)
+
+    if (pathRef.current) pathRef.current.setAttribute('d', d)
     raf.current = requestAnimationFrame(tick)
   }, [])
 
   useEffect(() => {
+    if (isMobile) return
     raf.current = requestAnimationFrame(tick)
     return () => { if (raf.current) cancelAnimationFrame(raf.current) }
   }, [tick])
 
   useEffect(() => {
+    if (isMobile) return
     const move = (e) => {
       mouseRef.current = { x: e.clientX, y: e.clientY }
       setPos({ x: e.clientX, y: e.clientY })
@@ -54,6 +58,8 @@ export default function CustomCursor() {
     }
   }, [])
 
+  if (isMobile) return null
+
   return (
     <>
       <svg className="cursor-trail-svg" aria-hidden="true">
@@ -62,7 +68,7 @@ export default function CustomCursor() {
           <stop offset="60%" stopColor="var(--accent)" stopOpacity="0.25" />
           <stop offset="100%" stopColor="var(--accent)" stopOpacity="0.5" />
         </linearGradient>
-        <path d={path} fill="none" stroke="url(#trailGrad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path ref={pathRef} d="" fill="none" stroke="url(#trailGrad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
       <div className="custom-cursor" style={{ left: pos.x, top: pos.y }}>
         <svg width="26" height="34" viewBox="0 0 26 34" className="cursor-svg">
