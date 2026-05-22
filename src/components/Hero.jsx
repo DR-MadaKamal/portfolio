@@ -30,7 +30,7 @@ export default function Hero({ personalData: editedPersonalData }) {
             &gt; <TypeWriter />
           </motion.p>
 
-          <motion.p variants={child}>{data.summary}</motion.p>
+          <motion.p variants={child}>{data.heroSummary || data.summary}</motion.p>
 
           <motion.div className="hero-cta" variants={child}>
             <motion.a href={`mailto:${data.email}`} className="btn btn-solid"

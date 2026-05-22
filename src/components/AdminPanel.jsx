@@ -295,7 +295,7 @@ function ContentForm({ data, onSave }) {
 }
 
 function PersonalForm({ data, onSave }) {
-  const [d, setD] = useState(data.personalData)
+  const [d, setD] = useState({ ...defaultPersonal, ...data.personalData })
   const r = useRef(true)
   useEffect(() => { if (r.current) { r.current = false; return }; const t = setTimeout(() => onSave({ ...data, personalData: d }, 'Personal'), 500); return () => clearTimeout(t) }, [d])
   const set = (k, v) => setD({ ...d, [k]: v })
@@ -312,7 +312,10 @@ function PersonalForm({ data, onSave }) {
     <Input label="WhatsApp Number" value={d.whatsapp} onChange={v => set('whatsapp', v)} />
     <Input label="CV URL" value={d.cvUrl} onChange={v => set('cvUrl', v)} />
     <Input label="Tagline" value={d.tagline} onChange={v => set('tagline', v)} multiline />
-    <Input label="Summary" value={d.summary} onChange={v => set('summary', v)} multiline />
+    <div style={{fontSize:'0.72rem',color:'var(--text-dim)',margin:'4px 0'}}>— Hero section —</div>
+    <Input label="Hero Summary" value={d.heroSummary || ''} onChange={v => set('heroSummary', v)} multiline />
+    <div style={{fontSize:'0.72rem',color:'var(--text-dim)',margin:'4px 0'}}>— About section —</div>
+    <Input label="About Summary" value={d.summary} onChange={v => set('summary', v)} multiline />
     <Input label="Available for work" value={d.available} type="checkbox" />
   </div>)
 }

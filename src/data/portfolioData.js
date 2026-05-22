@@ -9,16 +9,12 @@ export const personalData = {
   dob: '26/5/1987',
   portfolioUrl: 'www.flavow-store.com',
   tagline: `Dreams without Goals, are just dreams. To achieve your Dreams you must apply discipline, but more important Consistency.`,
-  summary: `I am a dynamic professional bridging the gap between clinical healthcare and full-stack digital marketing. With a meticulous foundation in pharmacy management and advanced expertise in creative direction, I help B2B and B2C brands scale their reach and drive sustainable customer acquisition.
+  summary: `Results-driven professional bridging the gap between healthcare and digital marketing. Offers comprehensive expertise in pharmacy management alongside advanced full-stack marketing, brand strategy, and creative direction. Highly skilled in producing high-end motion graphics, utilizing AI development tools, and executing targeted campaigns to enhance customer engagement and drive sustainable business growth.`,
+  heroSummary: `I am a dynamic professional bridging the gap between clinical healthcare and full-stack digital marketing. With a meticulous foundation in pharmacy management and advanced expertise in creative direction, I help B2B and B2C brands scale their reach and drive sustainable customer acquisition.
 
-As the Founder and Lead Creative Director at Mada Kamal, I specialize in premium brand strategy, high-end motion graphics, and AI-driven workflows (including Google AI Studio). My approach combines analytical precision with innovative design to build scalable marketing campaigns, manage high-performing teams, and optimize budgets for maximum ROI.
+As the Founder and Lead Creative Director at Mada KamaL , I specialize in premium brand strategy, high-end motion graphics, and AI-driven workflows (including Google AI Studio). My approach combines analytical precision with innovative design to build scalable marketing campaigns, manage high-performing teams, and optimize budgets for maximum ROI.
 
-Core Expertise:
-• Full-Stack Digital Marketing & SEO
-• Brand Strategy & Identity
-• Motion Graphics & Video Editing (Adobe After Effects, Premiere Pro)
-• UI/Web Development & AI Integration
-• Pharmacy Operations & Healthcare Compliance
+💡 Core Expertise: • Full-Stack Digital Marketing & SEO • Brand Strategy & Identity • Motion Graphics & Video Editing (Adobe After Effects, Premiere Pro) • UI/Web Development & AI Integration • Pharmacy Operations & Healthcare Compliance
 
 I am always open to connecting with industry professionals, agency partners, and forward-thinking brands looking to elevate their digital presence.`,
   medicalFocus: [
