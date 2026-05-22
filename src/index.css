@@ -181,7 +181,7 @@ img { max-width: 100%; height: auto; }
   position: relative; z-index: 1;
   border-radius: 27px;
   padding: 2px;
-  background: linear-gradient(135deg, rgba(100,255,218,0.25), rgba(124,91,254,0.2));
+  background: linear-gradient(135deg, rgba(100,255,218,0.12), rgba(124,91,254,0.1));
 }
 .hero-glow {
   position: absolute; width: 480px; height: 480px; border-radius: 50%;
