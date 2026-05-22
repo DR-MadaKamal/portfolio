@@ -52,8 +52,11 @@ export const experience = [
     location: 'Remote / Freelance',
     logo: '/portfolio/images/adonis/breathe logo - white.png',
     highlights: [
-      'Founded and manage a creative agency delivering premium branding, motion graphics, and full-stack marketing solutions for B2B and B2C clients.',
-      'Selected work: Swell Lake Strip Mall (UI/UX conversion improvements), Bluecastle Caffee (UAE) product launch messaging + paid social, Adoni\'s & Breath Beauty Centers (high-conversion promo assets).',
+      'Founded and managed a freelance creative agency to serve a diverse portfolio of 20+ international B2B and B2C clients across healthcare, F&B, retail, real estate, and e-commerce sectors.',
+      'Delivered end-to-end services including brand identity development, graphics design, motion graphics production, digital marketing strategy, social media management, and media buying.',
+      'Provided full brand management for multiple clients — from visual identity and messaging to campaign execution and performance monitoring.',
+      'Executed paid social campaigns (Facebook, Instagram, LinkedIn) and managed ad budgets to maximize ROI and drive measurable client growth.',
+      'Produced high-end motion graphics and promotional videos for product launches, social ads, and brand storytelling.',
     ],
     media: [
       { title: 'Swell Lake', description: 'Landing page + conversion-focused UI/UX assets.', image: '/portfolio/images/swelllake/full timeline 1.png' },
