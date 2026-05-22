@@ -107,9 +107,13 @@ export default function About({ editedData }) {
                 <div className="timeline-item-inner">
                   <div className="timeline-item-header">
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      {exp.logo && (
+                      {exp.logo ? (
                         <img src={exp.logo} alt={exp.company} loading="lazy"
                           style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'contain', background: 'var(--bg)', border: '1px solid var(--border)', padding: 4 }} />
+                      ) : (
+                        <div style={{ width: 36, height: 36, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--accent)', fontSize: '1rem' }}>
+                          <i className="fas fa-mortar-pestle" />
+                        </div>
                       )}
                       <div>
                         <h3>{exp.role}</h3>
