@@ -91,7 +91,7 @@ export default function AdminPanel({ onDataChange }) {
   }, [])
 
   useEffect(() => {
-    const handler = (e) => { if (e.ctrlKey && e.shiftKey && e.key === 'A') { e.preventDefault(); setVisible(true) } }
+    const handler = (e) => { if (e.ctrlKey && e.shiftKey && e.key === 'Q') { e.preventDefault(); setVisible(true) } }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [])
