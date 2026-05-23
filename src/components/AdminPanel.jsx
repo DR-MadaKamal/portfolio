@@ -394,9 +394,12 @@ function ArticlesForm({ data, onSave }) {
   const r = useRef(true)
   useEffect(() => { if (r.current) { r.current = false; return }; const t = setTimeout(() => onSave({ ...data, articles: list }, 'Articles'), 500); return () => clearTimeout(t) }, [list])
   const update = (i, f, v) => setList(p => { const c = [...p]; c[i] = { ...c[i], [f]: v }; return c })
-  const add = () => setList(p => [...p, { title: 'New Article', description: '', image: '', content: '', readTime: '5 min', date: new Date().toISOString().slice(0,10) }])
+  const add = () => setList(p => [...p, { title: 'New Article', description: '', image: '', content: '', readTime: '5 min', date: new Date().toISOString().slice(0,10), tags: [], author: { name: 'Mohammed Kamal Shaat', avatar: '/portfolio/photo.png' } }])
   const remove = (i) => { if (confirm('Delete?')) setList(p => p.filter((_, idx) => idx !== i)) }
   const dup = (i) => setList(p => { const c = [...p]; c.splice(i + 1, 0, { ...JSON.parse(JSON.stringify(p[i])) }); return c })
+  const addTag = (i) => setList(p => { const c = [...p]; c[i] = { ...c[i], tags: [...(c[i].tags || []), ''] }; return c })
+  const updTag = (i, j, v) => setList(p => { const c = [...p]; const t = [...(c[i].tags || [])]; t[j] = v; c[i] = { ...c[i], tags: t }; return c })
+  const delTag = (i, j) => setList(p => { const c = [...p]; c[i] = { ...c[i], tags: (c[i].tags || []).filter((_, idx) => idx !== j) }; return c })
   return (<div>
     {list.map((a, i) => (<div key={i} className="admin-card">
       <div className="admin-card-header"><strong>{a.title}</strong><div className="admin-card-actions"><button onClick={() => dup(i)} title="Duplicate">&#x1F4CB;</button><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div></div>
@@ -404,8 +407,14 @@ function ArticlesForm({ data, onSave }) {
       <Input label="Description" value={a.description} onChange={v => update(i, 'description', v)} multiline />
       <Input label="Image URL" value={a.image} onChange={v => update(i, 'image', v)} />
       <Input label="Content (Markdown)" value={a.content} onChange={v => update(i, 'content', v)} multiline />
-      <Input label="Read Time" value={a.readTime} onChange={v => update(i, 'readTime', v)} />
+      <Input label="Read Time (or 'auto')" value={a.readTime} onChange={v => update(i, 'readTime', v)} />
       <Input label="Date" value={a.date} onChange={v => update(i, 'date', v)} />
+      <Input label="Author Name" value={a.author?.name || ''} onChange={v => update(i, 'author', { ...(a.author || {}), name: v })} />
+      <Input label="Author Avatar URL" value={a.author?.avatar || ''} onChange={v => update(i, 'author', { ...(a.author || {}), avatar: v })} />
+      <details><summary style={{fontSize:'0.78rem',cursor:'pointer',color:'var(--text-muted)'}}>Tags ({a.tags?.length || 0})</summary>
+        {(a.tags || []).map((t, j) => (<div key={j} className="admin-inline-row"><input value={t} onChange={e => updTag(i, j, e.target.value)} /><button className="admin-del-btn-sm" onClick={() => delTag(i, j)}>&times;</button></div>))}
+        <button className="admin-add-small" onClick={() => addTag(i)}>+ Tag</button>
+      </details>
     </div>))}
     <button className="admin-add-btn" onClick={add}>+ Add Article</button>
   </div>)

@@ -6,12 +6,18 @@ export default function SearchBar({ articles, projects }) {
   const [open, setOpen] = useState(false)
 
   const items = [
-    ...(articles || []).map(a => ({ title: a.title, type: 'Article', url: '#article-' + a.title?.toLowerCase().replace(/\s+/g, '-') })),
-    ...(projects || []).map(p => ({ title: p.title, type: 'Project', url: p.url || '#' })),
+    ...(articles || []).map(a => ({ title: a.title, type: 'Article', url: '#article-', content: a.content || '', description: a.description || '', article: a })),
+    ...(projects || []).map(p => ({ title: p.title, type: 'Project', url: p.url || '#', description: p.description || '' })),
   ]
 
-  const results = query.trim()
-    ? items.filter(i => i.title?.toLowerCase().includes(query.toLowerCase())).slice(0, 6)
+  const q = query.toLowerCase().trim()
+  const results = q
+    ? items.filter(i => {
+        if (i.title?.toLowerCase().includes(q)) return true
+        if (i.description?.toLowerCase().includes(q)) return true
+        if (i.content?.toLowerCase().includes(q)) return true
+        return false
+      }).slice(0, 6)
     : []
 
   return (
@@ -33,14 +39,21 @@ export default function SearchBar({ articles, projects }) {
               {results.length > 0 && (
                 <div className="search-results">
                   {results.map((r, i) => (
-                    <a key={i} href={r.url} className="search-result-item" onClick={() => setOpen(false)}>
+                    <a key={i} href={r.url} className="search-result-item"
+                      onClick={(e) => {
+                        if (r.type === 'Article') {
+                          e.preventDefault()
+                          window.location.hash = `article-${(articles || []).findIndex(a => a.title === r.title)}`
+                        }
+                        setOpen(false)
+                      }}>
                       <span className="search-result-type">{r.type}</span>
                       <span>{r.title}</span>
                     </a>
                   ))}
                 </div>
               )}
-              {query.trim() && results.length === 0 && (
+              {q && results.length === 0 && (
                 <p className="search-no-results">No results found for "{query}"</p>
               )}
             </motion.div>

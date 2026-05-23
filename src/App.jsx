@@ -62,15 +62,38 @@ function applyTheme(theme) {
   })
 }
 
+function renderSearchConsoleMeta(metaContent) {
+  if (!metaContent) return
+  let el = document.querySelector('meta[name="google-site-verification"]')
+  if (!el) { el = document.createElement('meta'); el.setAttribute('name', 'google-site-verification'); document.head.appendChild(el) }
+  el.setAttribute('content', metaContent)
+}
+
 function App() {
   const [activeSection, setActiveSection] = useState('home')
   const [editedData, setEditedData] = useState(loadSaved)
+  const [articleHashIdx, setArticleHashIdx] = useState(null)
 
   useEffect(() => { trackVisit() }, [])
 
   useEffect(() => {
     if (editedData?.settings?.theme) applyTheme(editedData.settings.theme)
+    if (editedData?.settings?.tools?.searchConsoleMeta) renderSearchConsoleMeta(editedData.settings.tools.searchConsoleMeta)
   }, [editedData])
+
+  useEffect(() => {
+    const match = window.location.hash.match(/^#article-(\d+)$/)
+    if (match) {
+      setArticleHashIdx(parseInt(match[1]))
+    }
+    const onHashChange = () => {
+      const m = window.location.hash.match(/^#article-(\d+)$/)
+      if (m) setArticleHashIdx(parseInt(m[1]))
+      else setArticleHashIdx(null)
+    }
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
+  }, [])
 
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
@@ -100,7 +123,7 @@ function App() {
     { key: 'quote', comp: <QuoteRotator quotes={d?.quotes} /> },
     { key: 'tools', comp: <ToolsShowcase tools={d?.tools} /> },
     { key: 'faq', comp: <FAQSection faq={d?.faq} /> },
-    { key: 'articles', comp: <Articles articles={d?.articles} /> },
+    { key: 'articles', comp: <Articles articles={d?.articles} initialArticleIdx={articleHashIdx} onArticleOpened={(idx) => { if (idx < 0) setArticleHashIdx(null); else setArticleHashIdx(idx) }} /> },
     { key: 'portfolio-download', comp: <PortfolioDownload /> },
     { key: 'contact', comp: <SayHello /> },
     { key: 'map', comp: <GoogleMapsEmbed location={d?.personalData?.location} /> },

@@ -232,6 +232,8 @@ export const courses = [
   { name: 'Marketing on Facebook', provider: 'LinkedIn', year: '10/2021' },
 ]
 
+const articleAuthor = { name: 'Mohammed Kamal Shaat', avatar: '/portfolio/photo.png' }
+
 export const articles = [
   {
     title: 'The Role of AI in Modern Medical Marketing',
@@ -239,6 +241,8 @@ export const articles = [
     image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600',
     readTime: '8 min read',
     date: '2026-02-15',
+    tags: ['AI', 'Medical Marketing', 'Healthcare', 'Technology'],
+    author: articleAuthor,
     content: `Artificial intelligence is no longer a futuristic concept — it is reshaping the healthcare marketing landscape right now.
 
 ## Personalization at Scale
@@ -247,8 +251,19 @@ AI algorithms analyze patient data, behavior patterns, and treatment histories t
 ## Predictive Analytics
 By leveraging machine learning models, marketers can predict patient needs, medication adherence patterns, and even potential health risks before they become critical.
 
+> "The best way to predict the future is to create it." — Peter Drucker
+
+AI-powered predictive analytics do exactly that: they help us anticipate patient behavior and tailor interventions accordingly.
+
 ## Content Generation
 AI-powered tools can generate medical content, social media posts, and even video scripts that comply with regulatory standards while maintaining engagement.
+
+### Natural Language Processing in Action
+\`\`\`
+Example: An AI copilot generates a compliant social post:
+Input: "New diabetes medication, once-daily dosing"
+Output: "Managing diabetes just got simpler. Ask your doctor about our once-daily treatment option. #DiabetesCare"
+\`\`\`
 
 ## Chatbots & Virtual Assistants
 24/7 patient support through AI chatbots reduces workload on healthcare staff while providing instant, accurate information to patients.
@@ -264,10 +279,19 @@ The key is to embrace AI not as a replacement for human creativity, but as a pow
     image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=600',
     readTime: '10 min read',
     date: '2026-01-20',
+    tags: ['Pharma', 'Brand Strategy', 'HCP', 'Regulatory'],
+    author: articleAuthor,
     content: `Brand building in the pharmaceutical industry comes with unique challenges and opportunities.
 
 ## Understanding the Regulatory Landscape
 Unlike consumer brands, pharma brands must navigate strict regulations around what can be claimed, how products can be marketed, and to whom. This requires a deep understanding of FDA, EMA, and local regulatory frameworks.
+
+### Key Regulatory Bodies
+| Body | Region | Focus |
+|------|--------|-------|
+| FDA | USA | Drug approval, advertising |
+| EMA | Europe | Centralized authorization |
+| NOPA | Egypt | Local pharma regulation |
 
 ## HCP Engagement Strategies
 Healthcare professionals are busy, skeptical, and information-rich. Successful pharma brands engage HCPs through:
@@ -275,6 +299,8 @@ Healthcare professionals are busy, skeptical, and information-rich. Successful p
 - Peer-to-peer discussion platforms
 - Digital detailing tools
 - Medical congress presence
+
+> "Trust is the currency of pharma marketing. Without it, no campaign succeeds."
 
 ## Omnichannel Marketing
 Patients and HCPs interact across multiple touchpoints. An omnichannel approach ensures consistent messaging whether the audience is on:
@@ -292,7 +318,15 @@ Traditional metrics like awareness and recall matter, but pharma brands should a
 - HCP engagement depth
 - Patient adherence rates
 - Quality of interactions
-- Regulatory compliance scores`,
+- Regulatory compliance scores
+
+\`\`\`
+KPIs for Pharma Marketing:
+Engagement Rate   > 15%
+Adherence Lift    > 20%
+Compliance Score  > 95%
+HCP Satisfaction  > 4.5/5
+\`\`\``,
   },
   {
     title: 'Motion Graphics: The Secret Weapon for Engagement',
@@ -300,16 +334,36 @@ Traditional metrics like awareness and recall matter, but pharma brands should a
     image: 'https://images.unsplash.com/photo-1536240478700-b869070f9279?w=600',
     readTime: '6 min read',
     date: '2025-12-10',
+    tags: ['Motion Graphics', 'Video', 'Digital Campaigns', 'Creative'],
+    author: articleAuthor,
     content: `In a world of shrinking attention spans, motion graphics have emerged as the most effective way to capture and retain audience attention.
 
 ## Why Motion Graphics Work
 The human brain processes visual information 60,000 times faster than text. When motion is added, retention rates increase by up to 65%.
 
+> "A picture is worth a thousand words. An animation is worth a million."
+
 ## Applications in Medical Marketing
-- **Product Launches**: Animated explainer videos that simplify complex mechanisms of action
-- **Social Media**: Short, punchy animated posts that stop the scroll
-- **Presentations**: Dynamic graphs and data visualizations for HCP detailing
-- **Patient Education**: Animated journey maps that help patients understand treatment pathways
+
+### Product Launches
+Animated explainer videos that simplify complex mechanisms of action — turning dense scientific data into digestible visual stories.
+
+### Social Media
+Short, punchy animated posts that stop the scroll and drive engagement in crowded feeds.
+
+\`\`\`
+Motion Graphics Best Practices:
+- Duration: 30-60 seconds optimal
+- First 3 seconds: Hook the viewer
+- Text overlay: 5-7 words max per frame
+- CTA: Clear and actionable
+\`\`\`
+
+### Presentations
+Dynamic graphs and data visualizations for HCP detailing that make clinical data come alive.
+
+### Patient Education
+Animated journey maps that help patients understand treatment pathways in a clear, empathetic way.
 
 ## Best Practices
 1. Keep it short — 30-60 seconds is optimal
@@ -320,6 +374,247 @@ The human brain processes visual information 60,000 times faster than text. When
 
 ## Tools of the Trade
 Professional motion graphics require expertise in After Effects, Cinema 4D, and sometimes custom scripting. The investment pays off through higher engagement rates, longer dwell times, and improved brand recall.`,
+  },
+  {
+    title: 'SEO for Healthcare Websites: A Complete Guide',
+    description: 'Master healthcare SEO with strategies for medical websites, local search optimization, and compliance-aware content marketing.',
+    image: 'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=600',
+    readTime: '12 min read',
+    date: '2025-10-05',
+    tags: ['SEO', 'Healthcare', 'Content Marketing', 'Digital Strategy'],
+    author: articleAuthor,
+    content: `Search engine optimization in the healthcare sector requires a delicate balance between technical SEO best practices and strict regulatory compliance.
+
+## Why Healthcare SEO Matters
+Patients begin their healthcare journey online. Studies show that 77% of patients use search engines before booking an appointment or choosing a treatment.
+
+## Technical SEO for Medical Sites
+
+### Site Structure
+A clear hierarchy helps both users and search engines navigate your content:
+\`\`\`
+Home
+├── Specialties
+│   ├── Cardiology
+│   ├── Neurology
+│   └── Orthopedics
+├── Conditions
+│   ├── Diabetes
+│   └── Hypertension
+└── Patient Resources
+\`\`\`
+
+### Core Web Vitals
+Google prioritizes sites that load quickly and provide a smooth user experience. For healthcare sites, this is doubly important as patients often browse on mobile devices.
+
+## Local SEO for Healthcare Providers
+
+> "Near me" searches have grown 200% in the healthcare vertical over the past two years.
+
+### Google Business Profile Optimization
+- Complete every field, including services and insurance accepted
+- Collect and respond to patient reviews
+- Post regular updates about hours, services, and news
+- Use local keywords naturally in descriptions
+
+## Content Marketing in Healthcare
+
+### Topics That Rank
+- Symptom explanations (e.g., "What causes lower back pain?")
+- Treatment comparisons ("Laser vs traditional surgery")
+- Preventive care guides ("Annual checkup checklist")
+- Patient success stories (with HIPAA-compliant anonymization)
+
+### E-E-A-T: Experience, Expertise, Authoritativeness, Trustworthiness
+Google's quality raters evaluate healthcare content more strictly than any other vertical. Your content must demonstrate:
+- **Experience**: Real patient cases and practical insights
+- **Expertise**: Author credentials and medical references
+- **Authoritativeness**: Backlinks from reputable medical sources
+- **Trustworthiness**: Transparent about conflicts, accurate citations
+
+## Avoiding Compliance Pitfalls
+\`\`\`
+DO: Use phrases like "may help," "studies suggest," "consult your doctor"
+DON'T: Promise cures, make unsubstantiated claims, or substitute medical advice
+\`\`\`
+
+Healthcare SEO is a long-term investment that pays dividends in patient trust and organic visibility.`,
+  },
+  {
+    title: 'The Complete Guide to Facebook & Meta Ads for Clinics',
+    description: 'Step-by-step strategies for running compliant, high-ROI Meta advertising campaigns for healthcare clinics and medical practices.',
+    image: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600',
+    readTime: '9 min read',
+    date: '2025-08-20',
+    tags: ['Social Media Ads', 'Meta Ads', 'Clinics', 'PPC'],
+    author: articleAuthor,
+    content: `Meta (Facebook) advertising offers healthcare providers one of the most cost-effective ways to reach new patients — but it comes with unique restrictions.
+
+## Understanding Meta's Healthcare Advertising Policies
+Meta classifies healthcare ads as "Special Ad Category" for credit, employment, housing, and social issues. This means:
+- Reduced targeting options (no age, gender, or zip code targeting)
+- No discriminatory language
+- Must comply with local regulations
+- Limited lookalike audiences
+
+## Campaign Structure for Clinics
+
+### Top-of-Funnel: Awareness
+Target broad audiences with educational content about conditions and treatments.
+
+\`\`\`
+Example Campaign: "Know Your Heart Health"
+Budget: $15/day | Duration: 30 days
+Creative: Animated infographic on heart disease warning signs
+Audience: Interest-based (heart health, fitness, healthy eating)
+\`\`\`
+
+### Middle-of-Funnel: Consideration
+Retarget users who engaged with awareness content.
+
+Key tactics:
+- Patient testimonial videos
+- Virtual tour of the clinic
+- Doctor introduction reels
+- FAQ carousel ads
+
+### Bottom-of-Funnel: Conversion
+Direct appointment booking ads optimized for conversions.
+
+> "The best healthcare ad doesn't feel like an ad — it feels like helpful information from a trusted professional."
+
+## Ad Creative Best Practices
+
+### Video Content
+- Length: 15-30 seconds for maximum retention
+- Start with the patient's pain point
+- Show the solution (treatment, consultation)
+- End with a clear CTA: "Book Your Consultation"
+
+### Image Ads
+- High-quality, authentic photos (avoid stock imagery)
+- Real clinic environment and staff
+- Before/after results (with consent)
+- Clear, readable text overlay
+
+## Budget Optimization
+\`\`\`
+Recommended Budget Split:
+Awareness: 20%
+Consideration: 40%
+Conversion: 40%
+
+Optimal Test Budget: $15-25/day per ad set
+\`\`\`
+
+## Tracking & Measurement
+Always implement the Meta Pixel and set up conversion tracking for:
+- Appointment bookings
+- Phone calls (click-to-call)
+- Form submissions
+- WhatsApp messages
+
+Healthcare advertising on Meta can deliver 3-5x ROAS when done correctly with the right creative and targeting strategy.`,
+  },
+  {
+    title: 'How to Build a High-Converting Medical Website',
+    description: 'From UX design to patient journey mapping — everything you need to create a medical website that attracts, converts, and retains patients.',
+    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600',
+    readTime: '11 min read',
+    date: '2025-06-15',
+    tags: ['Web Design', 'UX', 'Medical Websites', 'Conversion'],
+    author: articleAuthor,
+    content: `A medical website is often the first point of contact between a patient and a healthcare provider. Getting it right means the difference between a booked appointment and a bounced visitor.
+
+## The Patient Journey Online
+
+### Stage 1: Discovery
+The patient searches for symptoms, conditions, or "doctor near me." Your site needs:
+- Fast loading speed (under 3 seconds)
+- Mobile-first responsive design
+- Clear value proposition above the fold
+- Schema markup for rich results
+
+### Stage 2: Evaluation
+The patient compares options. Critical elements:
+- Doctor profiles with credentials and photos
+- Patient testimonials and success stories
+- Insurance and payment information
+- Virtual tour or clinic photos
+
+### Stage 3: Conversion
+The patient decides to book. Make it frictionless:
+
+> "Every extra click between a patient and an appointment form costs you 20% of potential conversions."
+
+\`\`\`
+Conversion Rate Benchmarks for Medical Sites:
+Industry Average: 3-5%
+Top Performers: 8-12%
+With Chat: 12-18%
+\`\`\`
+
+## UX Design Principles for Healthcare
+
+### Trust Signals
+Place these prominently on every page:
+1. Professional affiliations and certifications
+2. Patient ratings and reviews
+3. Secure connection (HTTPS, SSL badge)
+4. Clear privacy policy
+5. Real photos of staff and facility
+
+### Accessibility
+Healthcare websites must serve all patients, including those with disabilities:
+- WCAG 2.1 AA compliance minimum
+- Screen reader friendly navigation
+- High contrast text options
+- Font size controls
+- Alt text on all images
+
+## Essential Pages Every Medical Site Needs
+
+### Homepage
+- Hero section with clear value prop
+- Key services overview
+- Patient testimonials
+- Quick appointment CTA
+
+### About Page
+- Doctor/team bios with photos
+- Credentials and certifications
+- Philosophy of care
+- Virtual clinic tour
+
+### Services Pages
+Individual pages for each major service with:
+- Detailed description
+- FAQ section
+- Related conditions
+- Patient resources
+- Appointment CTA
+
+### Blog/Resources
+- Educational content optimized for SEO
+- Patient education materials
+- Videos and infographics
+- Downloadable guides
+
+## Technical Checklist
+\`\`\`
+✓ SSL Certificate installed
+✓ Mobile responsive (test on 3+ devices)
+✓ Page speed > 80 on mobile (Google PageSpeed)
+✓ Schema markup (MedicalBusiness, Physician)
+✓ OG meta tags for social sharing
+✓ Analytics and tracking installed
+✓ HIPAA-compliant forms (if applicable)
+✓ Cookie consent banner
+✓ Privacy policy page
+✓ Terms of service page
+\`\`\`
+
+A well-designed medical website is your most powerful marketing asset. Invest in it wisely.`,
   },
 ]
 

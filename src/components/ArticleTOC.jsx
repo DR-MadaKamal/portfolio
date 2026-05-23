@@ -1,12 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 
 export default function ArticleTOC({ content }) {
-  const [headings, setHeadings] = useState([])
-
-  useEffect(() => {
-    if (!content) return
-    const h2s = content.match(/^##\s+(.+)$/gm)
-    if (h2s) setHeadings(h2s.map(h => h.replace(/^##\s+/, '')))
+  const headings = useMemo(() => {
+    if (!content) return []
+    const results = []
+    const lines = content.split('\n')
+    for (const line of lines) {
+      if (line.startsWith('### ')) results.push({ level: 3, text: line.replace(/^###\s+/, '') })
+      else if (line.startsWith('## ')) results.push({ level: 2, text: line.replace(/^##\s+/, '') })
+    }
+    return results
   }, [content])
 
   if (headings.length < 2) return null
@@ -16,12 +19,12 @@ export default function ArticleTOC({ content }) {
       <strong className="article-toc-title">Table of Contents</strong>
       <ul>
         {headings.map((h, i) => (
-          <li key={i}>
+          <li key={i} style={{ paddingLeft: h.level === 3 ? 16 : 0 }}>
             <a href={`#toc-${i}`} onClick={(e) => {
               e.preventDefault()
               const el = document.getElementById(`toc-${i}`)
               if (el) el.scrollIntoView({ behavior: 'smooth' })
-            }}>{h}</a>
+            }}>{h.text}</a>
           </li>
         ))}
       </ul>
