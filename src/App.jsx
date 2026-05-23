@@ -151,9 +151,12 @@ function App() {
       <AnalyticsDashboard />
       <Footer personalData={d?.personalData} />
       {tools.googleAnalyticsId && (
-        <script dangerouslySetInnerHTML={{
-          __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${tools.googleAnalyticsId}');`
-        }} />
+        <>
+          <script async src={`https://www.googletagmanager.com/gtag/js?id=${tools.googleAnalyticsId}`} />
+          <script dangerouslySetInnerHTML={{
+            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${tools.googleAnalyticsId}');`
+          }} />
+        </>
       )}
       {tools.facebookPixelId && (
         <script dangerouslySetInnerHTML={{

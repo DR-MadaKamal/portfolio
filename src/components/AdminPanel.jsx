@@ -52,7 +52,7 @@ const defaultTheme = {
 }
 
 const defaultTools = {
-  googleAnalyticsId: '', facebookPixelId: '', searchConsoleMeta: '', chatCode: '', calendlyLink: '',
+  googleAnalyticsId: 'G-8KGJ55VFQ2', facebookPixelId: '', searchConsoleMeta: '', chatCode: '', calendlyLink: '',
   newsletterEnabled: true, cookieConsentEnabled: true, pwaEnabled: true, rssEnabled: true,
   fontFamily: 'Inter', imageCdn: '', maintenanceMode: false, maintenanceMsg: 'Under maintenance — back soon!',
 }
