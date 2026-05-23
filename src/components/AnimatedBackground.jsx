@@ -42,7 +42,7 @@ export default function AnimatedBackground() {
     const ctx = canvas.getContext('2d')
     let animId
     let mouse = { x: -1000, y: -1000 }
-    const particles = Array.from({ length: 35 }, () => ({
+    const particles = Array.from({ length: 75 }, () => ({
       x: rand(0, window.innerWidth),
       y: rand(0, window.innerHeight),
       vx: rand(-0.4, 0.4),
