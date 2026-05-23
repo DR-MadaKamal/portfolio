@@ -42,13 +42,13 @@ export default function AnimatedBackground() {
     const ctx = canvas.getContext('2d')
     let animId
     let mouse = { x: -1000, y: -1000 }
-    const particles = Array.from({ length: 30 }, () => ({
+    const particles = Array.from({ length: 35 }, () => ({
       x: rand(0, window.innerWidth),
       y: rand(0, window.innerHeight),
-      vx: rand(-0.3, 0.3),
-      vy: rand(-0.3, 0.3),
-      r: rand(1.5, 3.5),
-      hue: rand(160, 200),
+      vx: rand(-0.4, 0.4),
+      vy: rand(-0.4, 0.4),
+      r: rand(2, 4),
+      hue: rand(150, 210),
     }))
 
     const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight }
@@ -66,15 +66,17 @@ export default function AnimatedBackground() {
         const dx = mouse.x - p.x
         const dy = mouse.y - p.y
         const dist = Math.sqrt(dx * dx + dy * dy)
-        if (dist < 250) {
-          p.vx += (dx / dist) * 0.02
-          p.vy += (dy / dist) * 0.02
-          ctx.beginPath()
-          ctx.moveTo(p.x, p.y)
-          ctx.lineTo(mouse.x, mouse.y)
-          ctx.strokeStyle = `hsla(${p.hue}, 70%, 70%, ${(1 - dist / 250) * 0.15})`
-          ctx.lineWidth = 0.5
-          ctx.stroke()
+        if (dist < 280) {
+          p.vx += (dx / dist) * 0.03
+          p.vy += (dy / dist) * 0.03
+          if (dist < 200) {
+            ctx.beginPath()
+            ctx.moveTo(p.x, p.y)
+            ctx.lineTo(mouse.x, mouse.y)
+            ctx.strokeStyle = `hsla(${p.hue}, 80%, 75%, ${(1 - dist / 200) * 0.3})`
+            ctx.lineWidth = 1
+            ctx.stroke()
+          }
         }
         p.vx *= 0.99
         p.vy *= 0.99
@@ -84,7 +86,11 @@ export default function AnimatedBackground() {
         if (p.y < 0 || p.y > canvas.height) p.vy *= -1
         ctx.beginPath()
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
-        ctx.fillStyle = `hsla(${p.hue}, 60%, 60%, 0.3)`
+        ctx.fillStyle = `hsla(${p.hue}, 70%, 65%, 0.45)`
+        ctx.fill()
+        ctx.beginPath()
+        ctx.arc(p.x, p.y, p.r * 2, 0, Math.PI * 2)
+        ctx.fillStyle = `hsla(${p.hue}, 70%, 65%, 0.08)`
         ctx.fill()
       }
       animId = requestAnimationFrame(draw)
