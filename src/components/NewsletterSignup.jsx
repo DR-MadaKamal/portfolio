@@ -1,15 +1,18 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { showToast } from '../utils/toast'
 
 export default function NewsletterSignup() {
   const [email, setEmail] = useState('')
-  const [done, setDone] = useState(false)
 
   const submit = (e) => {
     e.preventDefault()
-    if (!email) return
-    setDone(true)
-    setTimeout(() => { setDone(false); setEmail('') }, 3000)
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showToast('Please enter a valid email address', 'error')
+      return
+    }
+    showToast('Thanks for subscribing!', 'success')
+    setEmail('')
   }
 
   return (
@@ -24,18 +27,11 @@ export default function NewsletterSignup() {
           initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
           Get the latest articles, tips, and portfolio updates straight to your inbox.
         </motion.p>
-        {done ? (
-          <motion.p className="newsletter-success"
-            initial={{ scale: 0 }} animate={{ scale: 1 }}>
-            <i className="fas fa-check-circle" /> Thanks for subscribing!
-          </motion.p>
-        ) : (
-          <form onSubmit={submit} className="newsletter-form">
-            <input type="email" value={email} onChange={e => setEmail(e.target.value)}
-              placeholder="Your email address" required />
-            <button type="submit"><i className="fas fa-arrow-right" /></button>
-          </form>
-        )}
+        <form onSubmit={submit} className="newsletter-form">
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+            placeholder="Your email address" required />
+          <button type="submit"><i className="fas fa-arrow-right" /></button>
+        </form>
       </div>
     </section>
   )

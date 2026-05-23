@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect, useRef } from 'react'
 
 const icons = [
   { cls: 'fab fa-facebook-f' }, { cls: 'fab fa-twitter' }, { cls: 'fab fa-instagram' }, { cls: 'fab fa-linkedin-in' }, { cls: 'fab fa-youtube' },
@@ -10,42 +10,111 @@ const icons = [
 const rand = (min, max) => Math.random() * (max - min) + min
 
 export default function AnimatedBackground() {
+  const canvasRef = useRef(null)
+
   const count = typeof window !== 'undefined' && window.innerWidth < 768 ? 8 : 16
 
   const items = useMemo(() =>
     Array.from({ length: count }, (_, i) => {
       const item = icons[i % icons.length]
-      const style = {
-        '--x': `${rand(1, 95)}%`,
-        '--y': `${rand(1, 93)}%`,
-        '--s': `${rand(14, 30)}px`,
-        '--d': `${rand(10, 22)}s`,
-        '--delay': `${rand(0, 10)}s`,
-        '--dx': `${rand(-60, 60)}px`,
-        '--dy': `${rand(-40, 40)}px`,
-        '--hue': rand(0, 360),
-        '--dr': `${rand(0, 360)}deg`,
+      return {
+        cls: item.cls,
+        style: {
+          '--x': `${rand(1, 95)}%`,
+          '--y': `${rand(1, 93)}%`,
+          '--s': `${rand(14, 30)}px`,
+          '--d': `${rand(10, 22)}s`,
+          '--delay': `${rand(0, 10)}s`,
+          '--dx': `${rand(-60, 60)}px`,
+          '--dy': `${rand(-40, 40)}px`,
+          '--hue': rand(0, 360),
+          '--dr': `${rand(0, 360)}deg`,
+        },
+        key: i,
       }
-      return { cls: item.cls, style, key: i }
     }),
     [count],
   )
 
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    let animId
+    let mouse = { x: -1000, y: -1000 }
+    const particles = Array.from({ length: 30 }, () => ({
+      x: rand(0, window.innerWidth),
+      y: rand(0, window.innerHeight),
+      vx: rand(-0.3, 0.3),
+      vy: rand(-0.3, 0.3),
+      r: rand(1.5, 3.5),
+      hue: rand(160, 200),
+    }))
+
+    const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight }
+    resize()
+    window.addEventListener('resize', resize)
+
+    const onMove = (e) => { mouse.x = e.clientX; mouse.y = e.clientY }
+    const onLeave = () => { mouse.x = -1000; mouse.y = -1000 }
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseleave', onLeave)
+
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      for (const p of particles) {
+        const dx = mouse.x - p.x
+        const dy = mouse.y - p.y
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        if (dist < 250) {
+          p.vx += (dx / dist) * 0.02
+          p.vy += (dy / dist) * 0.02
+          ctx.beginPath()
+          ctx.moveTo(p.x, p.y)
+          ctx.lineTo(mouse.x, mouse.y)
+          ctx.strokeStyle = `hsla(${p.hue}, 70%, 70%, ${(1 - dist / 250) * 0.15})`
+          ctx.lineWidth = 0.5
+          ctx.stroke()
+        }
+        p.vx *= 0.99
+        p.vy *= 0.99
+        p.x += p.vx
+        p.y += p.vy
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1
+        ctx.beginPath()
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
+        ctx.fillStyle = `hsla(${p.hue}, 60%, 60%, 0.3)`
+        ctx.fill()
+      }
+      animId = requestAnimationFrame(draw)
+    }
+    draw()
+
+    return () => {
+      cancelAnimationFrame(animId)
+      window.removeEventListener('resize', resize)
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseleave', onLeave)
+    }
+  }, [])
+
   return (
-    <div className="bg-animated-icons">
-      {items.map(({ cls, style, key }) => (
-        <i
-          key={key}
-          className={cls}
-          style={{
-            position: 'fixed', left: style['--x'], top: style['--y'],
-            fontSize: style['--s'], color: `hsla(${style['--hue']}, 65%, 60%, 0.12)`,
-            pointerEvents: 'none', zIndex: 0,
-            animation: `bgFloat ${style['--d']} ease-in-out ${style['--delay']} infinite`,
-            willChange: 'transform',
-          }}
-        />
-      ))}
-    </div>
+    <>
+      <canvas ref={canvasRef} className="bg-particles" />
+      <div className="bg-animated-icons">
+        {items.map(({ cls, style, key }) => (
+          <i key={key} className={cls}
+            style={{
+              position: 'fixed', left: style['--x'], top: style['--y'],
+              fontSize: style['--s'],
+              color: `hsla(${style['--hue']}, 65%, 60%, 0.12)`,
+              pointerEvents: 'none', zIndex: 0,
+              animation: `bgFloat ${style['--d']} ease-in-out ${style['--delay']} infinite`,
+              willChange: 'transform',
+            }} />
+        ))}
+      </div>
+    </>
   )
 }

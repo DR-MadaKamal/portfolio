@@ -15,6 +15,12 @@ export default function Navbar({ activeSection, setActiveSection, projects, arti
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  useEffect(() => {
+    if (mobileOpen) document.body.style.overflow = 'hidden'
+    else document.body.style.overflow = ''
+    return () => { document.body.style.overflow = '' }
+  }, [mobileOpen])
+
   const scrollTo = (id) => {
     setActiveSection(id)
     setMobileOpen(false)
@@ -40,20 +46,34 @@ export default function Navbar({ activeSection, setActiveSection, projects, arti
           <LanguageToggle />
         </div>
 
-        <button className="nav-mobile-btn" onClick={() => setMobileOpen(!mobileOpen)}>
+        <button className="nav-mobile-btn" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Menu">
           <i className={`fas fa-${mobileOpen ? 'times' : 'bars'}`} />
         </button>
 
         <AnimatePresence>
           {mobileOpen && (
-            <motion.div className="nav-mobile-menu" initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
-              {links.map((l, i) => (
-                <button key={i} className="nav-mobile-link" onClick={() => scrollTo(ids[i])}>{l}</button>
-              ))}
-              <div className="nav-mobile-link" style={{ justifyContent: 'center' }}>
-                <LanguageToggle />
-              </div>
+            <motion.div className="nav-mobile-overlay"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setMobileOpen(false)}>
+              <motion.div className="nav-mobile-sheet"
+                initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+                transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+                onClick={(e) => e.stopPropagation()}>
+                <div className="nav-mobile-handle" />
+                {links.map((l, i) => (
+                  <motion.button key={i} className={`nav-mobile-link${activeSection === ids[i] ? ' active' : ''}`}
+                    onClick={() => scrollTo(ids[i])}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05 }}>
+                    <span className="nav-mobile-dot" />
+                    {l}
+                  </motion.button>
+                ))}
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
+                  <LanguageToggle />
+                </div>
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>

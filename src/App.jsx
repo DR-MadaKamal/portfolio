@@ -11,6 +11,7 @@ import SayHello from './components/SayHello'
 import ScrollToTop from './components/ScrollToTop'
 import ScrollProgressBar from './components/ScrollProgressBar'
 import AnimatedBackground from './components/AnimatedBackground'
+import Toast from './components/Toast'
 import AdminPanel from './components/AdminPanel'
 import WhatsAppButton from './components/WhatsAppButton'
 import CustomCursor from './components/CustomCursor'
@@ -138,6 +139,7 @@ function App() {
       <CustomCursor />
       <SoundEffects />
       <ScrollProgressBar />
+      <Toast />
       <AdminPanel onDataChange={setEditedData} />
       <LiveChatWidget chatCode={tools.chatCode} />
       <Navbar activeSection={activeSection} setActiveSection={setActiveSection}

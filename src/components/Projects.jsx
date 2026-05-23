@@ -4,8 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import TiltCard from './TiltCard'
 import { useLang } from '../context/LangContext'
 
-const container = { initial: {}, animate: { transition: { staggerChildren: 0.08 } } }
+const container = { initial: {}, animate: { transition: { staggerChildren: 0.06 } } }
 const cardAnim = { initial: { opacity: 0, y: 40 }, animate: { opacity: 1, y: 0, transition: { duration: 0.5 } } }
+const reveal = { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: '-60px' }, transition: { duration: 0.5 } }
 
 export default function Projects({ projects: editedProjects }) {
   const { t } = useLang()
