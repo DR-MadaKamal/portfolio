@@ -73,7 +73,7 @@ export default function AnimatedBackground() {
             ctx.beginPath()
             ctx.moveTo(p.x, p.y)
             ctx.lineTo(mouse.x, mouse.y)
-            ctx.strokeStyle = `hsla(${p.hue}, 80%, 75%, ${(1 - dist / 200) * 0.3})`
+            ctx.strokeStyle = `hsla(${p.hue}, 80%, 75%, ${(1 - dist / 200) * 0.28})`
             ctx.lineWidth = 1
             ctx.stroke()
           }
@@ -86,11 +86,11 @@ export default function AnimatedBackground() {
         if (p.y < 0 || p.y > canvas.height) p.vy *= -1
         ctx.beginPath()
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
-        ctx.fillStyle = `hsla(${p.hue}, 70%, 65%, 0.45)`
+        ctx.fillStyle = `hsla(${p.hue}, 70%, 65%, 0.42)`
         ctx.fill()
         ctx.beginPath()
         ctx.arc(p.x, p.y, p.r * 2, 0, Math.PI * 2)
-        ctx.fillStyle = `hsla(${p.hue}, 70%, 65%, 0.08)`
+        ctx.fillStyle = `hsla(${p.hue}, 70%, 65%, 0.07)`
         ctx.fill()
       }
       animId = requestAnimationFrame(draw)
