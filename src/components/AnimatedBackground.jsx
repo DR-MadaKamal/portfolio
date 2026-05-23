@@ -11,53 +11,69 @@ const rand = (min, max) => Math.random() * (max - min) + min
 
 function drawIcon(ctx, type, x, y, s, hue, alpha) {
   const c = `hsla(${hue}, 70%, 65%, ${alpha})`
-  ctx.save(); ctx.translate(x, y); ctx.scale(s, s); ctx.strokeStyle = c; ctx.fillStyle = c; ctx.lineWidth = 0.12
+  ctx.save(); ctx.translate(x, y); ctx.scale(s, s)
+  ctx.strokeStyle = c; ctx.fillStyle = c; ctx.lineWidth = 0.12; ctx.lineCap = 'round'
   switch (type) {
-    case 0: // cross (medical)
+    case 0: // medical cross (stethoscope/heartbeat)
       ctx.fillRect(-0.3, -1, 0.6, 2)
       ctx.fillRect(-1, -0.3, 2, 0.6)
       break
-    case 1: { // heart
-      ctx.beginPath(); ctx.moveTo(0, 0.3)
-      ctx.bezierCurveTo(-1, -0.4, -1.2, -0.8, -0.5, -1)
-      ctx.bezierCurveTo(0, -1.1, 0, -0.6, 0, -0.6)
-      ctx.bezierCurveTo(0, -0.6, 0, -1.1, 0.5, -1)
-      ctx.bezierCurveTo(1.2, -0.8, 1, -0.4, 0, 0.3)
-      ctx.fill()
+    case 1: // capsule / pills (pharmacy)
+      ctx.beginPath(); ctx.ellipse(0, 0, 0.65, 0.35, 0, 0, Math.PI * 2); ctx.fill()
+      ctx.fillStyle = `hsla(${hue + 30}, 70%, 75%, ${alpha})`
+      ctx.fillRect(-0.12, -0.3, 0.24, 0.6)
       break
-    }
-    case 2: // pill (capsule)
-      ctx.beginPath(); ctx.ellipse(0, 0, 0.6, 0.4, 0, 0, Math.PI * 2); ctx.fill()
-      ctx.fillStyle = `hsla(${hue + 30}, 70%, 70%, ${alpha})`
-      ctx.fillRect(-0.1, -0.35, 0.2, 0.7)
+    case 2: // camera (Instagram)
+      ctx.beginPath(); ctx.roundRect(-0.7, -0.55, 1.4, 1.1, 0.2); ctx.stroke()
+      ctx.beginPath(); ctx.arc(0, 0, 0.35, 0, Math.PI * 2); ctx.stroke()
+      ctx.beginPath(); ctx.arc(0, 0, 0.12, 0, Math.PI * 2); ctx.fill()
+      ctx.fillRect(0.35, -0.45, 0.15, 0.15)
       break
-    case 3: // chart (3 bars)
-      for (let i = 0; i < 3; i++) { ctx.fillRect(-0.7 + i * 0.5, -0.3 - i * 0.4, 0.2, 0.3 + i * 0.4) }
+    case 3: // play button (YouTube)
+      ctx.beginPath(); ctx.roundRect(-0.7, -0.5, 1.4, 1, 0.2); ctx.stroke()
+      ctx.beginPath(); ctx.moveTo(-0.25, -0.35); ctx.lineTo(-0.25, 0.35); ctx.lineTo(0.45, 0); ctx.closePath(); ctx.fill()
       break
-    case 4: // play triangle
-      ctx.beginPath(); ctx.moveTo(-0.5, -0.6); ctx.lineTo(-0.5, 0.6); ctx.lineTo(0.7, 0); ctx.closePath(); ctx.fill()
+    case 4: // 'f' (Facebook)
+      ctx.beginPath(); ctx.roundRect(-0.6, -0.7, 1.2, 1.4, 0.25); ctx.stroke()
+      ctx.fillRect(0.05, -0.7, 0.1, 1.4)
+      ctx.fillRect(-0.3, -0.2, 0.6, 0.1)
       break
-    case 5: { // star
-      ctx.beginPath()
-      for (let i = 0; i < 5; i++) {
-        const a = (i * 4 * Math.PI) / 5 - Math.PI / 2
-        ctx[i === 0 ? 'moveTo' : 'lineTo'](Math.cos(a), Math.sin(a))
-      }
-      ctx.closePath(); ctx.fill()
+    case 5: // chart / graph (analytics, ads platforms)
+      for (let i = 0; i < 3; i++) { ctx.fillRect(-0.7 + i * 0.5, 0.1 - i * 0.35, 0.18, 0.1 + i * 0.35) }
+      ctx.fillRect(-0.8, 0.25, 1.6, 0.08)
       break
-    }
-    case 6: // target (crosshair)
-      ctx.beginPath(); ctx.arc(0, 0, 0.6, 0, Math.PI * 2); ctx.stroke()
-      ctx.beginPath(); ctx.arc(0, 0, 0.2, 0, Math.PI * 2); ctx.fill()
-      ctx.beginPath(); ctx.moveTo(0, -0.8); ctx.lineTo(0, 0.8); ctx.stroke()
-      ctx.beginPath(); ctx.moveTo(-0.8, 0); ctx.lineTo(0.8, 0); ctx.stroke()
+    case 6: // speech bubble (social / messaging)
+      ctx.beginPath(); ctx.roundRect(-0.55, -0.5, 1.1, 0.9, 0.15); ctx.fill()
+      ctx.beginPath(); ctx.moveTo(-0.1, 0.4); ctx.lineTo(-0.1, 0.7); ctx.lineTo(0.25, 0.4); ctx.fill()
+      ctx.fillStyle = `hsla(${hue}, 60%, 20%, ${alpha})`
+      ctx.fillRect(-0.4, -0.25, 0.8, 0.06); ctx.fillRect(-0.4, -0.08, 0.6, 0.06); ctx.fillRect(-0.4, 0.09, 0.7, 0.06)
       break
-    case 7: // arrow up (growth)
-      ctx.beginPath(); ctx.moveTo(0, -0.7); ctx.lineTo(0.5, -0.2); ctx.moveTo(0, -0.7); ctx.lineTo(-0.5, -0.2); ctx.stroke()
-      ctx.beginPath(); ctx.moveTo(-0.5, 0.3); ctx.lineTo(0, 0.7); ctx.lineTo(0.5, 0.3); ctx.stroke()
+    case 7: // magnifying glass (search / SEO)
+      ctx.beginPath(); ctx.arc(-0.1, -0.1, 0.45, 0, Math.PI * 2); ctx.stroke()
+      ctx.beginPath(); ctx.moveTo(0.25, 0.25); ctx.lineTo(0.6, 0.6); ctx.stroke()
+      break
+    case 8: // X / Twitter bird
+      ctx.lineWidth = 0.18
+      ctx.beginPath(); ctx.moveTo(-0.55, -0.55); ctx.lineTo(0.55, 0.55); ctx.stroke()
+      ctx.beginPath(); ctx.moveTo(0.55, -0.55); ctx.lineTo(-0.55, 0.55); ctx.stroke()
+      break
+    case 9: // bullhorn / announcement (ads)
+      ctx.fillRect(-0.2, -0.7, 0.8, 0.6)
+      ctx.beginPath(); ctx.moveTo(0.6, -0.2); ctx.lineTo(0.9, -0.4); ctx.lineTo(0.9, 0.2); ctx.lineTo(0.6, 0.1); ctx.closePath(); ctx.fill()
+      ctx.beginPath(); ctx.arc(-0.2, -0.1, 0.25, -0.5, 0.5); ctx.lineWidth = 0.15; ctx.stroke()
       break
   }
   ctx.restore()
+}
+
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+  CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+    if (r > w / 2) r = w / 2; if (r > h / 2) r = h / 2
+    this.moveTo(x + r, y); this.lineTo(x + w - r, y); this.quadraticCurveTo(x + w, y, x + w, y + r)
+    this.lineTo(x + w, y + h - r); this.quadraticCurveTo(x + w, y + h, x + w - r, y + h)
+    this.lineTo(x + r, y + h); this.quadraticCurveTo(x, y + h, x, y + h - r)
+    this.lineTo(x, y + r); this.quadraticCurveTo(x, y, x + r, y)
+  }
 }
 
 export default function AnimatedBackground() {
@@ -89,7 +105,7 @@ export default function AnimatedBackground() {
     const particles = Array.from({ length: 75 }, () => ({
       x: rand(0, window.innerWidth), y: rand(0, window.innerHeight),
       vx: rand(-0.4, 0.4), vy: rand(-0.4, 0.4),
-      s: rand(3.5, 6), hue: rand(150, 210), type: Math.floor(rand(0, 8)),
+      s: rand(3.5, 6), hue: rand(150, 210), type: Math.floor(rand(0, 10)),
     }))
 
     const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight }
