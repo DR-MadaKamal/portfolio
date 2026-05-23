@@ -31,7 +31,7 @@ import ShareButtons from './components/ShareButtons'
 import LiveChatWidget from './components/LiveChatWidget'
 import GoogleMapsEmbed from './components/GoogleMapsEmbed'
 import { LangProvider } from './context/LangContext'
-import { personalData, projects as defaultProjects, articles as defaultArticles } from './data/portfolioData'
+import { personalData } from './data/portfolioData'
 
 const STORAGE_KEY = 'portfolio-admin-data'
 const VISITS_KEY = 'portfolio-visits'
@@ -91,15 +91,15 @@ function App() {
     { key: 'hero', comp: <Hero personalData={d?.personalData} /> },
     { key: 'about', comp: <About editedData={d} /> },
 
-    { key: 'logos', comp: <ClientLogoWall /> },
+    { key: 'logos', comp: <ClientLogoWall clientLogos={d?.clientLogos} /> },
     { key: 'projects', comp: <Projects projects={d?.projects} /> },
-    { key: 'testimonials', comp: <Testimonials /> },
+    { key: 'testimonials', comp: <Testimonials testimonials={d?.testimonials} /> },
 
-    { key: 'achievements', comp: <Achievements /> },
-    { key: 'process', comp: <ServicesTimeline /> },
-    { key: 'quote', comp: <QuoteRotator /> },
-    { key: 'tools', comp: <ToolsShowcase /> },
-    { key: 'faq', comp: <FAQSection /> },
+    { key: 'achievements', comp: <Achievements awards={d?.awards} certifications={d?.certifications} /> },
+    { key: 'process', comp: <ServicesTimeline servicesTimeline={d?.servicesTimeline} /> },
+    { key: 'quote', comp: <QuoteRotator quotes={d?.quotes} /> },
+    { key: 'tools', comp: <ToolsShowcase tools={d?.tools} /> },
+    { key: 'faq', comp: <FAQSection faq={d?.faq} /> },
     { key: 'articles', comp: <Articles articles={d?.articles} /> },
     { key: 'portfolio-download', comp: <PortfolioDownload /> },
     { key: 'contact', comp: <SayHello /> },
@@ -117,12 +117,13 @@ function App() {
       <ScrollProgressBar />
       <AdminPanel onDataChange={setEditedData} />
       <LiveChatWidget chatCode={tools.chatCode} />
-      <Navbar activeSection={activeSection} setActiveSection={setActiveSection} />
+      <Navbar activeSection={activeSection} setActiveSection={setActiveSection}
+        projects={d?.projects} articles={d?.articles} />
       {tools.cookieConsentEnabled !== false && <CookieConsent />}
       <main id="main-content">
         {sectionMap.map(s => <span key={s.key}>{s.comp}</span>)}
       </main>
-      <WhatsAppButton />
+      <WhatsAppButton personalData={d?.personalData} />
       <ScrollToTop />
       <AnalyticsDashboard />
       <Footer personalData={d?.personalData} />

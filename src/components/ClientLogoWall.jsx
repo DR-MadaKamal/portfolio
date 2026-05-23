@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { clientLogos } from '../data/portfolioData'
+import { clientLogos as defaultLogos } from '../data/portfolioData'
 import { useLang } from '../context/LangContext'
 
 const containerVariants = {
@@ -12,7 +12,8 @@ const itemVariants = {
   visible: { opacity: 0.75, y: 0, scale: 1, transition: { duration: 0.4 } }
 }
 
-export default function ClientLogoWall() {
+export default function ClientLogoWall({ clientLogos: editedLogos }) {
+  const logos = editedLogos || defaultLogos
   const { t } = useLang()
   return (
     <section className="section clients-section">
@@ -24,7 +25,7 @@ export default function ClientLogoWall() {
         <motion.div className="client-logos"
           variants={containerVariants}
           initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-40px' }}>
-          {clientLogos.map((c, i) => {
+          {logos.map((c, i) => {
             const isFeatured = ['Vape City','Flavow Store','Vapsy','Ahmed Samy','Adonis'].includes(c.name)
             const content = (
               <motion.div className={`client-logo-item${isFeatured ? ' featured' : ''}`} title={c.name}

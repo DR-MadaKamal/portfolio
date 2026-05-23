@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion'
-import { testimonials } from '../data/portfolioData'
+import { testimonials as defaultTestimonials } from '../data/portfolioData'
 import { useLang } from '../context/LangContext'
 
-export default function Testimonials() {
+export default function Testimonials({ testimonials: editedTestimonials }) {
+  const list = editedTestimonials || defaultTestimonials
   const { t } = useLang()
 
   return (
@@ -15,7 +16,7 @@ export default function Testimonials() {
           </h2>
         </motion.div>
         <div className="testimonials-grid">
-          {testimonials.map((item, i) => (
+          {list.map((item, i) => (
             <motion.div
               key={i} className="testimonial-card"
               initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}

@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { tools } from '../data/portfolioData'
+import { tools as defaultTools } from '../data/portfolioData'
 
-export default function ToolsShowcase() {
+export default function ToolsShowcase({ tools: editedTools }) {
+  const tools = editedTools || defaultTools
   const cats = [...new Set(tools.map(t => t.category))]
   const [filter, setFilter] = useState('All')
 

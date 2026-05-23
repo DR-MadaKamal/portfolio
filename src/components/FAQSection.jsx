@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { faq } from '../data/portfolioData'
+import { faq as defaultFaq } from '../data/portfolioData'
 
-export default function FAQSection() {
+export default function FAQSection({ faq: editedFaq }) {
+  const list = editedFaq || defaultFaq
   const [open, setOpen] = useState(null)
 
   return (
@@ -12,7 +13,7 @@ export default function FAQSection() {
           initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}>
           <small>Got Questions?</small>FAQ
         </motion.h2>
-        {faq.map((item, i) => (
+        {list.map((item, i) => (
           <motion.div key={i} className={`faq-item ${open === i ? 'open' : ''}`}
             initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }} transition={{ delay: i * 0.05 }}>

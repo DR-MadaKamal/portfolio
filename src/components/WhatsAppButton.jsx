@@ -1,7 +1,8 @@
-import { personalData } from '../data/portfolioData'
+import { personalData as defaultPersonal } from '../data/portfolioData'
 
-export default function WhatsAppButton() {
-  const phone = personalData.whatsapp?.replace(/[^0-9]/g, '')
+export default function WhatsAppButton({ personalData: editedPersonal }) {
+  const data = editedPersonal || defaultPersonal
+  const phone = data.whatsapp?.replace(/[^0-9]/g, '')
   if (!phone) return null
   return (
     <a

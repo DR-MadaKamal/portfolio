@@ -1,5 +1,5 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
-import { useState, useEffect } from 'react'
+
 import { personalData } from '../data/portfolioData'
 import TypeWriter from './TypeWriter'
 import DownloadCV from './DownloadCV'
@@ -13,8 +13,7 @@ const imgChild = { initial: { opacity: 0, scale: 0.8 }, animate: { opacity: 1, s
 export default function Hero({ personalData: editedPersonalData }) {
   const data = editedPersonalData || personalData
   const { t } = useLang()
-  const [isMobile, setIsMobile] = useState(true)
-  useEffect(() => { setIsMobile(window.innerWidth < 768) }, [])
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
   const { scrollY } = useScroll()
   const imgY = useTransform(scrollY, [0, 500], [0, isMobile ? 0 : -40])
   const glowY = useTransform(scrollY, [0, 500], [0, isMobile ? 0 : -70])

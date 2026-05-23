@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
-import { quotes } from '../data/portfolioData'
+import { quotes as defaultQuotes } from '../data/portfolioData'
 import { useLang } from '../context/LangContext'
 
-export default function QuoteRotator() {
+export default function QuoteRotator({ quotes: editedQuotes }) {
+  const quotes = editedQuotes || defaultQuotes
   const { t } = useLang()
   const [idx, setIdx] = useState(0)
 

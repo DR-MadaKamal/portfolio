@@ -11,7 +11,7 @@ const child = {
 
 export default function TextReveal({ text, as: Tag = 'h2', className, style, viewport }) {
   const words = text.split(' ')
-  const MotionTag = motion[Tag]
+  const MotionTag = motion[Tag] || motion.h2
   return (
     <MotionTag
       className={className}

@@ -3,9 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import LanguageToggle from './LanguageToggle'
 import SearchBar from './SearchBar'
 import { useLang } from '../context/LangContext'
-import { projects as defaultProjects, articles as defaultArticles } from '../data/portfolioData'
 
-export default function Navbar({ activeSection, setActiveSection }) {
+export default function Navbar({ activeSection, setActiveSection, projects, articles }) {
   const { t } = useLang()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -37,7 +36,7 @@ export default function Navbar({ activeSection, setActiveSection }) {
             <button key={i} className={`nav-link${activeSection === ids[i] ? ' active' : ''}`}
               onClick={() => scrollTo(ids[i])}>{l}</button>
           ))}
-          <SearchBar articles={defaultArticles} projects={defaultProjects} />
+          <SearchBar articles={articles} projects={projects} />
           <LanguageToggle />
         </div>
 

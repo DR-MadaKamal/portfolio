@@ -90,7 +90,7 @@ export default function About({ editedData }) {
             <small>{t.about.expertise}</small>
             <TextReveal text={t.about.skills} as="span" />
           </h2>
-          <SkillsProgress />
+          <SkillsProgress skillCategories={skillCategories} />
         </motion.div>
 
         {/* Experience */}

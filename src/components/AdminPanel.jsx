@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { personalData as defaultPersonal, experience as defaultExp, projects as defaultProjects, articles as defaultArticles, skillCategories as defaultSkills, education as defaultEdu, courses as defaultCourses } from '../data/portfolioData'
+import { personalData as defaultPersonal, experience as defaultExp, projects as defaultProjects, articles as defaultArticles, skillCategories as defaultSkills, education as defaultEdu, courses as defaultCourses, testimonials as defaultTestimonials, awards as defaultAwards, certifications as defaultCerts, clientLogos as defaultLogos, servicesTimeline as defaultTimeline, quotes as defaultQuotes, tools as defaultToolsData, faq as defaultFaq } from '../data/portfolioData'
 
 const STORAGE_KEY = 'portfolio-admin-data'
 const HISTORY_KEY = 'portfolio-admin-history'
@@ -61,6 +61,9 @@ function getDefaults() {
   return {
     personalData: defaultPersonal, experience: defaultExp, projects: defaultProjects,
     articles: defaultArticles, skillCategories: defaultSkills, education: defaultEdu, courses: defaultCourses,
+    testimonials: defaultTestimonials, awards: defaultAwards, certifications: defaultCerts,
+    clientLogos: defaultLogos, servicesTimeline: defaultTimeline, quotes: defaultQuotes,
+    tools: defaultToolsData, faq: defaultFaq,
     settings: { sections: JSON.parse(JSON.stringify(defaultSections)), theme: { ...defaultTheme }, images: [], tools: { ...defaultTools } },
     customSections: [], customPages: [], sectionDesign: {},
   }

@@ -1,7 +1,8 @@
 import { motion } from 'framer-motion'
-import { servicesTimeline } from '../data/portfolioData'
+import { servicesTimeline as defaultTimeline } from '../data/portfolioData'
 
-export default function ServicesTimeline() {
+export default function ServicesTimeline({ servicesTimeline: editedTimeline }) {
+  const list = editedTimeline || defaultTimeline
   return (
     <section className="section services-timeline-section">
       <div className="container">
@@ -10,7 +11,7 @@ export default function ServicesTimeline() {
           <small>How I Work</small>My Process
         </motion.h2>
         <div className="services-timeline">
-          {servicesTimeline.map((s, i) => (
+          {list.map((s, i) => (
             <motion.div key={i} className="st-item"
               initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
               whileInView={{ opacity: 1, x: 0 }}

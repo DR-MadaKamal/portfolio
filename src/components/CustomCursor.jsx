@@ -10,6 +10,7 @@ export default function CustomCursor() {
   const mouseRef = useRef({ x: -100, y: -100 })
   const raf = useRef(null)
   const pathRef = useRef(null)
+  const idleTimer = useRef(null)
 
   const tick = useCallback(() => {
     const { x, y } = mouseRef.current
@@ -33,30 +34,41 @@ export default function CustomCursor() {
     raf.current = requestAnimationFrame(tick)
   }, [])
 
-  useEffect(() => {
-    if (isMobile) return
+  const startLoop = useCallback(() => {
+    if (raf.current) return
     raf.current = requestAnimationFrame(tick)
-    return () => { if (raf.current) cancelAnimationFrame(raf.current) }
   }, [tick])
+
+  const stopLoop = useCallback(() => {
+    if (raf.current) { cancelAnimationFrame(raf.current); raf.current = null }
+  }, [])
 
   useEffect(() => {
     if (isMobile) return
     const move = (e) => {
       mouseRef.current = { x: e.clientX, y: e.clientY }
       setPos({ x: e.clientX, y: e.clientY })
+      if (!raf.current) startLoop()
+      clearTimeout(idleTimer.current)
+      idleTimer.current = setTimeout(stopLoop, 2000)
     }
-    const over = (e) => { if (e.target.closest('a, button, .btn, .project-card, .article-card, .skill-card, .section-title, h2')) setHovering(true) }
-    const out = () => setHovering(false)
+    const enter = (e) => { if (e.target.closest('a, button, .btn, .project-card, .article-card, .skill-card, .section-title, h2')) setHovering(true) }
+    const leave = () => { setHovering(false); stopLoop(); idleTimer.current && clearTimeout(idleTimer.current) }
 
+    startLoop()
     document.addEventListener('mousemove', move)
-    document.addEventListener('mouseover', over)
-    document.addEventListener('mouseout', out)
+    document.addEventListener('mouseenter', enter, true)
+    document.addEventListener('mouseleave', leave, true)
+    document.addEventListener('mouseleave', leave)
     return () => {
+      stopLoop()
       document.removeEventListener('mousemove', move)
-      document.removeEventListener('mouseover', over)
-      document.removeEventListener('mouseout', out)
+      document.removeEventListener('mouseenter', enter, true)
+      document.removeEventListener('mouseleave', leave, true)
+      document.removeEventListener('mouseleave', leave)
+      idleTimer.current && clearTimeout(idleTimer.current)
     }
-  }, [])
+  }, [startLoop, stopLoop])
 
   if (isMobile) return null
 

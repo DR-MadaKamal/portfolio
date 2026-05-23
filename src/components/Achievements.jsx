@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion'
-import { awards, certifications } from '../data/portfolioData'
+import { awards as defaultAwards, certifications as defaultCerts } from '../data/portfolioData'
 import { useLang } from '../context/LangContext'
 
-export default function Achievements() {
+export default function Achievements({ awards: editedAwards, certifications: editedCerts }) {
+  const awards = editedAwards || defaultAwards
+  const certifications = editedCerts || defaultCerts
   const { t } = useLang()
 
   return (

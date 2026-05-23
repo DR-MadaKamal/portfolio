@@ -1,8 +1,9 @@
 import { motion } from 'framer-motion'
-import { pricingPlans } from '../data/portfolioData'
+import { pricingPlans as defaultPlans } from '../data/portfolioData'
 import { useLang } from '../context/LangContext'
 
-export default function PricingTable() {
+export default function PricingTable({ pricingPlans: editedPlans }) {
+  const plans = editedPlans || defaultPlans
   const { t } = useLang()
 
   return (
@@ -15,7 +16,7 @@ export default function PricingTable() {
           </h2>
         </motion.div>
         <div className="pricing-grid">
-          {pricingPlans.map((plan, i) => (
+          {plans.map((plan, i) => (
             <motion.div
               key={i}
               className={`pricing-card${plan.popular ? ' popular' : ''}`}

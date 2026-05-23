@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { articles as allArticles } from '../data/portfolioData'
+import { articles as defaultArticles } from '../data/portfolioData'
 import ArticleTOC from './ArticleTOC'
 import RelatedArticles from './RelatedArticles'
 import ReadingProgress from './ReadingProgress'
@@ -8,7 +8,8 @@ import ShareButtons from './ShareButtons'
 
 const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December']
 
-export default function ArticlePage({ articleIdx, onClose }) {
+export default function ArticlePage({ articleIdx, onClose, articles: editedArticles }) {
+  const allArticles = editedArticles || defaultArticles
   const [idx, setIdx] = useState(articleIdx)
   const a = allArticles[idx]
   useEffect(() => { setIdx(articleIdx) }, [articleIdx])
@@ -19,6 +20,8 @@ export default function ArticlePage({ articleIdx, onClose }) {
   }
 
   if (!a) return null
+
+  const makeTocId = (i) => `toc-${i}`
 
   return (
     <AnimatePresence>
@@ -55,17 +58,21 @@ export default function ArticlePage({ articleIdx, onClose }) {
             <div className="article-page-content" dangerouslySetInnerHTML={{
               __html: (a.content || a.description || '')
                 .split('\n')
-                .map(line => {
-                  if (line.startsWith('## ')) return `<h2 id="toc-${Math.random().toString(36).slice(2,6)}">${line.slice(3)}</h2>`
-                  if (line.startsWith('- ')) return `<li>${line.slice(2)}</li>`
-                  if (line.trim() === '') return '<br/>'
-                  if (line.startsWith('**') && line.endsWith('**')) return `<strong>${line.slice(2, -2)}</strong>`
-                  if (line.match(/^\d+\.\s/)) return `<li>${line.replace(/^\d+\.\s/, '')}</li>`
-                  return `<p>${line}</p>`
-                }).join('\n')
+                .map((line => {
+                  let hi = 0
+                  return (line, li) => {
+                    if (line.startsWith('## ')) return `<h2 id="toc-${hi++}">${line.slice(3)}</h2>`
+                    if (line.startsWith('- ')) return `<li>${line.slice(2)}</li>`
+                    if (line.trim() === '') return '<br/>'
+                    if (line.startsWith('**') && line.endsWith('**')) return `<strong>${line.slice(2, -2)}</strong>`
+                    if (line.match(/^\d+\.\s/)) return `<li>${line.replace(/^\d+\.\s/, '')}</li>`
+                    return `<p>${line}</p>`
+                  }
+                })()).join('\n')
             }} />
 
-            <RelatedArticles current={a} articles={allArticles} />
+            <RelatedArticles current={a} articles={allArticles}
+              onOpenArticle={(article) => { const found = allArticles.findIndex(x => x.title === article.title); if (found >= 0) setIdx(found) }} />
 
             <div className="article-page-nav">
               <button disabled={idx === 0} onClick={() => navigate(-1)}>

@@ -25,6 +25,9 @@ export default function SoundEffects() {
     }
 
     const handler = (e) => {
+      const now = Date.now()
+      if (now - (handler._last || 0) < 80) return
+      handler._last = now
       const target = e.target.closest('a, button, .btn, .project-card, .article-card')
       if (target) playTone(800, 0.12)
     }

@@ -8,10 +8,10 @@ export default function MagneticButton({ children, className, as: Comp = motion.
 
   const handleMouseMove = (e) => {
     const rect = e.currentTarget.getBoundingClientRect()
-    sx.set((e.clientX - rect.left - rect.width / 2) * 0.25)
-    sy.set((e.clientY - rect.top - rect.height / 2) * 0.25)
+    x.set((e.clientX - rect.left - rect.width / 2) * 0.25)
+    y.set((e.clientY - rect.top - rect.height / 2) * 0.25)
   }
-  const handleMouseLeave = () => { sx.set(0); sy.set(0) }
+  const handleMouseLeave = () => { x.set(0); y.set(0) }
 
   return (
     <Comp

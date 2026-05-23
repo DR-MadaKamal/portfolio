@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { skillCategories } from '../data/portfolioData'
+import { skillCategories as defaultSkills } from '../data/portfolioData'
 import { useLang } from '../context/LangContext'
 
 const skillProgress = {
@@ -33,7 +33,8 @@ const skillProgress = {
   'Strategic Planning & Data Analytics': 82,
 }
 
-export default function SkillsProgress() {
+export default function SkillsProgress({ skillCategories: editedSkills }) {
+  const cats = editedSkills || defaultSkills
   const { t } = useLang()
 
   return (
@@ -42,7 +43,7 @@ export default function SkillsProgress() {
         <i className="fas fa-chart-bar" style={{ color: 'var(--accent)', marginRight: 8 }} />
         {t.about.skills}
       </h3>
-      {skillCategories.map((cat, i) => (
+      {cats.map((cat, i) => (
         <div key={i} className="skill-cat-progress" style={{ marginBottom: 16 }}>
           <p className="skill-cat-label"><i className={`fas ${cat.icon}`} style={{ marginRight: 6, color: 'var(--accent)' }} /> {cat.category}</p>
           {cat.skills.map((s, j) => (
