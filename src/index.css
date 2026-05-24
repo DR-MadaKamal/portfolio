@@ -881,7 +881,16 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .elm-add-section { width: 100%; padding: 14px; border: 1px dashed #2a2a44; border-radius: 4px; background: transparent; color: #555; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.15s; font-family: inherit; }
 .elm-add-section:hover { border-color: #6cab96; color: #6cab96; background: rgba(108,171,150,0.03); }
 
-.elm-section-live { pointer-events: none; min-height: 50px; }
+.elm-section-live { pointer-events: none; min-height: 50px; position: relative; }
+.elm-section-label { position: absolute; top: 0; left: 0; z-index: 10; background: #6cab96; color: #0f0f1a; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 2px 8px; border-radius: 0 0 4px 0; opacity: 0; transition: opacity 0.15s; line-height: 1.4; pointer-events: none; }
+.elm-section-active .elm-section-label { opacity: 1; }
+.elm-section:hover .elm-section-label { opacity: 1; }
+.elm-hidden-sections-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: rgba(241,77,77,0.08); border: 1px solid rgba(241,77,77,0.2); border-radius: 4px; color: #f14d4d; font-size: 11px; }
+.elm-restore-btn { padding: 3px 10px; border-radius: 3px; border: 1px solid #f14d4d; background: transparent; color: #f14d4d; cursor: pointer; font-size: 10px; font-family: inherit; transition: all 0.15s; }
+.elm-restore-btn:hover { background: rgba(241,77,77,0.1); }
+.elm-add-col-btn { display: flex; align-items: center; justify-content: center; width: 28px; flex-shrink: 0; border: 1px dashed #2a2a44; border-radius: 4px; background: transparent; color: #555; cursor: pointer; font-size: 11px; transition: all 0.15s; }
+.elm-add-col-btn:hover { border-color: #6cab96; color: #6cab96; }
+.elm-btn-preview { display: inline-flex; padding: 6px 16px; border-radius: 4px; text-decoration: none; font-size: 0.8rem; cursor: default; transition: all 0.15s; }
 .elm-section-live .scroll-progress-bar,
 .elm-section-live .skip-link,
 .elm-section-live .navbar,
