@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { personalData as defaultPersonal, experience as defaultExp, projects as defaultProjects, articles as defaultArticles, skillCategories as defaultSkills, education as defaultEdu, courses as defaultCourses, testimonials as defaultTestimonials, awards as defaultAwards, certifications as defaultCerts, clientLogos as defaultLogos, servicesTimeline as defaultTimeline, quotes as defaultQuotes, tools as defaultToolsData, faq as defaultFaq } from '../data/portfolioData'
 import { SortableList, SortableItem } from './SortableList'
+import VisualBuilder from './VisualBuilder'
 import PageBuilder from './PageBuilder'
 
 const STORAGE_KEY = 'portfolio-admin-data'
@@ -185,7 +186,7 @@ export default function AdminPanel({ onDataChange }) {
               {tab === 'dashboard' && <DashboardForm data={current} />}
               {tab === 'content' && <ContentForm data={current} onSave={debouncedSave} />}
               {tab === 'sections' && <SectionsForm data={current} onSave={debouncedSave} />}
-              {tab === 'builder' && <PageBuilder data={current} onSave={debouncedSave} />}
+              {tab === 'builder' && <VisualBuilder data={current} onSave={debouncedSave} />}
               {tab === 'design' && <DesignForm data={current} onSave={debouncedSave} />}
               {tab === 'pages' && <PagesForm data={current} onSave={debouncedSave} />}
               {tab === 'media' && <MediaForm data={current} onSave={debouncedSave} />}
