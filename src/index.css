@@ -24,16 +24,16 @@
 }
 
 [data-theme="light"] {
-  --bg: #f5f0eb;
+  --bg: #f0ece6;
   --bg-alt: #ffffff;
-  --text: #1e2b27;
-  --text-muted: #6b7a74;
-  --text-secondary: #3d5049;
-  --text-dim: #8080b3;
+  --text: #1b2a26;
+  --text-muted: #54635c;
+  --text-secondary: #34433d;
+  --text-dim: #7d7da0;
   --accent: #6cab96;
   --accent2: #e8a87c;
   --accent3: #8b8cb5;
-  --border: #d6d9ce;
+  --border: #c2c6bd;
   --shadow: 0 8px 32px rgba(0,0,0,0.08);
 }
 
