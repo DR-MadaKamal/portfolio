@@ -186,7 +186,11 @@ export default function AdminPanel({ onDataChange }) {
               {tab === 'dashboard' && <DashboardForm data={current} />}
               {tab === 'content' && <ContentForm data={current} onSave={debouncedSave} />}
               {tab === 'sections' && <SectionsForm data={current} onSave={debouncedSave} />}
-              {tab === 'builder' && <VisualBuilder data={current} onSave={debouncedSave} />}
+              {tab === 'builder' && (
+                <div style={{position:'fixed',inset:0,zIndex:10001}}>
+                  <VisualBuilder data={current} onSave={debouncedSave} onExit={() => setTab('dashboard')} />
+                </div>
+              )}
               {tab === 'design' && <DesignForm data={current} onSave={debouncedSave} />}
               {tab === 'pages' && <PagesForm data={current} onSave={debouncedSave} />}
               {tab === 'media' && <MediaForm data={current} onSave={debouncedSave} />}
