@@ -5,7 +5,7 @@ export const personalData = {
   phone: '+201009852109',
   email: '16491@must.edu.eg',
   location: 'Al-Faiyum, Egypt',
-  linkedin: 'linkedin.com/in/mohammedkamal-shaat',
+  linkedin: 'linkedin.com/in/mohammed-kamal-shaat',
   dob: '26/5/1987',
   portfolioUrl: 'www.flavow-store.com',
   tagline: `Dreams without Goals, are just dreams. To achieve your Dreams you must apply discipline, but more important Consistency.`,
@@ -767,24 +767,83 @@ export const servicesTimeline = [
   { step: 6, title: 'Reporting', desc: 'Delivering transparent monthly reports with insights, learnings, and recommendations for the next phase.' },
 ]
 
+const linkedInCerts = 'https://www.linkedin.com/in/mohammed-kamal-shaat/details/certifications'
+
 export const certifications = [
-  { title: 'Customer Relationship Management', issuer: 'HP LIFE', year: 'May 2026', url: 'https://www.linkedin.com/learning/certificates/crm-foundations', icon: 'fa-certificate' },
-  { title: 'The Art of Sales: Fundamentals of Selling', issuer: 'HP LIFE', year: 'May 2026', url: 'https://www.linkedin.com/learning/certificates/sales-fundamentals', icon: 'fa-certificate' },
-  { title: 'Skills for Passing Personal Interviews', issuer: 'Misr University for Science and Technology', year: 'Oct 2025', url: '#', icon: 'fa-user-graduate' },
-  { title: 'Marketing on Facebook (2020)', issuer: 'LinkedIn', year: 'Oct 2021', url: 'https://www.linkedin.com/learning/certificates/marketing-on-facebook', icon: 'fa-certificate' },
-  { title: 'Social Media Marketing Foundations', issuer: 'LinkedIn', year: 'Mar 2022', url: 'https://www.linkedin.com/learning/certificates/social-media-marketing-foundations', icon: 'fa-certificate' },
-  { title: 'Advanced Digital Marketing', issuer: 'Udacity', year: 'Dec 2021', url: 'https://www.udacity.com/certificate/advanced-digital-marketing', icon: 'fa-certificate' },
-  { title: 'Marketing on Facebook', issuer: 'LinkedIn', year: 'Oct 2021', url: 'https://www.linkedin.com/learning/certificates/marketing-on-facebook-2021', icon: 'fa-certificate' },
-  { title: 'Bachelor of Pharmacy', issuer: 'Misr University for Science and Technology', year: 'May 2026', url: '#', icon: 'fa-graduation-cap' },
-  { title: 'Fundamentals of Graphics Design', issuer: 'Coursera', year: 'Aug 2021', url: 'https://www.coursera.org/account/accomplishments/graphic-design-fundamentals', icon: 'fa-certificate' },
-  { title: 'What is Graphic Design?', issuer: 'LinkedIn', year: 'Apr 2021', url: 'https://www.linkedin.com/learning/certificates/what-is-graphic-design', icon: 'fa-certificate' },
-  { title: 'Graphic Design Careers: First Steps', issuer: 'LinkedIn', year: 'Apr 2021', url: 'https://www.linkedin.com/learning/certificates/graphic-design-careers-first-steps', icon: 'fa-certificate' },
+  { title: 'Customer Relationship Management', issuer: 'HP LIFE', year: 'May 2026', url: linkedInCerts, icon: 'fa-certificate' },
+  { title: 'The Art of Sales: Fundamentals of Selling', issuer: 'HP LIFE', year: 'May 2026', url: linkedInCerts, icon: 'fa-certificate' },
+  { title: 'Skills for Passing Personal Interviews', issuer: 'Misr University for Science and Technology', year: 'Oct 2025', url: linkedInCerts, icon: 'fa-user-graduate' },
+  { title: 'Marketing on Facebook (2020)', issuer: 'LinkedIn', year: 'Oct 2021', url: linkedInCerts, icon: 'fa-certificate' },
+  { title: 'Social Media Marketing Foundations', issuer: 'LinkedIn', year: 'Mar 2022', url: linkedInCerts, icon: 'fa-certificate' },
+  { title: 'Advanced Digital Marketing', issuer: 'Udacity', year: 'Dec 2021', url: linkedInCerts, icon: 'fa-certificate' },
+  { title: 'Marketing on Facebook', issuer: 'LinkedIn', year: 'Oct 2021', url: linkedInCerts, icon: 'fa-certificate' },
+  { title: 'Bachelor of Pharmacy', issuer: 'Misr University for Science and Technology', year: 'May 2026', url: linkedInCerts, icon: 'fa-graduation-cap' },
+  { title: 'Fundamentals of Graphics Design', issuer: 'Coursera', year: 'Aug 2021', url: linkedInCerts, icon: 'fa-certificate' },
+  { title: 'What is Graphic Design?', issuer: 'LinkedIn', year: 'Apr 2021', url: linkedInCerts, icon: 'fa-certificate' },
+  { title: 'Graphic Design Careers: First Steps', issuer: 'LinkedIn', year: 'Apr 2021', url: linkedInCerts, icon: 'fa-certificate' },
 ]
 
 export const businessHours = [
   { day: 'Sunday – Thursday', hours: '10:00 AM – 7:00 PM' },
   { day: 'Friday', hours: 'Closed' },
   { day: 'Saturday', hours: '11:00 AM – 4:00 PM' },
+]
+
+export const portfolioWorks = [
+  {
+    id: 1,
+    title: 'Diabetes Drug Launch Explainer',
+    category: 'Motion Graphics',
+    description: '60s animated explainer for Lily Egypt diabetes medication. Covered mechanism of action, clinical data highlights, and patient lifestyle benefits.',
+    thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
+    media: { type: 'video', url: 'https://www.youtube.com/embed/dQw4w9WgXcQ' },
+    tags: ['Pharma', 'Healthcare', 'Animation'],
+  },
+  {
+    id: 2,
+    title: 'HCP Webinar Motion Package',
+    category: 'Motion Graphics',
+    description: 'Full motion graphics package for a KOL webinar series — intro sequence, lower thirds, transition slides, and data visualization animations.',
+    thumbnail: 'https://images.unsplash.com/photo-1559028012-481c04fa702d?w=400',
+    media: { type: 'image', url: 'https://images.unsplash.com/photo-1559028012-481c04fa702d?w=800' },
+    tags: ['Healthcare', 'Webinar', 'Motion'],
+  },
+  {
+    id: 3,
+    title: 'Medical Center Rebrand',
+    category: 'Branding',
+    description: 'Complete brand identity overhaul for a multi-specialty clinic: logo design, stationery, environmental graphics, exam room posters, and social media kit.',
+    thumbnail: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400',
+    media: { type: 'image', url: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800' },
+    tags: ['Branding', 'Healthcare', 'Identity'],
+  },
+  {
+    id: 4,
+    title: 'Social Media Ad Creatives',
+    category: 'Graphic Design',
+    description: 'Set of 12 static and animated ad creatives for Meta campaigns targeting chronic condition patients. Achieved 3.2x ROAS.',
+    thumbnail: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=400',
+    media: { type: 'image', url: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=800' },
+    tags: ['Social Media', 'Ads', 'Healthcare'],
+  },
+  {
+    id: 5,
+    title: 'Product Presentation Video',
+    category: 'Motion Graphics',
+    description: 'Motion graphics presentation for MGD Pharmaceuticals product portfolio. Used in sales meetings and exhibitions.',
+    thumbnail: 'https://images.unsplash.com/photo-1536240478700-b869070f9279?w=400',
+    media: { type: 'image', url: 'https://images.unsplash.com/photo-1536240478700-b869070f9279?w=800' },
+    tags: ['Pharma', 'Sales', 'Presentation'],
+  },
+  {
+    id: 6,
+    title: 'Pharmacy Brand Guidelines',
+    category: 'Graphic Design',
+    description: 'Comprehensive brand guidelines document for a pharmacy chain: logo usage, color palette, typography, and visual application examples.',
+    thumbnail: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400',
+    media: { type: 'image', url: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800' },
+    tags: ['Branding', 'Pharma', 'Design'],
+  },
 ]
 
 export const caseStudies = [

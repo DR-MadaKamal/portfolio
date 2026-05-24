@@ -24,15 +24,19 @@ const FAQSection = lazy(() => import('./components/FAQSection'))
 const ToolsShowcase = lazy(() => import('./components/ToolsShowcase'))
 const ServicesTimeline = lazy(() => import('./components/ServicesTimeline'))
 const CaseStudies = lazy(() => import('./components/CaseStudies'))
+const PortfolioGallery = lazy(() => import('./components/PortfolioGallery'))
 const PortfolioDownload = lazy(() => import('./components/PortfolioDownload'))
+const PrintableResume = lazy(() => import('./components/PrintableResume'))
 import CookieConsent from './components/CookieConsent'
 const NewsletterSignup = lazy(() => import('./components/NewsletterSignup'))
 import LiveChatWidget from './components/LiveChatWidget'
 const GoogleMapsEmbed = lazy(() => import('./components/GoogleMapsEmbed'))
 import AnalyticsDashboard from './components/AnalyticsDashboard'
 import WhatsAppButton from './components/WhatsAppButton'
+import { ThemeProvider } from './context/ThemeContext'
 import { LangProvider } from './context/LangContext'
 import { personalData } from './data/portfolioData'
+import { reportWebVitals } from './utils/webVitals'
 
 const STORAGE_KEY = 'portfolio-admin-data'
 const VISITS_KEY = 'portfolio-visits'
@@ -75,7 +79,7 @@ function App() {
   const [editedData, setEditedData] = useState(loadSaved)
   const [articleHashIdx, setArticleHashIdx] = useState(null)
 
-  useEffect(() => { trackVisit() }, [])
+  useEffect(() => { trackVisit(); reportWebVitals() }, [])
 
   useEffect(() => {
     if (editedData?.settings?.theme) applyTheme(editedData.settings.theme)
@@ -117,6 +121,7 @@ function App() {
 
     { key: 'logos', comp: <ClientLogoWall clientLogos={d?.clientLogos} /> },
     { key: 'projects', comp: <Projects projects={d?.projects} /> },
+    { key: 'portfolio-gallery', comp: <PortfolioGallery works={d?.portfolioWorks} /> },
     { key: 'case-studies', comp: <CaseStudies caseStudies={d?.caseStudies} /> },
     { key: 'testimonials', comp: <Testimonials testimonials={d?.testimonials} /> },
 
@@ -128,12 +133,14 @@ function App() {
     { key: 'articles', comp: <Articles articles={d?.articles} initialArticleIdx={articleHashIdx} onArticleOpened={(idx) => { if (idx < 0) setArticleHashIdx(null); else setArticleHashIdx(idx) }} /> },
     { key: 'portfolio-download', comp: <PortfolioDownload /> },
     { key: 'contact', comp: <SayHello /> },
+    { key: 'resume', comp: <PrintableResume /> },
     { key: 'map', comp: <GoogleMapsEmbed location={d?.personalData?.location} /> },
     { key: 'newsletter', comp: tools.newsletterEnabled !== false ? <NewsletterSignup /> : null },
   ].filter(s => s.comp && sec(s.key))
    .sort((a, b) => (sections[a.key]?.order ?? 99) - (sections[b.key]?.order ?? 99))
 
   return (
+    <ThemeProvider>
     <LangProvider>
       <a href="#main-content" className="skip-link">Skip to content</a>
       <AnimatedBackground />
@@ -173,6 +180,7 @@ function App() {
         }} />
       )}
     </LangProvider>
+    </ThemeProvider>
   )
 }
 
