@@ -818,6 +818,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .elm-widgets-search input { width: 100%; padding: 8px 10px; border-radius: 4px; border: 1px solid #2a2a44; background: #1a1a2e; color: #d5d8e2; font-size: 12px; outline: none; font-family: inherit; }
 .elm-widgets-search input:focus { border-color: #6cab96; }
 .elm-widgets-search input::placeholder { color: #555; }
+.elm-section-widget-mode { border-color: #6cab96; }
+.elm-section-widget-mode > .elm-section-tools { top: -32px; }
+.elm-widget-section-content { padding: 8px; }
+.elm-widget-section-header { font-size: 10px; font-weight: 700; color: #6cab96; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 8px; padding: 4px 8px; background: rgba(108,171,150,0.06); border-radius: 4px; display: flex; align-items: center; gap: 6px; }
+.elm-widget-blocks-sortable { display: flex; flex-direction: column; gap: 2px; }
 .elm-widget-category { margin-bottom: 16px; }
 .elm-widget-cat-label { font-size: 10px; font-weight: 700; color: #666; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
 .elm-widget-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
