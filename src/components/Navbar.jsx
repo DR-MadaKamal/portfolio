@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import LanguageToggle from './LanguageToggle'
 import SearchBar from './SearchBar'
@@ -8,11 +8,18 @@ export default function Navbar({ activeSection, setActiveSection, projects, arti
   const { t } = useLang()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const scrollTimer = useRef(null)
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 50)
-    window.addEventListener('scroll', onScroll)
-    return () => window.removeEventListener('scroll', onScroll)
+    const onScroll = () => {
+      if (scrollTimer.current) return
+      scrollTimer.current = setTimeout(() => {
+        setScrolled(window.scrollY > 50)
+        scrollTimer.current = null
+      }, 50)
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => { window.removeEventListener('scroll', onScroll); if (scrollTimer.current) clearTimeout(scrollTimer.current) }
   }, [])
 
   useEffect(() => {

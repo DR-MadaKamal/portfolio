@@ -47,7 +47,7 @@ const defaultSections = {
 }
 
 const defaultTheme = {
-  accent: '#64ffda', accent2: '#ff6b6b', bg: '#0f0f1a', bgAlt: '#1a1a2e', text: '#e0e0e0',
+  accent: '#6cab96', accent2: '#e8a87c', bg: '#0f0f1a', bgAlt: '#1a1a2e', text: '#e0e0e0',
   textSecondary: '#a0a0b0', textDim: '#666', textMuted: '#888', border: '#2a2a3e',
 }
 

@@ -100,7 +100,7 @@ export default function PortfolioGallery({ works: editedWorks }) {
                 <i className="fas fa-times" />
               </button>
               <div className="gallery-video-wrap" onClick={e => e.stopPropagation()}>
-                <iframe src={videoUrl} title="Video player" frameBorder="0"
+                <iframe src={videoUrl} title="Video player" frameBorder="0" loading="lazy"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen />
               </div>

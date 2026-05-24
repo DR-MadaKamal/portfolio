@@ -1,6 +1,7 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
+import { useState, useEffect } from 'react'
 
-import { personalData } from '../data/portfolioData'
+import { personalData, quotes as defaultQuotes } from '../data/portfolioData'
 import TypeWriter from './TypeWriter'
 import DownloadCV from './DownloadCV'
 import MagneticButton from './MagneticButton'
@@ -10,13 +11,21 @@ const container = { animate: { transition: { staggerChildren: 0.12 } } }
 const child = { initial: { opacity: 0, y: 30 }, animate: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 120, damping: 20 } } }
 const imgChild = { initial: { opacity: 0, scale: 0.8 }, animate: { opacity: 1, scale: 1, transition: { type: 'spring', stiffness: 100, damping: 18, delay: 0.3 } } }
 
-export default function Hero({ personalData: editedPersonalData }) {
+export default function Hero({ personalData: editedPersonalData, quotes: editedQuotes }) {
   const data = editedPersonalData || personalData
+  const quotes = editedQuotes || defaultQuotes
   const { t } = useLang()
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
   const { scrollY } = useScroll()
   const imgY = useTransform(scrollY, [0, 500], [0, isMobile ? 0 : -40])
   const glowY = useTransform(scrollY, [0, 500], [0, isMobile ? 0 : -70])
+
+  const [qIdx, setQIdx] = useState(0)
+  useEffect(() => {
+    const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000)
+    if (quotes.length > 0) setQIdx(dayOfYear % quotes.length)
+  }, [quotes.length])
+  const quote = quotes[qIdx]
 
   return (
     <section id="home" className="hero">
@@ -57,10 +66,19 @@ export default function Hero({ personalData: editedPersonalData }) {
           )}
         </div>
 
-        <motion.div className="hero-image" variants={imgChild} style={{ y: imgY }}>
-          <motion.div className="hero-glow" style={{ y: glowY }} />
-          <motion.div className="hero-glow hero-glow-2" style={{ y: glowY }} />
-          <div className="hero-image-frame"><img src="/portfolio/photo.png" alt={data.firstName} fetchpriority="high" /></div>
+        <motion.div className="hero-right" variants={imgChild}>
+          <motion.div className="hero-image" style={{ y: imgY }}>
+            <motion.div className="hero-glow" style={{ y: glowY }} />
+            <motion.div className="hero-glow hero-glow-2" style={{ y: glowY }} />
+            <div className="hero-image-frame"><img src="/portfolio/photo.png" alt={data.firstName} fetchpriority="high" /></div>
+          </div>
+          {quote && (
+            <div className="hero-quote">
+              <p className="hero-quote-icon">&ldquo;</p>
+              <blockquote className="hero-quote-text">{quote.text}</blockquote>
+              <p className="hero-quote-author">&mdash; {quote.author}</p>
+            </div>
+          )}
         </motion.div>
       </motion.div>
 

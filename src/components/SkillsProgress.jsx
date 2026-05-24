@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useRef, useLayoutEffect } from 'react'
+import { motion } from 'framer-motion'
 import { skillCategories as defaultSkills } from '../data/portfolioData'
 
 const catColors = ['var(--accent)', '#48c6ef', '#f093fb', '#fa709a']
@@ -7,6 +7,18 @@ const catColors = ['var(--accent)', '#48c6ef', '#f093fb', '#fa709a']
 export default function SkillsProgress({ skillCategories: editedSkills }) {
   const cats = editedSkills || defaultSkills
   const [openSet, setOpenSet] = useState(new Set())
+  const [heights, setHeights] = useState({})
+  const innerRefs = useRef([])
+
+  useLayoutEffect(() => {
+    const h = {}
+    cats.forEach((_, i) => {
+      if (innerRefs.current[i]) {
+        h[i] = innerRefs.current[i].scrollHeight + 8
+      }
+    })
+    if (Object.keys(h).length > 0) setHeights(h)
+  }, [cats])
 
   const toggle = (i) => {
     setOpenSet(prev => {
@@ -20,6 +32,7 @@ export default function SkillsProgress({ skillCategories: editedSkills }) {
     <div className="skills-grid">
       {cats.map((c, i) => {
         const isOpen = openSet.has(i)
+        const h = heights[i] || 500
         return (
           <div key={i} className={`skills-cat${isOpen ? ' open' : ''}`}>
             <button type="button" className="skills-cat-header"
@@ -35,30 +48,22 @@ export default function SkillsProgress({ skillCategories: editedSkills }) {
               <i className={`fas fa-chevron-down skills-chevron${isOpen ? ' open' : ''}`} />
             </button>
 
-            <AnimatePresence initial={false}>
-              {isOpen && (
-                <motion.div className="skills-cat-body"
-                  key="body"
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.3 }}>
-                  <div className="skills-cat-inner">
-                    <ul className="skills-bullets">
-                      {c.skills.map((s, j) => (
-                        <motion.li key={s} className="skills-bullet"
-                          initial={{ opacity: 0, x: -8 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: j * 0.03 }}>
-                          <span className="skills-bullet-dot" style={{ background: catColors[i] }} />
-                          {s}
-                        </motion.li>
-                      ))}
-                    </ul>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <div className="skills-cat-body"
+              style={{ maxHeight: isOpen ? h : 0 }}>
+              <div ref={el => innerRefs.current[i] = el} className="skills-cat-inner">
+                <ul className="skills-bullets">
+                  {c.skills.map((s, j) => (
+                    <motion.li key={s} className="skills-bullet"
+                      initial={false}
+                      animate={isOpen ? { opacity: 1, x: 0 } : { opacity: 0, x: -6 }}
+                      transition={{ duration: 0.2, delay: isOpen ? j * 0.02 : 0 }}>
+                      <span className="skills-bullet-dot" style={{ background: catColors[i] }} />
+                      {s}
+                    </motion.li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           </div>
         )
       })}

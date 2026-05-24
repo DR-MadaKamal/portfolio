@@ -16,7 +16,6 @@ const Projects = lazy(() => import('./components/Projects'))
 const Articles = lazy(() => import('./components/Articles'))
 const Testimonials = lazy(() => import('./components/Testimonials'))
 const Achievements = lazy(() => import('./components/Achievements'))
-const QuoteRotator = lazy(() => import('./components/QuoteRotator'))
 const SayHello = lazy(() => import('./components/SayHello'))
 const Footer = lazy(() => import('./components/Footer'))
 const ClientLogoWall = lazy(() => import('./components/ClientLogoWall'))
@@ -114,7 +113,7 @@ function App() {
   const sec = (key) => sections[key]?.visible !== false
 
   const sectionMap = [
-    { key: 'hero', comp: <Hero personalData={d?.personalData} /> },
+    { key: 'hero', comp: <Hero personalData={d?.personalData} quotes={d?.quotes} /> },
     { key: 'about', comp: <About editedData={d} /> },
 
     { key: 'logos', comp: <ClientLogoWall clientLogos={d?.clientLogos} /> },
@@ -125,7 +124,6 @@ function App() {
 
     { key: 'achievements', comp: <Achievements awards={d?.awards} certifications={d?.certifications} /> },
     { key: 'process', comp: <ServicesTimeline servicesTimeline={d?.servicesTimeline} /> },
-    { key: 'quote', comp: <QuoteRotator quotes={d?.quotes} /> },
     { key: 'tools', comp: <ToolsShowcase tools={d?.tools} /> },
     { key: 'faq', comp: <FAQSection faq={d?.faq} /> },
     { key: 'articles', comp: <Articles articles={d?.articles} initialArticleIdx={articleHashIdx} onArticleOpened={(idx) => { if (idx < 0) setArticleHashIdx(null); else setArticleHashIdx(idx) }} /> },
@@ -163,16 +161,13 @@ function App() {
       <AnalyticsDashboard />
       <Footer personalData={d?.personalData} />
       {tools.googleAnalyticsId && (
-        <>
-          <script async src={`https://www.googletagmanager.com/gtag/js?id=${tools.googleAnalyticsId}`} />
-          <script dangerouslySetInnerHTML={{
-            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${tools.googleAnalyticsId}');`
-          }} />
-        </>
+        <script dangerouslySetInnerHTML={{
+          __html: `(self.requestIdleCallback||setTimeout)(function(){var s=document.createElement('script');s.async=!0;s.src='https://www.googletagmanager.com/gtag/js?id=${tools.googleAnalyticsId}';document.head.appendChild(s);window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${tools.googleAnalyticsId}');});`
+        }} />
       )}
       {tools.facebookPixelId && (
         <script dangerouslySetInnerHTML={{
-          __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${tools.facebookPixelId}');fbq('track','PageView');`
+          __html: `(self.requestIdleCallback||setTimeout)(function(){!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${tools.facebookPixelId}');fbq('track','PageView');});`
         }} />
       )}
     </LangProvider>
