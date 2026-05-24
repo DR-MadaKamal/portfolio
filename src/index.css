@@ -851,8 +851,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .elm-section-active { border-color: #6cab96 !important; box-shadow: 0 0 0 1px #6cab96; }
 .elm-section-handle { position: absolute; top: 0; left: -24px; height: 100%; width: 20px; display: flex; align-items: center; justify-content: center; color: #555; cursor: grab; opacity: 0; transition: opacity 0.15s; font-size: 12px; background: #1e1e36; border-radius: 4px 0 0 4px; border: 1px solid transparent; }
 .elm-section:hover .elm-section-handle { opacity: 1; border-color: #2a2a44; }
-.elm-section-tools { position: absolute; top: -32px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 4px; background: #252540; border-radius: 4px; padding: 4px 8px; border: 1px solid #2a2a44; opacity: 0; transition: opacity 0.15s; z-index: 5; white-space: nowrap; }
-.elm-section-tools.visible { opacity: 1; }
+.elm-section-tools { position: absolute; top: -32px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 4px; background: #252540; border-radius: 4px; padding: 4px 8px; border: 1px solid #2a2a44; z-index: 5; white-space: nowrap; }
 .elm-section-badge { font-size: 10px; font-weight: 600; color: #6cab96; margin-right: 4px; }
 .elm-tool-btn { padding: 3px 6px; border: none; background: transparent; color: #a0a0b0; cursor: pointer; border-radius: 3px; font-size: 11px; transition: all 0.15s; }
 .elm-tool-btn:hover { background: rgba(255,255,255,0.05); color: #d5d8e2; }

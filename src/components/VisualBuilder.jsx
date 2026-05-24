@@ -484,95 +484,102 @@ export default function VisualBuilder({ data, onSave, onExit }) {
                 <p>Click a section from the Add panel to add it, or drag widgets onto the canvas.</p>
               </div>
             )}
-            {rows.filter(r => !r.hidden).map((row, ri) => (
-              <SortableList key={row.id} items={[row]} onReorder={() => {}} getId={r => r.id}>
-                <SortableItem key={row.id} id={row.id}>
-                  {(listeners) => {
-                    const mergedStyles = { ...(row.styles || {}) }
-                    const styleObj = {}
-                    if (mergedStyles.background) styleObj.background = mergedStyles.background
-                    if (mergedStyles.color) styleObj.color = mergedStyles.color
-                    if (mergedStyles.textAlign) styleObj.textAlign = mergedStyles.textAlign
-                    if (mergedStyles.maxWidth) styleObj.maxWidth = mergedStyles.maxWidth
-                    if (mergedStyles.borderRadius) styleObj.borderRadius = mergedStyles.borderRadius
-                    if (mergedStyles.boxShadow) styleObj.boxShadow = mergedStyles.boxShadow
-                    if (mergedStyles.border) styleObj.border = mergedStyles.border
-                    ;['paddingTop','paddingRight','paddingBottom','paddingLeft'].forEach(k => { if (mergedStyles[k]) styleObj[k] = mergedStyles[k] })
-                    ;['marginTop','marginRight','marginBottom','marginLeft'].forEach(k => { if (mergedStyles[k]) styleObj[k] = mergedStyles[k] })
+            {(() => {
+              const visibleRows = rows.filter(r => !r.hidden)
+              if (visibleRows.length === 0) return null
+              return (
+                <SortableList items={visibleRows} onReorder={(arr) => pushHistory(arr)} getId={r => r.id}>
+                  {visibleRows.map((row, ri) => (
+                    <SortableItem key={row.id} id={row.id}>
+                      {(listeners) => {
+                        const mergedStyles = { ...(row.styles || {}) }
+                        const styleObj = {}
+                        if (mergedStyles.background) styleObj.background = mergedStyles.background
+                        if (mergedStyles.color) styleObj.color = mergedStyles.color
+                        if (mergedStyles.textAlign) styleObj.textAlign = mergedStyles.textAlign
+                        if (mergedStyles.maxWidth) styleObj.maxWidth = mergedStyles.maxWidth
+                        if (mergedStyles.borderRadius) styleObj.borderRadius = mergedStyles.borderRadius
+                        if (mergedStyles.boxShadow) styleObj.boxShadow = mergedStyles.boxShadow
+                        if (mergedStyles.border) styleObj.border = mergedStyles.border
+                        const padMap = { top:'paddingTop', right:'paddingRight', bottom:'paddingBottom', left:'paddingLeft' }
+                        Object.entries(padMap).forEach(([short, css]) => { if (mergedStyles[short]) styleObj[css] = mergedStyles[short] })
+                        ;['marginTop','marginRight','marginBottom','marginLeft'].forEach(k => { if (mergedStyles[k]) styleObj[k] = mergedStyles[k] })
 
-                    const Tag = mergedStyles.htmlTag || 'section'
-                    return (
-                      <Tag className={`elm-section ${selected?.rowId === row.id ? 'elm-section-active' : ''}`}
-                        style={styleObj}
-                        onClick={() => setSelected({ rowId: row.id, colId: null, element: 'row' })}
-                        onMouseEnter={() => document.getElementById(`section-tools-${row.id}`)?.classList.add('visible')}
-                        onMouseLeave={() => document.getElementById(`section-tools-${row.id}`)?.classList.remove('visible')}>
-                        <div className="elm-section-handle" {...listeners}><i className="fas fa-grip-vertical"></i></div>
-                        <div id={`section-tools-${row.id}`} className="elm-section-tools visible">
-                          <span className="elm-section-badge">{row.type === 'section' ? (SECTION_LABELS[row.sectionKey] || row.sectionKey) : 'Custom Row'}</span>
-                          <button className="elm-tool-btn" onClick={(e) => { e.stopPropagation(); setLeftTab('settings'); setEditPane('content'); setSelected({ rowId: row.id, colId: null, element: 'row' }) }} title="Edit Content"><i className="fas fa-pen"></i></button>
-                          <button className="elm-tool-btn" onClick={(e) => { e.stopPropagation(); duplicateRow(row.id) }} title="Duplicate"><i className="fas fa-copy"></i></button>
-                          <button className="elm-tool-btn" onClick={(e) => { e.stopPropagation(); toggleSectionVisibility(row.id) }} title="Hide"><i className="fas fa-eye-slash"></i></button>
-                          <button className="elm-tool-btn elm-tool-btn-del" onClick={(e) => { e.stopPropagation(); removeRow(row.id) }} title="Delete"><i className="fas fa-trash"></i></button>
-                        </div>
-
-                        {row.type === 'section' && row.sectionKey && SECTION_COMPONENTS[row.sectionKey] ? (
-                          <>
-                            <div className="elm-section-label">{SECTION_LABELS[row.sectionKey] || row.sectionKey}</div>
-                            <div className="elm-section-live"
-                              onClick={(e) => e.stopPropagation()}
-                              onDoubleClick={(e) => { e.stopPropagation(); setLeftTab('settings'); setEditPane('content'); setSelected({ rowId: row.id, colId: null, element: 'row' }) }}>
-                              {(() => {
-                                const Comp = SECTION_COMPONENTS[row.sectionKey]
-                                const props = resolveSectionProps(row.sectionKey, localData)
-                                return <Comp {...props} />
-                              })()}
+                        const Tag = mergedStyles.htmlTag || 'section'
+                        const isSel = selected?.rowId === row.id
+                        return (
+                          <Tag id={mergedStyles.cssId || undefined}
+                            className={`elm-section ${isSel ? 'elm-section-active' : ''}`}
+                            style={styleObj}
+                            onClick={() => setSelected({ rowId: row.id, colId: null, element: 'row' })}>
+                            <div className="elm-section-handle" {...listeners}><i className="fas fa-grip-vertical"></i></div>
+                            <div className="elm-section-tools">
+                              <span className="elm-section-badge">{row.type === 'section' ? (SECTION_LABELS[row.sectionKey] || row.sectionKey) : 'Custom Row'}</span>
+                              <button className="elm-tool-btn" onClick={(e) => { e.stopPropagation(); setLeftTab('settings'); setEditPane('content'); setSelected({ rowId: row.id, colId: null, element: 'row' }) }} title="Edit Content"><i className="fas fa-pen"></i></button>
+                              <button className="elm-tool-btn" onClick={(e) => { e.stopPropagation(); duplicateRow(row.id) }} title="Duplicate"><i className="fas fa-copy"></i></button>
+                              <button className="elm-tool-btn" onClick={(e) => { e.stopPropagation(); toggleSectionVisibility(row.id) }} title="Hide"><i className="fas fa-eye-slash"></i></button>
+                              <button className="elm-tool-btn elm-tool-btn-del" onClick={(e) => { e.stopPropagation(); removeRow(row.id) }} title="Delete"><i className="fas fa-trash"></i></button>
                             </div>
-                          </>
-                        ) : row.type === 'section' ? (
-                          <div className="elm-section-preview">
-                            <div className="elm-section-preview-header"><i className={`fas ${SECTION_ICONS[row.sectionKey] || 'fa-layer-group'}`}></i> {SECTION_LABELS[row.sectionKey] || row.sectionKey}</div>
-                          </div>
-                        ) : (
-                          <div className="elm-custom-row">
-                            {row.columns.map(col => (
-                              <div key={col.id} className={`elm-column ${selected?.colId === col.id ? 'elm-column-active' : ''}`}
-                                style={{ flex: col.width / 100, minWidth: 0 }}
-                                onClick={(e) => { e.stopPropagation(); setSelected({ rowId: row.id, colId: col.id, element: 'column' }) }}
-                                onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move' }}
-                                onDrop={(e) => { const t = e.dataTransfer.getData('text/plain'); if (t && !isSection(t)) addBlockToCol(row.id, col.id, t); else if (t && isSection(t)) addSectionRow(t, ri + 1) }}>
-                                <div className="elm-col-resize">
-                                  <span className="elm-col-width-badge">{col.width}%</span>
-                                  {row.columns.length > 1 && <button className="elm-col-remove" onClick={(e) => { e.stopPropagation(); removeColumn(row.id, col.id) }}><i className="fas fa-times"></i></button>}
+
+                            {row.type === 'section' && row.sectionKey && SECTION_COMPONENTS[row.sectionKey] ? (
+                              <>
+                                <div className="elm-section-label">{SECTION_LABELS[row.sectionKey] || row.sectionKey}</div>
+                                <div className="elm-section-live"
+                                  onClick={(e) => e.stopPropagation()}
+                                  onDoubleClick={(e) => { e.stopPropagation(); setLeftTab('settings'); setEditPane('content'); setSelected({ rowId: row.id, colId: null, element: 'row' }) }}>
+                                  {(() => {
+                                    const Comp = SECTION_COMPONENTS[row.sectionKey]
+                                    const props = resolveSectionProps(row.sectionKey, localData)
+                                    return <Comp {...props} />
+                                  })()}
                                 </div>
-                                {col.blocks.length === 0 && <div className="elm-col-empty">Drop widget here</div>}
-                                {col.blocks.map(b => {
-                                  const isSel = selected?.block?.id === b.id
-                                  return (
-                                    <div key={b.id} className={`elm-widget ${isSel ? 'elm-widget-active' : ''}`}
-                                      onClick={(e) => { e.stopPropagation(); setSelected({ rowId: row.id, colId: col.id, block: b, element: 'widget' }) }}>
-                                      {isSel && <div className="elm-widget-tools"><button className="elm-widget-tool" onClick={(e) => { e.stopPropagation(); duplicateBlock(row.id, col.id, b.id) }} title="Duplicate"><i className="fas fa-copy"></i></button><button className="elm-widget-tool elm-tool-btn-del" onClick={(e) => { e.stopPropagation(); removeBlock(row.id, col.id, b.id) }} title="Delete"><i className="fas fa-trash"></i></button></div>}
-                                      <WidgetPreview block={b} />
-                                    </div>
-                                  )
-                                })}
-                                <div className="elm-add-widget">
-                                  <select className="elm-add-select" value="" onChange={(e) => { if (e.target.value) { addBlockToCol(row.id, col.id, e.target.value); e.target.value = '' } }}>
-                                    <option value="">+ Add Widget</option>
-                                    {Object.entries(WIDGETS).filter(([k]) => k !== 'sections').flatMap(([, cat]) => Object.entries(cat.items).map(([k, m]) => <option key={k} value={k}>{m.label}</option>))}
-                                  </select>
-                                </div>
+                              </>
+                            ) : row.type === 'section' ? (
+                              <div className="elm-section-preview">
+                                <div className="elm-section-preview-header"><i className={`fas ${SECTION_ICONS[row.sectionKey] || 'fa-layer-group'}`}></i> {SECTION_LABELS[row.sectionKey] || row.sectionKey}</div>
                               </div>
-                            ))}
-                            {row.columns.length < 4 && <button className="elm-add-col-btn" onClick={(e) => { e.stopPropagation(); addColumn(row.id) }} title="Add Column"><i className="fas fa-plus"></i></button>}
-                          </div>
-                        )}
-                      </Tag>
-                    )
-                  }}
-                </SortableItem>
-              </SortableList>
-            ))}
+                            ) : (
+                              <div className="elm-custom-row">
+                                {row.columns.map(col => (
+                                  <div key={col.id} className={`elm-column ${selected?.colId === col.id ? 'elm-column-active' : ''}`}
+                                    style={{ flex: col.width / 100, minWidth: 0 }}
+                                    onClick={(e) => { e.stopPropagation(); setSelected({ rowId: row.id, colId: col.id, element: 'column' }) }}
+                                    onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move' }}
+                                    onDrop={(e) => { const t = e.dataTransfer.getData('text/plain'); if (t && !isSection(t)) addBlockToCol(row.id, col.id, t); else if (t && isSection(t)) addSectionRow(t, ri + 1) }}>
+                                    <div className="elm-col-resize">
+                                      <span className="elm-col-width-badge">{col.width}%</span>
+                                      {row.columns.length > 1 && <button className="elm-col-remove" onClick={(e) => { e.stopPropagation(); removeColumn(row.id, col.id) }}><i className="fas fa-times"></i></button>}
+                                    </div>
+                                    {col.blocks.length === 0 && <div className="elm-col-empty">Drop widget here</div>}
+                                    {col.blocks.map(b => {
+                                      const bSel = selected?.block?.id === b.id
+                                      return (
+                                        <div key={b.id} className={`elm-widget ${bSel ? 'elm-widget-active' : ''}`}
+                                          onClick={(e) => { e.stopPropagation(); setSelected({ rowId: row.id, colId: col.id, block: b, element: 'widget' }) }}>
+                                          {bSel && <div className="elm-widget-tools"><button className="elm-widget-tool" onClick={(e) => { e.stopPropagation(); duplicateBlock(row.id, col.id, b.id) }} title="Duplicate"><i className="fas fa-copy"></i></button><button className="elm-widget-tool elm-tool-btn-del" onClick={(e) => { e.stopPropagation(); removeBlock(row.id, col.id, b.id) }} title="Delete"><i className="fas fa-trash"></i></button></div>}
+                                          <WidgetPreview block={b} />
+                                        </div>
+                                      )
+                                    })}
+                                    <div className="elm-add-widget">
+                                      <select className="elm-add-select" value="" onChange={(e) => { if (e.target.value) { addBlockToCol(row.id, col.id, e.target.value); e.target.value = '' } }}>
+                                        <option value="">+ Add Widget</option>
+                                        {Object.entries(WIDGETS).filter(([k]) => k !== 'sections').flatMap(([, cat]) => Object.entries(cat.items).map(([k, m]) => <option key={k} value={k}>{m.label}</option>))}
+                                      </select>
+                                    </div>
+                                  </div>
+                                ))}
+                                {row.columns.length < 4 && <button className="elm-add-col-btn" onClick={(e) => { e.stopPropagation(); addColumn(row.id) }} title="Add Column"><i className="fas fa-plus"></i></button>}
+                              </div>
+                            )}
+                          </Tag>
+                        )
+                      }}
+                    </SortableItem>
+                  ))}
+                </SortableList>
+              )
+            })()}
             {rows.some(r => r.hidden) && (
               <div className="elm-hidden-sections-bar">
                 <i className="fas fa-eye-slash"></i> {rows.filter(r => r.hidden).length} hidden section(s)
