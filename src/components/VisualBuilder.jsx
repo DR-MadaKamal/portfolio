@@ -90,6 +90,14 @@ const SECTION_ICONS = {
 
 const EDITABLE_TAGS = new Set(['h1','h2','h3','h4','h5','h6','p','span','a','li','blockquote','figcaption','td','th','label','strong','em','b','i','u','small','sub','sup'])
 
+const TEMPLATES = [
+  { name: 'Single Page', icon: 'fa-file', desc: 'Hero + About + Projects + Contact', rows: ['hero','about','projects','contact'] },
+  { name: 'Portfolio', icon: 'fa-briefcase', desc: 'Hero + Projects + Testimonials + FAQ', rows: ['hero','projects','testimonials','faq','contact'] },
+  { name: 'Business', icon: 'fa-building', desc: 'Hero + Logos + Process + Contact', rows: ['hero','logos','process','map','contact'] },
+  { name: 'Blog', icon: 'fa-newspaper', desc: 'Hero + Articles + Newsletter + Footer', rows: ['hero','articles','newsletter','contact'] },
+  { name: 'Full Featured', icon: 'fa-star', desc: 'All sections', rows: ['hero','about','logos','projects','portfolio-gallery','case-studies','testimonials','achievements','process','tools','faq','articles','portfolio-download','map','newsletter','contact'] },
+]
+
 function setDeep(obj, path, value) {
   const keys = path.split('.')
   let cur = obj
@@ -207,7 +215,12 @@ const WIDGETS = {
     items: {
       html: { icon: 'fa-code', label: 'Custom HTML', defaults: { html: '<div>Custom HTML</div>' } },
       shortcode: { icon: 'fa-code-branch', label: 'Shortcode', defaults: { key: '', placeholder: 'Insert shortcode...' } },
+      container: { icon: 'fa-layer-group', label: 'Container', defaults: { children: [] } },
     }
+  },
+  global: {
+    label: 'Global Widgets',
+    items: {},
   },
   sections: {
     label: 'Site Sections',
@@ -221,6 +234,7 @@ const WIDGETS = {
 
 const defaultSectionRow = (key) => ({ id: uid(), type: 'section', sectionKey: key, styles: {}, inlineHTML: null, inlineStyles: {} })
 const defaultCustomRow = () => ({ id: uid(), type: 'custom', columns: [{ id: uid(), width: 100, blocks: [], styles: {} }], styles: {} })
+const defaultNestedRow = () => ({ id: uid(), type: 'nested', columns: [{ id: uid(), width: 100, blocks: [], styles: {} }], styles: {} })
 
 export default function VisualBuilder({ data, onSave, onExit }) {
   const [rows, setRows] = useState(() => data.builder?.rows?.length ? data.builder.rows : buildDefaultRows(data))
@@ -236,13 +250,19 @@ export default function VisualBuilder({ data, onSave, onExit }) {
   const [hoveredEl, setHoveredEl] = useState(null)
   const [hoverPos, setHoverPos] = useState(null)
   const [selEl, setSelEl] = useState(null)
+  const [previewMode, setPreviewMode] = useState(false)
+  const [clipboard, setClipboard] = useState(null)
+  const [contextMenu, setContextMenu] = useState(null)
+  const [globalWidgets, setGlobalWidgets] = useState(() => data.builder?.globalWidgets || [])
+  const [colResizing, setColResizing] = useState(null)
   const r = useRef(true)
+  const inlinePrevRef = useRef(null)
   const latestRef = useRef({ rows, localData })
 
   latestRef.current = { rows, localData }
 
   useEffect(() => {
-    if (data && Object.keys(data).length) setLocalData(prev => { const m = JSON.parse(JSON.stringify(data)); if (prev?.builder?.rows) m.builder = { rows: prev.builder.rows }; return m })
+    if (data && Object.keys(data).length) setLocalData(prev => { const m = JSON.parse(JSON.stringify(data)); if (prev?.builder?.rows) m.builder = { rows: prev.builder.rows, globalWidgets: prev.builder?.globalWidgets || globalWidgets }; return m })
   }, [data])
 
   useEffect(() => {
@@ -250,7 +270,7 @@ export default function VisualBuilder({ data, onSave, onExit }) {
     const timer = setTimeout(() => {
       const { rows: r2, localData: d } = latestRef.current
       const saved = JSON.parse(JSON.stringify(d))
-      saved.builder = { rows: r2 }
+      saved.builder = { rows: r2, globalWidgets }
       if (saved.settings?.sections) {
         const visibles = new Set()
         r2.forEach((row, i) => {
@@ -266,21 +286,26 @@ export default function VisualBuilder({ data, onSave, onExit }) {
       onSave(saved, 'Builder')
     }, 500)
     return () => clearTimeout(timer)
-  }, [rows, localData])
+  }, [rows, localData, globalWidgets])
 
   const pushHistory = useCallback((newRows) => {
     setRows(newRows)
     setHistory(prev => { const trimmed = prev.slice(0, historyIdx + 1); const next = [...trimmed, JSON.parse(JSON.stringify(newRows))].slice(-50); setHistoryIdx(next.length - 1); return next })
   }, [historyIdx])
 
-  const undo = () => { if (historyIdx > 0) { const i = historyIdx - 1; setHistoryIdx(i); setRows(JSON.parse(JSON.stringify(history[i]))) } }
-  const redo = () => { if (historyIdx < history.length - 1) { const i = historyIdx + 1; setHistoryIdx(i); setRows(JSON.parse(JSON.stringify(history[i]))) } }
+  const goToHistory = (idx) => { if (idx >= 0 && idx < history.length) { setHistoryIdx(idx); setRows(JSON.parse(JSON.stringify(history[idx]))) } }
+  const undo = () => { if (historyIdx > 0) { const i = historyIdx - 1; goToHistory(i) } }
+  const redo = () => { if (historyIdx < history.length - 1) { const i = historyIdx + 1; goToHistory(i) } }
 
   const addSectionRow = (key, idx) => { const arr = [...rows]; arr.splice(idx ?? rows.length, 0, defaultSectionRow(key)); pushHistory(arr) }
   const addCustomRow = (idx) => { const arr = [...rows]; arr.splice(idx ?? rows.length, 0, defaultCustomRow()); pushHistory(arr) }
   const removeRow = (id) => { if (confirm('Delete this section?')) pushHistory(rows.filter(r => r.id !== id)) }
   const duplicateRow = (id) => { const ri = rows.findIndex(r => r.id === id); if (ri < 0) return; const c = JSON.parse(JSON.stringify(rows[ri])); c.id = uid(); const arr = [...rows]; arr.splice(ri + 1, 0, c); pushHistory(arr) }
   const toggleSectionVisibility = (id) => { setRows(prev => prev.map(r => r.id === id ? { ...r, hidden: !r.hidden } : r)) }
+
+  const addNestedRow = (rowId, colId) => {
+    pushHistory(rows.map(r => r.id === rowId ? { ...r, columns: r.columns.map(c => c.id === colId ? { ...c, blocks: [...c.blocks, { id: uid(), type: 'nested-row', row: defaultNestedRow() }] } : c) } : r))
+  }
 
   const addBlockToCol = (rowId, colId, type, defaults) => {
     const cat = Object.values(WIDGETS).find(c => c.items[type])
@@ -319,6 +344,11 @@ export default function VisualBuilder({ data, onSave, onExit }) {
     }
     reader.readAsText(file)
     e.target.value = ''
+  }
+
+  const loadTemplate = (template) => {
+    if (!confirm(`Load "${template.name}" template? This will replace all sections.`)) return
+    pushHistory(template.rows.map(key => defaultSectionRow(key)))
   }
 
   const blockSensors = useSensors(
@@ -374,7 +404,7 @@ export default function VisualBuilder({ data, onSave, onExit }) {
     e.preventDefault()
     const row = rows.find(r => r.id === rowId)
     if (!row) return
-    if (row.type !== 'widget-section' && row.type !== 'custom') {
+    if (row.type !== 'widget-section' && row.type !== 'custom' && row.type !== 'nested') {
       convertSectionToWidgets(rowId)
       setTimeout(() => {
         const updated = latestRef.current.rows.find(r => r.id === rowId)
@@ -395,7 +425,7 @@ export default function VisualBuilder({ data, onSave, onExit }) {
   function handleSaveNow() {
     const { localData: d } = latestRef.current
     const saved = JSON.parse(JSON.stringify(d))
-    saved.builder = { rows: latestRef.current.rows }
+    saved.builder = { rows: latestRef.current.rows, globalWidgets }
     if (saved.settings?.sections) {
       const visibles = new Set()
       latestRef.current.rows.forEach((row, i) => {
@@ -414,6 +444,7 @@ export default function VisualBuilder({ data, onSave, onExit }) {
   function startInlineEdit(rowId) {
     const contentEl = document.getElementById(`sec-${rowId}`)?.querySelector('.elm-section-live-inner')
     if (!contentEl) return
+    inlinePrevRef.current = contentEl.innerHTML
     setInlineEl(rowId)
     contentEl.contentEditable = true
     contentEl.focus()
@@ -428,7 +459,10 @@ export default function VisualBuilder({ data, onSave, onExit }) {
     if (save) {
       const html = contentEl.innerHTML
       setRows(prev => prev.map(r => r.id === rowId ? { ...r, inlineHTML: html } : r))
+    } else if (inlinePrevRef.current) {
+      contentEl.innerHTML = inlinePrevRef.current
     }
+    inlinePrevRef.current = null
   }
 
   function handleElPointer(e, rowId, callback) {
@@ -513,10 +547,88 @@ export default function VisualBuilder({ data, onSave, onExit }) {
     return path.join(' > ')
   }
 
+  function handleContextMenu(e, rowId) {
+    e.preventDefault()
+    e.stopPropagation()
+    setContextMenu({ x: e.clientX, y: e.clientY, rowId })
+  }
+
+  function handleCopyBlock(rowId, colId, blockId) {
+    const row = rows.find(r => r.id === rowId)
+    if (!row) return
+    const col = row.columns?.find(c => c.id === colId)
+    if (!col) return
+    const block = col.blocks.find(b => b.id === blockId)
+    if (!block) return
+    setClipboard({ ...JSON.parse(JSON.stringify(block)), id: uid() })
+  }
+
+  function handlePasteBlock(rowId, colId) {
+    if (!clipboard) return
+    const pasted = { ...JSON.parse(JSON.stringify(clipboard)), id: uid() }
+    pushHistory(rows.map(r => r.id === rowId ? { ...r, columns: r.columns.map(c => c.id === colId ? { ...c, blocks: [...c.blocks, pasted] } : c) } : r))
+  }
+
+  function handleSaveGlobalWidget(rowId, colId, blockId) {
+    const row = rows.find(r => r.id === rowId)
+    if (!row) return
+    const col = row.columns?.find(c => c.id === colId)
+    if (!col) return
+    const block = col.blocks.find(b => b.id === blockId)
+    if (!block) return
+    const name = prompt('Name this global widget:', block.type)
+    if (!name) return
+    const gw = { ...JSON.parse(JSON.stringify(block)), id: uid(), globalName: name }
+    setGlobalWidgets(prev => [...prev, gw])
+  }
+
+  function addGlobalWidget(gw, rowId, colId) {
+    const pasted = { ...JSON.parse(JSON.stringify(gw)), id: uid() }
+    const row = rows.find(r => r.id === rowId)
+    if (!row) return
+    pushHistory(rows.map(r => r.id === rowId ? { ...r, columns: r.columns.map(c => c.id === colId ? { ...c, blocks: [...c.blocks, pasted] } : c) } : r))
+  }
+
+  function startColResize(e, rowId, colIdx) {
+    e.preventDefault()
+    setColResizing({ rowId, colIdx, startX: e.clientX, startWidths: null, row: rows.find(r => r.id === rowId) })
+  }
+
+  useEffect(() => {
+    if (!colResizing) return
+    const onMove = (e) => {
+      const { rowId, colIdx, startX } = colResizing
+      const row = latestRef.current.rows.find(r => r.id === rowId)
+      if (!row) return
+      if (!colResizing.startWidths) {
+        setColResizing(prev => ({ ...prev, startWidths: row.columns.map(c => c.width) }))
+        return
+      }
+      const el = document.getElementById(`sec-${rowId}`)
+      if (!el) return
+      const rect = el.getBoundingClientRect()
+      const totalW = rect.width
+      const dx = e.clientX - startX
+      const deltaPct = (dx / totalW) * 100
+      const widths = [...colResizing.startWidths]
+      const leftW = Math.max(10, widths[colIdx] + deltaPct)
+      const rightW = Math.max(10, widths[colIdx + 1] - deltaPct)
+      widths[colIdx] = Math.round(leftW * 100) / 100
+      widths[colIdx + 1] = Math.round(rightW * 100) / 100
+      const sum = widths.reduce((a, b) => a + b, 0)
+      const adjusted = widths.map(w => Math.round((w / sum) * 100))
+      setRows(prev => prev.map(r => r.id === rowId ? { ...r, columns: r.columns.map((c, i) => ({ ...c, width: adjusted[i] })) } : r))
+    }
+    const onUp = () => setColResizing(null)
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+    return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp) }
+  }, [colResizing])
+
   const allWidgets = Object.entries(WIDGETS).flatMap(([catKey, cat]) => catKey === 'sections' ? [] : Object.entries(cat.items).map(([k, v]) => ({ key: k, ...v, category: cat.label })))
   const filteredWidgets = search ? allWidgets.filter(w => w.label.toLowerCase().includes(search.toLowerCase())) : null
   const isSection = (type) => SECTION_COMPONENTS[type] != null
-  const canvasWidth = responsiveMode === 'mobile' ? '480px' : responsiveMode === 'tablet' ? '900px' : 'min(100%, 1400px)'
+  const canvasWidth = previewMode ? '100%' : responsiveMode === 'mobile' ? '480px' : responsiveMode === 'tablet' ? '900px' : 'min(100%, 1400px)'
 
   const selectedRow = selected?.rowId ? rows.find(r => r.id === selected.rowId) : null
   const selectedSectionKey = selectedRow?.type === 'section' || selectedRow?.type === 'widget-section' ? selectedRow.sectionKey : null
@@ -524,14 +636,91 @@ export default function VisualBuilder({ data, onSave, onExit }) {
   const selectedBlock = selected?.element === 'widget' ? selected?.block : null
   const isWidgetMode = selectedRow?.type === 'widget-section'
 
+  const rowActions = (row, ri) => {
+    if (!contextMenu || contextMenu.rowId !== row.id) return null
+    return (
+      <div style={{position:'fixed',top:contextMenu.y,left:contextMenu.x,zIndex:99999,background:'#252540',border:'1px solid #2a2a44',borderRadius:6,padding:'4px 0',minWidth:160,boxShadow:'0 8px 32px rgba(0,0,0,0.5)'}}
+        onClick={()=>setContextMenu(null)}>
+        {[
+          {icon:'fa-pen',label:'Edit',action:()=>{setLeftTab('settings');setEditPane('content');setSelected({rowId:row.id,colId:null,element:'row'})}},
+          {icon:'fa-copy',label:'Duplicate',action:()=>duplicateRow(row.id)},
+          {icon:'fa-eye-slash',label:row.hidden?'Show':'Hide',action:()=>toggleSectionVisibility(row.id)},
+          row.type==='section'?{icon:'fa-th-large',label:'Convert to Widgets',action:()=>convertSectionToWidgets(row.id)}:null,
+          {icon:'fa-chevron-up',label:'Move Up',action:()=>{const arr=[...rows];if(ri>0){[arr[ri-1],arr[ri]]=[arr[ri],arr[ri-1]];pushHistory(arr)}}},
+          {icon:'fa-chevron-down',label:'Move Down',action:()=>{const arr=[...rows];if(ri<arr.length-1){[arr[ri],arr[ri+1]]=[arr[ri+1],arr[ri]];pushHistory(arr)}}},
+          {icon:'fa-trash',label:'Delete',action:()=>removeRow(row.id),danger:true},
+        ].filter(Boolean).map((item,i)=>(
+          <div key={i} onClick={()=>{setContextMenu(null);item.action()}}
+            style={{display:'flex',alignItems:'center',gap:8,padding:'6px 12px',cursor:'pointer',fontSize:12,color:item.danger?'#f14d4d':'#a0a0b0',transition:'background 0.1s'}}
+            onMouseEnter={e=>e.target.style.background='rgba(108,171,150,0.08)'}
+            onMouseLeave={e=>e.target.style.background='transparent'}>
+            <i className={`fas ${item.icon}`} style={{width:14,fontSize:11,color:item.danger?'#f14d4d':'#6cab96'}}></i>
+            <span>{item.label}</span>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  const renderBlock = (b, row, col, bSel, isCol) => (
+    <SortableBlock key={b.id} id={b.id}>
+      <div className={`elm-widget ${bSel?'elm-widget-active':''}`}
+        onClick={e=>{e.stopPropagation();setSelected({rowId:row.id,colId:col.id,block:b,element:'widget'})}}>
+        {bSel&&<div className="elm-widget-tools">
+          <button className="elm-widget-tool" onClick={e=>{e.stopPropagation();handleCopyBlock(row.id,col.id,b.id)}} title="Copy"><i className="fas fa-copy"></i></button>
+          <button className="elm-widget-tool" onClick={e=>{e.stopPropagation();handlePasteBlock(row.id,col.id)}} title="Paste"><i className="fas fa-paste"></i></button>
+          <button className="elm-widget-tool" onClick={e=>{e.stopPropagation();handleSaveGlobalWidget(row.id,col.id,b.id)}} title="Save as Global"><i className="fas fa-globe"></i></button>
+          <button className="elm-widget-tool" onClick={e=>{e.stopPropagation();duplicateBlock(row.id,col.id,b.id)}} title="Duplicate"><i className="fas fa-copy"></i> <sup>2</sup></button>
+          <button className="elm-widget-tool elm-tool-btn-del" onClick={e=>{e.stopPropagation();removeBlock(row.id,col.id,b.id)}} title="Delete"><i className="fas fa-trash"></i></button>
+        </div>}
+        {b.type === 'nested-row' ? (
+          <div className="elm-nested-row">
+            <div className="elm-nested-row-label"><i className="fas fa-layer-group"></i> Inner Section</div>
+            <NestedRowView row={b.row} parentRowId={row.id} parentColId={col.id}
+              selected={selected} setSelected={setSelected}
+              onUpdate={(updatedRow) => {
+                setRows(prev => prev.map(r => r.id === row.id ? { ...r, columns: r.columns.map(c => c.id === col.id ? { ...c, blocks: c.blocks.map(bl => bl.id === b.id ? { ...bl, row: updatedRow } : bl) } : c) } : r))
+              }} />
+          </div>
+        ) : (
+          <WidgetPreview block={b} />
+        )}
+      </div>
+    </SortableBlock>
+  )
+
   return (
     <div className="elm-overlay" onKeyDown={(e) => {
-      if (e.key === 'Escape' && inlineEl) stopInlineEdit(inlineEl.rowId, false)
+      if (e.key === 'Escape' && inlineEl) { stopInlineEdit(inlineEl.rowId, false); return }
+      if (e.key === 'Escape' && contextMenu) { setContextMenu(null); return }
       if ((e.ctrlKey||e.metaKey) && e.key === 'z' && !e.shiftKey) { e.preventDefault(); undo() }
       if ((e.ctrlKey||e.metaKey) && e.key === 'z' && e.shiftKey) { e.preventDefault(); redo() }
       if ((e.ctrlKey||e.metaKey) && e.key === 's') { e.preventDefault(); handleSaveNow() }
+      if ((e.ctrlKey||e.metaKey) && e.key === 'c' && selectedBlock) { e.preventDefault(); handleCopyBlock(selected.rowId, selected.colId, selectedBlock.id) }
+      if ((e.ctrlKey||e.metaKey) && e.key === 'v' && clipboard && selected?.colId) { e.preventDefault(); handlePasteBlock(selected.rowId, selected.colId) }
       if (e.key === 'Delete' && selEl?.el?.parentNode) { const rid = selEl.rowId; selEl.el.remove(); setSelEl(null); const inner = document.getElementById(`sec-${rid}`)?.querySelector('.elm-section-live-inner'); if (inner) setRows(prev => prev.map(r => r.id === rid ? { ...r, inlineHTML: inner.innerHTML } : r)) }
     }} tabIndex={0}>
+      {previewMode ? (
+        <div className="elm-preview-overlay" onClick={()=>setPreviewMode(false)}>
+          <div className="elm-preview-exit-btn"><i className="fas fa-times"></i> Exit Preview</div>
+          <div className="elm-preview-canvas" onClick={e=>e.stopPropagation()}>
+            <style>{`
+              .elm-preview-overlay { position:fixed; inset:0; z-index:10002; background:#0f0f1a; display:flex; flex-direction:column; }
+              .elm-preview-exit-btn { position:fixed; top:12px; right:12px; z-index:10003; padding:8px 16px; background:#252540; border:1px solid #2a2a44; border-radius:6px; color:#a0a0b0; cursor:pointer; font-size:13px; display:flex; align-items:center; gap:6px; }
+              .elm-preview-exit-btn:hover { color:#d5d8e2; }
+              .elm-preview-canvas { flex:1; overflow-y:auto; padding:40px; max-width:1200px; margin:0 auto; width:100%; }
+            `}</style>
+            {rows.filter(r=>!r.hidden).map(row=>{
+              if (row.type === 'section' && row.sectionKey && SECTION_COMPONENTS[row.sectionKey]) {
+                const Comp = SECTION_COMPONENTS[row.sectionKey]
+                return <div key={row.id} style={{marginBottom:20}}><Comp {...resolveSectionProps(row.sectionKey, localData)}/></div>
+              }
+              return <div key={row.id} style={{color:'#555',padding:20,textAlign:'center'}}><i className="fas fa-eye-slash"></i> Hidden section</div>
+            })}
+          </div>
+        </div>
+      ) : (
+        <>
       <div className="elm-topbar">
         <button className="elm-topbar-btn elm-exit-btn" onClick={onExit}><i className="fas fa-arrow-left"></i> <span>Exit</span></button>
         <div className="elm-topbar-center">
@@ -539,6 +728,8 @@ export default function VisualBuilder({ data, onSave, onExit }) {
           <div className="elm-topbar-divider"></div>
           <button className="elm-topbar-btn" onClick={undo} disabled={historyIdx <= 0} title="Ctrl+Z"><i className="fas fa-undo"></i></button>
           <button className="elm-topbar-btn" onClick={redo} disabled={historyIdx >= history.length - 1} title="Ctrl+Shift+Z"><i className="fas fa-redo"></i></button>
+          <div className="elm-topbar-divider"></div>
+          <button className={`elm-topbar-btn ${previewMode?'active':''}`} onClick={()=>setPreviewMode(true)} title="Preview"><i className="fas fa-eye"></i></button>
           <div className="elm-topbar-divider"></div>
           <div className="elm-responsive">
             <button className={`elm-resp-btn ${responsiveMode==='desktop'?'active':''}`} onClick={()=>setResponsiveMode('desktop')} title="Desktop"><i className="fas fa-desktop"></i></button>
@@ -557,28 +748,33 @@ export default function VisualBuilder({ data, onSave, onExit }) {
           <div className="elm-panel-tabs">
             <button className={`elm-panel-tab ${leftTab==='widgets'?'active':''}`} onClick={()=>setLeftTab('widgets')}><i className="fas fa-th"></i> Add</button>
             <button className={`elm-panel-tab ${leftTab==='structure'?'active':''}`} onClick={()=>setLeftTab('structure')}><i className="fas fa-list"></i> Structure</button>
+            <button className={`elm-panel-tab ${leftTab==='templates'?'active':''}`} onClick={()=>setLeftTab('templates')}><i className="fas fa-palette"></i> Templates</button>
+            <button className={`elm-panel-tab ${leftTab==='history'?'active':''}`} onClick={()=>setLeftTab('history')}><i className="fas fa-history"></i> History</button>
             <button className={`elm-panel-tab ${leftTab==='settings'?'active':''}`} onClick={()=>{setLeftTab('settings');setEditPane('content')}}><i className="fas fa-cog"></i> Settings</button>
           </div>
           <div className="elm-panel-content">
             {leftTab === 'widgets' && (
               <div className="elm-widgets">
                 <div className="elm-widgets-search"><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search widgets & sections..." /></div>
-                {search ? (
-                  <div className="elm-widget-grid">
-                    {Object.entries(WIDGETS).flatMap(([ck,cat])=>Object.entries(cat.items).map(([k,v])=>({key:k,...v,category:cat.label}))).filter(w=>w.label.toLowerCase().includes(search.toLowerCase())).map(w=>(
-                      <div key={w.key} className="elm-widget-item" draggable onDragStart={e=>e.dataTransfer.setData('text/plain',w.key)} onClick={()=>{if(isSection(w.key))addSectionRow(w.key,rows.length)}}><i className={`fas ${w.icon}`}></i><span>{w.label}</span></div>
-                    ))}
-                  </div>
-                ) : Object.entries(WIDGETS).map(([ck,cat])=>(
-                  <div key={ck} className="elm-widget-category">
-                    <div className="elm-widget-cat-label">{cat.label}</div>
+                {(() => {
+                  const cats = Object.entries(WIDGETS).filter(([ck]) => ck !== 'global' || globalWidgets.length > 0)
+                  return search ? (
                     <div className="elm-widget-grid">
-                      {Object.entries(cat.items).map(([key,meta])=>(
-                        <div key={key} className="elm-widget-item" draggable onDragStart={e=>e.dataTransfer.setData('text/plain',key)} onClick={()=>{if(isSection(key))addSectionRow(key,rows.length)}}><i className={`fas ${meta.icon}`}></i><span>{meta.label}</span></div>
+                      {cats.flatMap(([ck,cat])=>Object.entries(typeof cat.items === 'function' ? cat.items() : cat.items).map(([k,v])=>({key:k,...v,category:cat.label}))).filter(w=>w.label.toLowerCase().includes(search.toLowerCase())).map(w=>(
+                        <div key={w.key} className="elm-widget-item" draggable onDragStart={e=>e.dataTransfer.setData('text/plain',w.key)} onClick={()=>{if(isSection(w.key))addSectionRow(w.key,rows.length)}}><i className={`fas ${w.icon}`}></i><span>{w.label}</span></div>
                       ))}
                     </div>
-                  </div>
-                ))}
+                  ) : cats.map(([ck,cat])=>(
+                    <div key={ck} className="elm-widget-category">
+                      <div className="elm-widget-cat-label">{cat.label}</div>
+                      <div className="elm-widget-grid">
+                        {Object.entries(typeof cat.items === 'function' ? cat.items() : cat.items).map(([key,meta])=>(
+                          <div key={key} className="elm-widget-item" draggable onDragStart={e=>e.dataTransfer.setData('text/plain',key)} onClick={()=>{if(isSection(key))addSectionRow(key,rows.length);else if(ck==='global'){const ri=rows.findIndex(r=>r.id===selected?.rowId);if(ri>=0)addGlobalWidget(meta,selected.rowId,selected.colId||rows[ri].columns?.[0]?.id)}}}><i className={`fas ${meta.icon}`}></i><span>{meta.label}</span></div>
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                })()}
               </div>
             )}
             {leftTab === 'structure' && (
@@ -591,10 +787,39 @@ export default function VisualBuilder({ data, onSave, onExit }) {
                 </div>
                 {rows.length===0&&<p style={{fontSize:'0.75rem',color:'#666',padding:12}}>No sections yet.</p>}
                 {rows.map((row,ri)=>(
-                  <div key={row.id} className={`elm-struct-item ${selected?.rowId===row.id?'active':''}`} onClick={()=>setSelected({rowId:row.id,colId:null,element:'row'})} style={{opacity:row.hidden?0.4:1}}>
-                    <i className={`fas ${row.type==='widget-section'?'fa-th-large':row.type==='section'?'fa-layer-group':'fa-columns'}`}></i>
-                    <span>{row.type==='widget-section'?'✏️ ':''}{row.type==='section'||row.type==='widget-section'?(SECTION_LABELS[row.sectionKey]||row.sectionKey):`Custom Row ${ri+1}`}</span>
-                    <span className="elm-struct-badge">{row.hidden?'hidden':row.type==='widget-section'?'widgets':row.type==='section'?'component':`${row.columns.length} col`}</span>
+                  <div key={row.id} className={`elm-struct-item ${selected?.rowId===row.id?'active':''}`} onClick={()=>setSelected({rowId:row.id,colId:null,element:'row'})} style={{opacity:row.hidden?0.4:1}} onContextMenu={e=>handleContextMenu(e,row.id)}>
+                    <i className={`fas ${row.type==='widget-section'?'fa-th-large':row.type==='nested'?'fa-layer-group':row.type==='section'?'fa-layer-group':'fa-columns'}`}></i>
+                    <span>{row.type==='widget-section'?'✏️ ':''}{row.type==='section'||row.type==='widget-section'?(SECTION_LABELS[row.sectionKey]||row.sectionKey):row.type==='nested'?`Inner ${ri+1}`:`Custom Row ${ri+1}`}</span>
+                    <span className="elm-struct-badge">{row.hidden?'hidden':row.type==='widget-section'?'widgets':row.type==='nested'?'nested':row.type==='section'?'component':`${row.columns.length} col`}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {leftTab === 'templates' && (
+              <div className="elm-structure">
+                <div className="elm-structure-title"><i className="fas fa-palette"></i> Quick Templates</div>
+                <p style={{fontSize:'0.7rem',color:'#666',marginBottom:10}}>Replace all sections with a pre-built layout.</p>
+                {TEMPLATES.map(t => (
+                  <div key={t.name} className="elm-struct-item" style={{cursor:'pointer',marginBottom:4}} onClick={()=>loadTemplate(t)}>
+                    <i className={`fas ${t.icon}`} style={{color:'#6cab96'}}></i>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:12,color:'#a0a0b0',fontWeight:600}}>{t.name}</div>
+                      <div style={{fontSize:10,color:'#666'}}>{t.desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {leftTab === 'history' && (
+              <div className="elm-structure">
+                <div className="elm-structure-title"><i className="fas fa-history"></i> Change History</div>
+                <p style={{fontSize:'0.7rem',color:'#666',marginBottom:10}}>Click any state to restore. Ctrl+Z / Ctrl+Shift+Z to navigate.</p>
+                {history.map((h, idx) => (
+                  <div key={idx} className={`elm-struct-item ${historyIdx===idx?'active':''}`} style={{cursor:'pointer',marginBottom:2}}
+                    onClick={()=>goToHistory(idx)}>
+                    <i className={`fas ${idx===historyIdx?'fa-circle':'fa-circle-notch'}`} style={{fontSize:8,color:idx===historyIdx?'#6cab96':'#555'}}></i>
+                    <span style={{fontSize:11}}>State {idx+1}{idx===historyIdx?' ← current':''}</span>
+                    <span className="elm-struct-badge">{idx === 0 ? 'initial' : `step ${idx}`}</span>
                   </div>
                 ))}
               </div>
@@ -632,7 +857,7 @@ export default function VisualBuilder({ data, onSave, onExit }) {
                 {editPane === 'content' && isWidgetMode && (
                   <div className="elm-settings-section">
                     <div className="elm-settings-heading">Widgets in this section</div>
-                    <p style={{fontSize:'0.7rem',color:'#666',marginBottom:8}}>Drag to reorder. Click a widget to edit.</p>
+                    <p style={{fontSize:'0.7rem',color:'#666',marginBottom:8}}>Click a widget to edit.</p>
                     {selectedRow.columns?.[0]?.blocks.map((b,i)=>(
                       <div key={b.id} style={{display:'flex',alignItems:'center',gap:6,padding:'4px 6px',marginBottom:4,borderRadius:3,background:selected?.block?.id===b.id?'rgba(108,171,150,0.1)':'transparent',cursor:'pointer'}}
                         onClick={()=>setSelected({rowId:selectedRow.id,colId:selectedRow.columns[0].id,block:b,element:'widget'})}>
@@ -704,6 +929,7 @@ export default function VisualBuilder({ data, onSave, onExit }) {
                   <label className="elm-settings-label">Text Align</label><select value={(selectedBlock.styles||{}).textAlign||'left'} onChange={e=>updateBlockStyle(selected.rowId,selected.colId,selectedBlock.id,{textAlign:e.target.value})} className="elm-input"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select>
                   <label className="elm-settings-label">Font Size</label><input value={(selectedBlock.styles||{}).fontSize||''} onChange={e=>updateBlockStyle(selected.rowId,selected.colId,selectedBlock.id,{fontSize:e.target.value})} className="elm-input" />
                   <label className="elm-settings-label">Font Weight</label><select value={(selectedBlock.styles||{}).fontWeight||''} onChange={e=>updateBlockStyle(selected.rowId,selected.colId,selectedBlock.id,{fontWeight:e.target.value})} className="elm-input"><option value="">Default</option><option value="300">Light</option><option value="400">Regular</option><option value="600">Semi Bold</option><option value="700">Bold</option><option value="900">Black</option></select>
+                  <label className="elm-settings-label">Min Height</label><input value={(selectedBlock.styles||{}).minHeight||''} onChange={e=>updateBlockStyle(selected.rowId,selected.colId,selectedBlock.id,{minHeight:e.target.value})} className="elm-input" />
                   <label className="elm-settings-label">Border Radius</label><input type="number" value={parseInt((selectedBlock.styles||{}).borderRadius)||0} onChange={e=>updateBlockStyle(selected.rowId,selected.colId,selectedBlock.id,{borderRadius:e.target.value+'px'})} className="elm-input" />
                   <label className="elm-settings-label">Width</label><input value={(selectedBlock.styles||{}).width||''} onChange={e=>updateBlockStyle(selected.rowId,selected.colId,selectedBlock.id,{width:e.target.value})} className="elm-input" />
                   <label className="elm-settings-label">Padding</label><div className="elm-spacing-grid">{['top','right','bottom','left'].map(s=>(<div key={s}><label style={{fontSize:'0.6rem',color:'#666'}}>{s[0].toUpperCase()}</label><input type="number" value={parseInt((selectedBlock.styles||{})[s])||0} onChange={e=>updateBlockStyle(selected.rowId,selected.colId,selectedBlock.id,{[s]:e.target.value+'px'})} className="elm-input elm-input-sm" /></div>))}</div>
@@ -713,6 +939,16 @@ export default function VisualBuilder({ data, onSave, onExit }) {
                   <label className="elm-settings-label">CSS Class</label><input value={(selectedBlock.styles||{}).cssClass||''} onChange={e=>updateBlockStyle(selected.rowId,selected.colId,selectedBlock.id,{cssClass:e.target.value})} className="elm-input elm-mono" />
                   <label className="elm-settings-label">CSS ID</label><input value={(selectedBlock.styles||{}).cssId||''} onChange={e=>updateBlockStyle(selected.rowId,selected.colId,selectedBlock.id,{cssId:e.target.value})} className="elm-input elm-mono" />
                 </div>}
+                <div style={{marginTop:8,borderTop:'1px solid #2a2a44',paddingTop:8}}>
+                  <div className="elm-settings-heading">Actions</div>
+                  <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+                    <button className="elm-tool-btn" style={{fontSize:10}} onClick={()=>handleCopyBlock(selected.rowId,selected.colId,selectedBlock.id)}><i className="fas fa-copy"></i> Copy</button>
+                    {clipboard&&<button className="elm-tool-btn" style={{fontSize:10}} onClick={()=>handlePasteBlock(selected.rowId,selected.colId)}><i className="fas fa-paste"></i> Paste</button>}
+                    <button className="elm-tool-btn" style={{fontSize:10}} onClick={()=>handleSaveGlobalWidget(selected.rowId,selected.colId,selectedBlock.id)}><i className="fas fa-globe"></i> Save Global</button>
+                    <button className="elm-tool-btn elm-tool-btn-del" style={{fontSize:10}} onClick={()=>removeBlock(selected.rowId,selected.colId,selectedBlock.id)}><i className="fas fa-trash"></i> Delete</button>
+                  </div>
+                  {clipboard&&<p style={{fontSize:'0.65rem',color:'#6cab96',marginTop:6}}>📋 Widget copied — Ctrl+V to paste</p>}
+                </div>
               </div>
             )}
             {leftTab === 'settings' && !selectedRow && !selectedBlock && <div className="elm-settings-panel"><p style={{fontSize:'0.75rem',color:'#666',padding:12}}>Click a section or widget in the canvas to edit.</p></div>}
@@ -748,9 +984,10 @@ export default function VisualBuilder({ data, onSave, onExit }) {
                         const wm=row.type==='widget-section'
                         return (
                           <Tag id={`sec-${row.id}`} className={`elm-section ${isSel?'elm-section-active':''} ${wm?'elm-section-widget-mode':''}`} style={so}
-                            onDragOver={e=>{if(!wm&&row.type!=='custom')e.dataTransfer.dropEffect='copy';e.preventDefault()}}
+                            onDragOver={e=>{if(!wm&&row.type!=='custom'&&row.type!=='nested')e.dataTransfer.dropEffect='copy';e.preventDefault()}}
                             onDrop={e=>handleSectionDrop(e,row.id,ri)}
-                            onClick={()=>{setSelEl(null);setSelected({rowId:row.id,colId:null,element:'row'})}}>
+                            onClick={()=>{setSelEl(null);setSelected({rowId:row.id,colId:null,element:'row'})}}
+                            onContextMenu={e=>handleContextMenu(e,row.id)}>
                             <div className="elm-section-handle" {...listeners}><i className="fas fa-grip-vertical"></i></div>
                             <div className="elm-section-tools">
                               <span className="elm-section-badge">{wm?'✏️ ':''}{SECTION_LABELS[row.sectionKey]||row.sectionKey||'Custom Row'}</span>
@@ -778,18 +1015,7 @@ export default function VisualBuilder({ data, onSave, onExit }) {
                                             <div className="elm-widget-blocks-sortable">
                                               {col.blocks.map((b,i)=>{
                                                 const bSel=selected?.block?.id===b.id
-                                                return (
-                                                  <SortableBlock key={b.id} id={b.id}>
-                                                    <div className={`elm-widget ${bSel?'elm-widget-active':''}`} style={{cursor:'default',marginBottom:2}}
-                                                      onClick={e=>{e.stopPropagation();setSelected({rowId:row.id,colId:col.id,block:b,element:'widget'})}}>
-                                                      {bSel&&<div className="elm-widget-tools">
-                                                        <button className="elm-widget-tool" onClick={e=>{e.stopPropagation();duplicateBlock(row.id,col.id,b.id)}} title="Duplicate"><i className="fas fa-copy"></i></button>
-                                                        <button className="elm-widget-tool elm-tool-btn-del" onClick={e=>{e.stopPropagation();removeBlock(row.id,col.id,b.id)}} title="Delete"><i className="fas fa-trash"></i></button>
-                                                      </div>}
-                                                      <WidgetPreview block={b} />
-                                                    </div>
-                                                  </SortableBlock>
-                                                )
+                                                return renderBlock(b, row, col, bSel, true)
                                               })}
                                             </div>
                                           </SortableContext>
@@ -830,31 +1056,34 @@ export default function VisualBuilder({ data, onSave, onExit }) {
                               <div className="elm-section-preview"><div className="elm-section-preview-header"><i className={`fas ${SECTION_ICONS[row.sectionKey]||'fa-layer-group'}`}></i> {SECTION_LABELS[row.sectionKey]||row.sectionKey}</div></div>
                             ) : (
                               <div className="elm-custom-row">
-                                {row.columns.map(col=>(
-                                  <div key={col.id} className={`elm-column ${selected?.colId===col.id?'elm-column-active':''}`} style={{flex:col.width/100,minWidth:0}}
+                                {row.columns.map((col, ci)=>(
+                                  <div key={col.id} className={`elm-column ${selected?.colId===col.id?'elm-column-active':''}`} style={{flex:col.width/100,minWidth:0,display:'flex',flexDirection:'column'}}
                                     onClick={e=>{e.stopPropagation();setSelected({rowId:row.id,colId:col.id,element:'column'})}}
                                     onDragOver={e=>{e.preventDefault();e.dataTransfer.dropEffect='move'}}
                                     onDrop={e=>{const t=e.dataTransfer.getData('text/plain');if(t&&!isSection(t))addBlockToCol(row.id,col.id,t);else if(t&&isSection(t))addSectionRow(t,ri+1)}}>
-                                    <div className="elm-col-resize"><span className="elm-col-width-badge">{col.width}%</span>{row.columns.length>1&&<button className="elm-col-remove" onClick={e=>{e.stopPropagation();removeColumn(row.id,col.id)}}><i className="fas fa-times"></i></button>}</div>
+                                    <div className="elm-col-resize"><span className="elm-col-width-badge">{col.width}%</span>
+                                      {row.columns.length>1&&<button className="elm-col-remove" onClick={e=>{e.stopPropagation();removeColumn(row.id,col.id)}}><i className="fas fa-times"></i></button>}
+                                    </div>
+                                    {ci < row.columns.length - 1 && (
+                                      <div className="elm-col-resize-handle" onMouseDown={e=>startColResize(e,row.id,ci)}
+                                        style={{position:'absolute',right:-4,top:0,bottom:0,width:8,cursor:'col-resize',zIndex:10}}/>
+                                    )}
                                     {col.blocks.length===0&&<div className="elm-col-empty">Drop widget here</div>}
                                     {col.blocks.length>0&&(
                                       <DndContext sensors={blockSensors} onDragEnd={(event)=>handleBlockSortEnd(event,row.id,col.id)}>
                                         <SortableContext items={col.blocks.map(b=>b.id)}>
-                                          {col.blocks.map(b=>{const bSel=selected?.block?.id===b.id;return(
-                                            <SortableBlock key={b.id} id={b.id}>
-                                              <div className={`elm-widget ${bSel?'elm-widget-active':''}`} onClick={e=>{e.stopPropagation();setSelected({rowId:row.id,colId:col.id,block:b,element:'widget'})}}>
-                                                {bSel&&<div className="elm-widget-tools"><button className="elm-widget-tool" onClick={e=>{e.stopPropagation();duplicateBlock(row.id,col.id,b.id)}} title="Duplicate"><i className="fas fa-copy"></i></button><button className="elm-widget-tool elm-tool-btn-del" onClick={e=>{e.stopPropagation();removeBlock(row.id,col.id,b.id)}} title="Delete"><i className="fas fa-trash"></i></button></div>}
-                                                <WidgetPreview block={b}/>
-                                              </div>
-                                            </SortableBlock>
-                                          )})}
+                                          {col.blocks.map(b=>{const bSel=selected?.block?.id===b.id;return renderBlock(b, row, col, bSel, false)})}
                                         </SortableContext>
                                       </DndContext>
                                     )}
-                                    <div className="elm-add-widget"><select className="elm-add-select" value="" onChange={e=>{if(e.target.value){addBlockToCol(row.id,col.id,e.target.value);e.target.value=''}}}>
-                                      <option value="">+ Add Widget</option>
-                                      {Object.entries(WIDGETS).filter(([k])=>k!=='sections').flatMap(([,cat])=>Object.entries(cat.items).map(([k,m])=><option key={k} value={k}>{m.label}</option>))}
-                                    </select></div>
+                                    <div className="elm-add-widget">
+                                      <select className="elm-add-select" value="" onChange={e=>{if(e.target.value){if(e.target.value==='__nested__')addNestedRow(row.id,col.id);else addBlockToCol(row.id,col.id,e.target.value);e.target.value=''}}}>
+                                        <option value="">+ Add</option>
+                                        <option value="__nested__">📦 Inner Section</option>
+                                        <option disabled>── Widgets ──</option>
+                                        {Object.entries(WIDGETS).filter(([k])=>k!=='sections'&&k!=='global').flatMap(([,cat])=>Object.entries(cat.items).map(([k,m])=><option key={k} value={k}>{m.label}</option>))}
+                                      </select>
+                                    </div>
                                   </div>
                                 ))}
                                 {row.columns.length<4&&<button className="elm-add-col-btn" onClick={e=>{e.stopPropagation();addColumn(row.id)}} title="Add Column"><i className="fas fa-plus"></i></button>}
@@ -877,6 +1106,29 @@ export default function VisualBuilder({ data, onSave, onExit }) {
         <button className="elm-tool-btn" style={{background:'#6cab96',color:'#0f0f1a',padding:'3px 10px',borderRadius:3,fontSize:11}} onClick={()=>stopInlineEdit(inlineEl.rowId,true)}><i className="fas fa-check"></i> Save</button>
         <button className="elm-tool-btn elm-tool-btn-del" style={{padding:'3px 10px',borderRadius:3,fontSize:11}} onClick={()=>stopInlineEdit(inlineEl.rowId,false)}><i className="fas fa-times"></i> Cancel</button>
       </div>}
+      {contextMenu && rows.filter(r=>!r.hidden).map(row => rowActions(row, rows.findIndex(r => r.id === row.id)))}
+      {clipboard&&<div style={{position:'fixed',bottom:60,left:'50%',transform:'translateX(-50%)',background:'#252540',border:'1px solid #2a2a44',borderRadius:6,padding:'6px 14px',fontSize:11,color:'#6cab96',zIndex:9999}}>📋 Widget copied — Ctrl+V to paste</div>}
+      </>
+      )}
+    </div>
+  )
+}
+
+function NestedRowView({ row, parentRowId, parentColId, selected, setSelected, onUpdate }) {
+  const col = row.columns?.[0]
+  const blockSensors = { current: null }
+  return (
+    <div className="elm-nested-inner">
+      {row.columns.map((col, ci) => (
+        <div key={col.id} className="elm-nested-col" style={{flex:col.width/100}}>
+          {col.blocks.map(b => (
+            <div key={b.id} className={`elm-widget ${selected?.block?.id===b.id?'elm-widget-active':''}`}
+              onClick={e=>{e.stopPropagation();setSelected({rowId:parentRowId,colId:parentColId,block:b,element:'widget'})}}>
+              <WidgetPreview block={b} />
+            </div>
+          ))}
+        </div>
+      ))}
     </div>
   )
 }
@@ -889,6 +1141,7 @@ function WidgetContentFields({ block, onUpdate }) {
   if(block.type==='spacer')return <input type="number" value={block.height||40} onChange={e=>onUpdate({height:parseInt(e.target.value)||40})} className="elm-input" />
   if(block.type==='html')return <textarea rows={6} value={block.html||''} onChange={e=>onUpdate({html:e.target.value})} className="elm-input elm-textarea elm-mono" />
   if(block.type==='shortcode')return <input value={block.key||''} onChange={e=>onUpdate({key:e.target.value})} className="elm-input" placeholder="[year], [site-url], [company]" />
+  if(block.type==='container')return <p style={{fontSize:'0.7rem',color:'#666',padding:8}}>Container widget (drag widgets into it)</p>
   if(block.type==='icon')return(<><input value={block.icon||''} onChange={e=>onUpdate({icon:e.target.value})} className="elm-input" placeholder="fa-star" /><select value={block.size||'2x'} onChange={e=>onUpdate({size:e.target.value})} className="elm-input"><option value="1x">Small</option><option value="2x">Medium</option><option value="3x">Large</option></select><input value={block.color||''} onChange={e=>onUpdate({color:e.target.value})} className="elm-input" /></>)
   if(block.type==='video')return <input value={block.src||''} onChange={e=>onUpdate({src:e.target.value})} className="elm-input" />
   return <p style={{fontSize:'0.75rem',color:'#666',padding:8}}>No fields</p>
@@ -907,19 +1160,23 @@ function FieldEditor({ data, path, onUpdate, depth }) {
 
 function WidgetPreview({ block }) {
   const s=block.styles||{}
+  const clazz = s.cssClass || ''
+  const id = s.cssId || undefined
   const wrap={padding:'6px',transition:'all 0.2s',...(s.background?{background:s.background}:{}),...(s.color?{color:s.color}:{}),borderRadius:s.borderRadius||'4px',textAlign:s.textAlign||'left',...(s.fontSize?{fontSize:s.fontSize}:{}),...(s.fontWeight?{fontWeight:s.fontWeight}:{}),...(s.marginTop?{marginTop:s.marginTop}:{}),...(s.marginBottom?{marginBottom:s.marginBottom}:{}),...(s.width?{width:s.width}:{}),...(s.minHeight?{minHeight:s.minHeight}:{}),...(s.boxShadow?{boxShadow:s.boxShadow}:{})}
-  if(block.type==='text')return <div style={wrap} dangerouslySetInnerHTML={{__html:block.content||''}}/>
-  if(block.type==='heading'){const Tag=block.level||'h2';return <Tag style={wrap}>{block.content||'Heading'}</Tag>}
-  if(block.type==='image')return <div style={wrap}><img src={block.src} alt={block.alt} style={{maxWidth:'100%',display:'block'}} onError={e=>{e.target.style.display='none';e.target.parentElement.innerHTML+='<span style=\'color:#666;font-size:0.75rem\'>Image placeholder</span>'}}/>{block.caption&&<p style={{fontSize:'0.75rem',color:'#666',marginTop:4}}>{block.caption}</p>}</div>
-  if(block.type==='button')return <div style={wrap}><a className="elm-btn-preview" style={{background:block.style==='outline'?'transparent':'#6cab96',color:block.style==='outline'?'#6cab96':'#0f0f1a',border:block.style==='outline'?'1px solid #6cab96':'none'}}>{block.text||'Button'}</a></div>
-  if(block.type==='divider')return <div style={wrap}><hr style={{border:'none',borderTop:'1px solid #2a2a44',margin:0}}/></div>
+  const wrapProps = { style: wrap, className: clazz || undefined, id }
+  if(block.type==='text')return <div {...wrapProps} dangerouslySetInnerHTML={{__html:block.content||''}}/>
+  if(block.type==='heading'){const Tag=block.level||'h2';return <Tag {...wrapProps}>{block.content||'Heading'}</Tag>}
+  if(block.type==='image')return <div {...wrapProps}><img src={block.src} alt={block.alt} style={{maxWidth:'100%',display:'block'}} onError={e=>{e.target.style.display='none';e.target.parentElement.innerHTML+='<span style=\'color:#666;font-size:0.75rem\'>Image placeholder</span>'}}/>{block.caption&&<p style={{fontSize:'0.75rem',color:'#666',marginTop:4}}>{block.caption}</p>}</div>
+  if(block.type==='button')return <div {...wrapProps}><a className="elm-btn-preview" style={{background:block.style==='outline'?'transparent':'#6cab96',color:block.style==='outline'?'#6cab96':'#0f0f1a',border:block.style==='outline'?'1px solid #6cab96':'none'}}>{block.text||'Button'}</a></div>
+  if(block.type==='divider')return <div {...wrapProps}><hr style={{border:'none',borderTop:'1px solid #2a2a44',margin:0}}/></div>
   if(block.type==='spacer')return <div style={{...wrap,height:(block.height||40)+'px',background:'transparent'}}/>
-  if(block.type==='video')return <div style={wrap}><i className="fas fa-play-circle" style={{fontSize:'2rem',color:'#6cab96'}}></i><p style={{fontSize:'0.75rem',color:'#666'}}>Video: {block.src||'No URL'}</p></div>
-  if(block.type==='icon')return <div style={wrap}><i className={`fas ${block.icon||'fa-star'}`} style={{fontSize:block.size==='3x'?'2rem':block.size==='2x'?'1.5rem':'1rem',color:block.color||'#6cab96'}}></i></div>
-  if(block.type==='html')return <div style={wrap} dangerouslySetInnerHTML={{__html:block.html||''}}/>
+  if(block.type==='video')return <div {...wrapProps}><i className="fas fa-play-circle" style={{fontSize:'2rem',color:'#6cab96'}}></i><p style={{fontSize:'0.75rem',color:'#666'}}>Video: {block.src||'No URL'}</p></div>
+  if(block.type==='icon')return <div {...wrapProps}><i className={`fas ${block.icon||'fa-star'}`} style={{fontSize:block.size==='3x'?'2rem':block.size==='2x'?'1.5rem':'1rem',color:block.color||'#6cab96'}}></i></div>
+  if(block.type==='html')return <div {...wrapProps} dangerouslySetInnerHTML={{__html:block.html||''}}/>
   if(block.type==='shortcode')return <div style={{...wrap,fontSize:'0.75rem',color:'#6cab96',fontFamily:'monospace',padding:'4px 8px',background:'rgba(108,171,150,0.06)',borderRadius:4,display:'inline-block'}}><i className="fas fa-code-branch" style={{marginRight:4}}></i> {block.key||'[shortcode]'}</div>
-  if(block.type==='heading')return <div style={wrap}><WidgetPreview block={block}/></div>
-  return <div style={wrap}>Unknown widget</div>
+  if(block.type==='container')return <div style={{...wrap,border:'1px dashed #6cab96',borderRadius:4,minHeight:40,display:'flex',alignItems:'center',justifyContent:'center',color:'#6cab96',fontSize:'0.7rem'}}><i className="fas fa-layer-group"></i> Container</div>
+  if(block.type==='heading')return <div {...wrapProps}><WidgetPreview block={block}/></div>
+  return <div {...wrapProps}>Unknown widget</div>
 }
 
 function buildDefaultRows(data) {
