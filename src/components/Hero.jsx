@@ -60,7 +60,7 @@ export default function Hero({ personalData: editedPersonalData }) {
         <motion.div className="hero-image" variants={imgChild} style={{ y: imgY }}>
           <motion.div className="hero-glow" style={{ y: glowY }} />
           <motion.div className="hero-glow hero-glow-2" style={{ y: glowY }} />
-          <div className="hero-image-frame"><img src="/portfolio/photo.png" alt={data.firstName} loading="lazy" /></div>
+          <div className="hero-image-frame"><img src="/portfolio/photo.png" alt={data.firstName} fetchpriority="high" /></div>
         </motion.div>
       </motion.div>
 
