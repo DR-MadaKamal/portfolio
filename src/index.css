@@ -23,19 +23,7 @@
   --fluid-sm: clamp(0.7rem, 0.9vw, 0.82rem);
 }
 
-[data-theme="light"] {
-  --bg: #f8fafc;
-  --bg-alt: #ffffff;
-  --text: #0f172a;
-  --text-muted: #475569;
-  --text-secondary: #1e293b;
-  --text-dim: #5b6b80;
-  --accent: #6cab96;
-  --accent2: #e8a87c;
-  --accent3: #8b8cb5;
-  --border: #cbd5e1;
-  --shadow: 0 8px 32px rgba(0,0,0,0.06);
-}
+
 
 html { scroll-behavior: smooth; scroll-padding-top: 80px; }
 
@@ -1150,10 +1138,6 @@ input, textarea, button { font-family: inherit; }
 .gallery-video-close:hover { color: var(--accent); }
 .gallery-video-wrap { width: 100%; max-width: 800px; aspect-ratio: 16/9; border-radius: var(--radius); overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
 .gallery-video-wrap iframe { width: 100%; height: 100%; }
-
-/* ===== THEME TOGGLE ===== */
-.nav-theme-toggle { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg); color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; transition: all var(--transition); }
-.nav-theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
 
 /* ===== PRINTABLE RESUME ===== */
 .resume-actions { text-align: center; margin-bottom: 20px; }

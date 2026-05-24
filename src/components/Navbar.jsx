@@ -3,11 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import LanguageToggle from './LanguageToggle'
 import SearchBar from './SearchBar'
 import { useLang } from '../context/LangContext'
-import { useTheme } from '../context/ThemeContext'
 
 export default function Navbar({ activeSection, setActiveSection, projects, articles }) {
   const { t } = useLang()
-  const { theme, toggle: toggleTheme } = useTheme()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -46,9 +44,6 @@ export default function Navbar({ activeSection, setActiveSection, projects, arti
           ))}
           <SearchBar articles={articles} projects={projects} />
           <LanguageToggle />
-          <button className="nav-theme-toggle" onClick={toggleTheme} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`} title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
-            <i className={`fas fa-${theme === 'dark' ? 'sun' : 'moon'}`} />
-          </button>
         </div>
 
         <button className="nav-mobile-btn" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Menu">
@@ -77,9 +72,6 @@ export default function Navbar({ activeSection, setActiveSection, projects, arti
                 ))}
                 <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border)' }}>
                   <LanguageToggle />
-                  <button className="nav-theme-toggle" onClick={toggleTheme} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
-                    <i className={`fas fa-${theme === 'dark' ? 'sun' : 'moon'}`} />
-                  </button>
                 </div>
               </motion.div>
             </motion.div>

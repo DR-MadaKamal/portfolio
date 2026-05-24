@@ -32,7 +32,6 @@ import LiveChatWidget from './components/LiveChatWidget'
 const GoogleMapsEmbed = lazy(() => import('./components/GoogleMapsEmbed'))
 import AnalyticsDashboard from './components/AnalyticsDashboard'
 import WhatsAppButton from './components/WhatsAppButton'
-import { ThemeProvider } from './context/ThemeContext'
 import { LangProvider } from './context/LangContext'
 import { personalData } from './data/portfolioData'
 import { reportWebVitals } from './utils/webVitals'
@@ -138,7 +137,6 @@ function App() {
    .sort((a, b) => (sections[a.key]?.order ?? 99) - (sections[b.key]?.order ?? 99))
 
   return (
-    <ThemeProvider>
     <LangProvider>
       <a href="#main-content" className="skip-link">Skip to content</a>
       <AnimatedBackground />
@@ -178,7 +176,6 @@ function App() {
         }} />
       )}
     </LangProvider>
-    </ThemeProvider>
   )
 }
 
