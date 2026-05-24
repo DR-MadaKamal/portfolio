@@ -71,7 +71,7 @@ export default function Hero({ personalData: editedPersonalData, quotes: editedQ
             <motion.div className="hero-glow" style={{ y: glowY }} />
             <motion.div className="hero-glow hero-glow-2" style={{ y: glowY }} />
             <div className="hero-image-frame"><img src="/portfolio/photo.png" alt={data.firstName} fetchpriority="high" /></div>
-          </div>
+          </motion.div>
           {quote && (
             <div className="hero-quote">
               <p className="hero-quote-icon">&ldquo;</p>

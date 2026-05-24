@@ -1,7 +1,7 @@
 import {
-  DndContext, SortableContext, useSortable, arrayMove,
-  PointerSensor, TouchSensor, useSensor, useSensors,
+  DndContext, PointerSensor, TouchSensor, useSensor, useSensors,
 } from '@dnd-kit/core'
+import { SortableContext, useSortable, arrayMove } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
 export function SortableList({ items, onReorder, getId, children }) {
