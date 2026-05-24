@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { SortableList, SortableItem } from './SortableList'
+import { DndContext, useSensor, useSensors, PointerSensor, TouchSensor } from '@dnd-kit/core'
+import { SortableContext, useSortable, arrayMove } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 import HeroLive from './Hero'
 import AboutLive from './About'
@@ -202,7 +205,8 @@ const WIDGETS = {
   layout: {
     label: 'Layout',
     items: {
-      html: { icon: 'fa-code', label: 'HTML', defaults: { html: '<div>Custom HTML</div>' } },
+      html: { icon: 'fa-code', label: 'Custom HTML', defaults: { html: '<div>Custom HTML</div>' } },
+      shortcode: { icon: 'fa-code-branch', label: 'Shortcode', defaults: { key: '', placeholder: 'Insert shortcode...' } },
     }
   },
   sections: {
@@ -293,6 +297,47 @@ export default function VisualBuilder({ data, onSave, onExit }) {
   const removeColumn = (rowId, colId) => pushHistory(rows.map(r => r.id === rowId && r.columns.length > 1 ? { ...r, columns: r.columns.filter(c => c.id !== colId).map(c => ({ ...c, width: Math.round(100 / (r.columns.length - 1)) })) } : r))
   const updateRowStyle = (rowId, stylePatch) => { setRows(prev => prev.map(r => r.id === rowId ? { ...r, styles: { ...(r.styles || {}), ...stylePatch } } : r)) }
   const reorderBlocks = (rowId, colId, newOrder) => { pushHistory(rows.map(r => r.id === rowId ? { ...r, columns: r.columns.map(c => c.id === colId ? { ...c, blocks: newOrder } : c) } : r)) }
+
+  const handleExportTemplate = () => {
+    const blob = new Blob([JSON.stringify(rows, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url; a.download = 'builder-template.json'; a.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const handleImportTemplate = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      try {
+        const imported = JSON.parse(ev.target.result)
+        if (Array.isArray(imported)) pushHistory(imported)
+        else alert('Invalid template: expected an array of rows')
+      } catch { alert('Invalid JSON file') }
+    }
+    reader.readAsText(file)
+    e.target.value = ''
+  }
+
+  const blockSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 5 } })
+  )
+
+  function handleBlockSortEnd(event, rowId, colId) {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const row = rows.find(r => r.id === rowId)
+    if (!row) return
+    const col = row.columns?.find(c => c.id === colId)
+    if (!col) return
+    const oldIdx = col.blocks.findIndex(b => b.id === active.id)
+    const newIdx = col.blocks.findIndex(b => b.id === over.id)
+    if (oldIdx === -1 || newIdx === -1) return
+    reorderBlocks(rowId, colId, arrayMove(col.blocks, oldIdx, newIdx))
+  }
 
   function updateWidgetWithSync(rowId, colId, blockId, patch) {
     const patchedRows = rows.map(r => r.id === rowId ? { ...r, columns: r.columns.map(c => c.id === colId ? { ...c, blocks: c.blocks.map(b => b.id === blockId ? { ...b, ...patch } : b) } : c) } : r)
@@ -539,6 +584,11 @@ export default function VisualBuilder({ data, onSave, onExit }) {
             {leftTab === 'structure' && (
               <div className="elm-structure">
                 <div className="elm-structure-title"><i className="fas fa-sitemap"></i> Page Structure</div>
+                <div style={{display:'flex', gap:6, marginBottom:10}}>
+                  <button className="elm-tool-btn" style={{fontSize:9}} onClick={handleExportTemplate}><i className="fas fa-file-export"></i> Export</button>
+                  <button className="elm-tool-btn" style={{fontSize:9}} onClick={()=>document.getElementById('import-file-input').click()}><i className="fas fa-file-import"></i> Import</button>
+                  <input id="import-file-input" type="file" accept=".json" style={{display:'none'}} onChange={handleImportTemplate} />
+                </div>
                 {rows.length===0&&<p style={{fontSize:'0.75rem',color:'#666',padding:12}}>No sections yet.</p>}
                 {rows.map((row,ri)=>(
                   <div key={row.id} className={`elm-struct-item ${selected?.rowId===row.id?'active':''}`} onClick={()=>setSelected({rowId:row.id,colId:null,element:'row'})} style={{opacity:row.hidden?0.4:1}}>
@@ -723,21 +773,27 @@ export default function VisualBuilder({ data, onSave, onExit }) {
                                       <div className="elm-col-resize"><span className="elm-col-width-badge">{col.width}%</span></div>
                                       {col.blocks.length===0&&<div className="elm-col-empty"><i className="fas fa-plus-circle"></i> Drop widget here</div>}
                                       {col.blocks.length>0&&(
-                                        <div className="elm-widget-blocks-sortable">
-                                          {col.blocks.map((b,i)=>{
-                                            const bSel=selected?.block?.id===b.id
-                                            return (
-                                              <div key={b.id} className={`elm-widget ${bSel?'elm-widget-active':''}`} style={{cursor:'default',marginBottom:2}}
-                                                onClick={e=>{e.stopPropagation();setSelected({rowId:row.id,colId:col.id,block:b,element:'widget'})}}>
-                                                {bSel&&<div className="elm-widget-tools">
-                                                  <button className="elm-widget-tool" onClick={e=>{e.stopPropagation();duplicateBlock(row.id,col.id,b.id)}} title="Duplicate"><i className="fas fa-copy"></i></button>
-                                                  <button className="elm-widget-tool elm-tool-btn-del" onClick={e=>{e.stopPropagation();removeBlock(row.id,col.id,b.id)}} title="Delete"><i className="fas fa-trash"></i></button>
-                                                </div>}
-                                                <WidgetPreview block={b} />
-                                              </div>
-                                            )
-                                          })}
-                                        </div>
+                                        <DndContext sensors={blockSensors} onDragEnd={(event)=>handleBlockSortEnd(event,row.id,col.id)}>
+                                          <SortableContext items={col.blocks.map(b=>b.id)}>
+                                            <div className="elm-widget-blocks-sortable">
+                                              {col.blocks.map((b,i)=>{
+                                                const bSel=selected?.block?.id===b.id
+                                                return (
+                                                  <SortableBlock key={b.id} id={b.id}>
+                                                    <div className={`elm-widget ${bSel?'elm-widget-active':''}`} style={{cursor:'default',marginBottom:2}}
+                                                      onClick={e=>{e.stopPropagation();setSelected({rowId:row.id,colId:col.id,block:b,element:'widget'})}}>
+                                                      {bSel&&<div className="elm-widget-tools">
+                                                        <button className="elm-widget-tool" onClick={e=>{e.stopPropagation();duplicateBlock(row.id,col.id,b.id)}} title="Duplicate"><i className="fas fa-copy"></i></button>
+                                                        <button className="elm-widget-tool elm-tool-btn-del" onClick={e=>{e.stopPropagation();removeBlock(row.id,col.id,b.id)}} title="Delete"><i className="fas fa-trash"></i></button>
+                                                      </div>}
+                                                      <WidgetPreview block={b} />
+                                                    </div>
+                                                  </SortableBlock>
+                                                )
+                                              })}
+                                            </div>
+                                          </SortableContext>
+                                        </DndContext>
                                       )}
                                       <div className="elm-add-widget">
                                         <select className="elm-add-select" value="" onChange={e=>{if(e.target.value){addBlockToCol(row.id,col.id,e.target.value);e.target.value=''}}}>
@@ -781,12 +837,20 @@ export default function VisualBuilder({ data, onSave, onExit }) {
                                     onDrop={e=>{const t=e.dataTransfer.getData('text/plain');if(t&&!isSection(t))addBlockToCol(row.id,col.id,t);else if(t&&isSection(t))addSectionRow(t,ri+1)}}>
                                     <div className="elm-col-resize"><span className="elm-col-width-badge">{col.width}%</span>{row.columns.length>1&&<button className="elm-col-remove" onClick={e=>{e.stopPropagation();removeColumn(row.id,col.id)}}><i className="fas fa-times"></i></button>}</div>
                                     {col.blocks.length===0&&<div className="elm-col-empty">Drop widget here</div>}
-                                    {col.blocks.map(b=>{const bSel=selected?.block?.id===b.id;return(
-                                      <div key={b.id} className={`elm-widget ${bSel?'elm-widget-active':''}`} onClick={e=>{e.stopPropagation();setSelected({rowId:row.id,colId:col.id,block:b,element:'widget'})}}>
-                                        {bSel&&<div className="elm-widget-tools"><button className="elm-widget-tool" onClick={e=>{e.stopPropagation();duplicateBlock(row.id,col.id,b.id)}} title="Duplicate"><i className="fas fa-copy"></i></button><button className="elm-widget-tool elm-tool-btn-del" onClick={e=>{e.stopPropagation();removeBlock(row.id,col.id,b.id)}} title="Delete"><i className="fas fa-trash"></i></button></div>}
-                                        <WidgetPreview block={b}/>
-                                      </div>
-                                    )})}
+                                    {col.blocks.length>0&&(
+                                      <DndContext sensors={blockSensors} onDragEnd={(event)=>handleBlockSortEnd(event,row.id,col.id)}>
+                                        <SortableContext items={col.blocks.map(b=>b.id)}>
+                                          {col.blocks.map(b=>{const bSel=selected?.block?.id===b.id;return(
+                                            <SortableBlock key={b.id} id={b.id}>
+                                              <div className={`elm-widget ${bSel?'elm-widget-active':''}`} onClick={e=>{e.stopPropagation();setSelected({rowId:row.id,colId:col.id,block:b,element:'widget'})}}>
+                                                {bSel&&<div className="elm-widget-tools"><button className="elm-widget-tool" onClick={e=>{e.stopPropagation();duplicateBlock(row.id,col.id,b.id)}} title="Duplicate"><i className="fas fa-copy"></i></button><button className="elm-widget-tool elm-tool-btn-del" onClick={e=>{e.stopPropagation();removeBlock(row.id,col.id,b.id)}} title="Delete"><i className="fas fa-trash"></i></button></div>}
+                                                <WidgetPreview block={b}/>
+                                              </div>
+                                            </SortableBlock>
+                                          )})}
+                                        </SortableContext>
+                                      </DndContext>
+                                    )}
                                     <div className="elm-add-widget"><select className="elm-add-select" value="" onChange={e=>{if(e.target.value){addBlockToCol(row.id,col.id,e.target.value);e.target.value=''}}}>
                                       <option value="">+ Add Widget</option>
                                       {Object.entries(WIDGETS).filter(([k])=>k!=='sections').flatMap(([,cat])=>Object.entries(cat.items).map(([k,m])=><option key={k} value={k}>{m.label}</option>))}
@@ -824,6 +888,7 @@ function WidgetContentFields({ block, onUpdate }) {
   if(block.type==='button')return(<><input value={block.text||''} onChange={e=>onUpdate({text:e.target.value})} className="elm-input" placeholder="Button text" /><input value={block.url||''} onChange={e=>onUpdate({url:e.target.value})} className="elm-input" placeholder="URL" /><select value={block.style||'solid'} onChange={e=>onUpdate({style:e.target.value})} className="elm-input"><option value="solid">Solid</option><option value="outline">Outline</option></select></>)
   if(block.type==='spacer')return <input type="number" value={block.height||40} onChange={e=>onUpdate({height:parseInt(e.target.value)||40})} className="elm-input" />
   if(block.type==='html')return <textarea rows={6} value={block.html||''} onChange={e=>onUpdate({html:e.target.value})} className="elm-input elm-textarea elm-mono" />
+  if(block.type==='shortcode')return <input value={block.key||''} onChange={e=>onUpdate({key:e.target.value})} className="elm-input" placeholder="[year], [site-url], [company]" />
   if(block.type==='icon')return(<><input value={block.icon||''} onChange={e=>onUpdate({icon:e.target.value})} className="elm-input" placeholder="fa-star" /><select value={block.size||'2x'} onChange={e=>onUpdate({size:e.target.value})} className="elm-input"><option value="1x">Small</option><option value="2x">Medium</option><option value="3x">Large</option></select><input value={block.color||''} onChange={e=>onUpdate({color:e.target.value})} className="elm-input" /></>)
   if(block.type==='video')return <input value={block.src||''} onChange={e=>onUpdate({src:e.target.value})} className="elm-input" />
   return <p style={{fontSize:'0.75rem',color:'#666',padding:8}}>No fields</p>
@@ -852,6 +917,7 @@ function WidgetPreview({ block }) {
   if(block.type==='video')return <div style={wrap}><i className="fas fa-play-circle" style={{fontSize:'2rem',color:'#6cab96'}}></i><p style={{fontSize:'0.75rem',color:'#666'}}>Video: {block.src||'No URL'}</p></div>
   if(block.type==='icon')return <div style={wrap}><i className={`fas ${block.icon||'fa-star'}`} style={{fontSize:block.size==='3x'?'2rem':block.size==='2x'?'1.5rem':'1rem',color:block.color||'#6cab96'}}></i></div>
   if(block.type==='html')return <div style={wrap} dangerouslySetInnerHTML={{__html:block.html||''}}/>
+  if(block.type==='shortcode')return <div style={{...wrap,fontSize:'0.75rem',color:'#6cab96',fontFamily:'monospace',padding:'4px 8px',background:'rgba(108,171,150,0.06)',borderRadius:4,display:'inline-block'}}><i className="fas fa-code-branch" style={{marginRight:4}}></i> {block.key||'[shortcode]'}</div>
   if(block.type==='heading')return <div style={wrap}><WidgetPreview block={block}/></div>
   return <div style={wrap}>Unknown widget</div>
 }
@@ -859,4 +925,17 @@ function WidgetPreview({ block }) {
 function buildDefaultRows(data) {
   const sections = data.settings?.sections || {}
   return Object.entries(sections).filter(([,s])=>s.visible!==false).sort((a,b)=>(a[1].order||0)-(b[1].order||0)).map(([key])=>defaultSectionRow(key))
+}
+
+function SortableBlock({ id, children }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    position: 'relative',
+    zIndex: isDragging ? 1 : 'auto',
+    touchAction: 'none',
+  }
+  return <div ref={setNodeRef} style={style} {...attributes} {...listeners}>{children}</div>
 }
