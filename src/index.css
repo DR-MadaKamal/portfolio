@@ -788,6 +788,39 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 
 
 
+/* === PAGE BUILDER === */
+.page-builder { padding: 4px 0; }
+.pb-toolbar { font-size: 0.82rem; font-weight: 700; color: var(--text); margin-bottom: 16px; padding: 10px 14px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); display: flex; align-items: center; }
+.pb-block { background: var(--bg-alt); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 6px; overflow: hidden; transition: border-color 0.2s, box-shadow 0.2s; }
+.pb-block:hover { border-color: var(--accent); box-shadow: 0 2px 12px rgba(0,0,0,0.15); }
+.pb-block-expanded { border-color: var(--accent); }
+.pb-block-header { display: flex; align-items: center; gap: 10px; padding: 10px 14px; min-height: 44px; }
+.pb-block-title { font-size: 0.85rem; font-weight: 600; color: var(--text); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pb-block-meta { font-size: 0.65rem; color: var(--text-dim); background: var(--bg); padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+.pb-block-count { font-size: 0.68rem; color: var(--text-muted); background: rgba(108,171,150,0.06); padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+.pb-block-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.pb-btn { width: 28px; height: 28px; border-radius: 6px; border: 1px solid transparent; background: transparent; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; transition: all 0.2s; }
+.pb-btn:hover { border-color: var(--border); color: var(--text); }
+.pb-btn-edit:hover { border-color: var(--accent); color: var(--accent); }
+.pb-btn-del:hover { border-color: var(--accent2); color: var(--accent2); }
+.pb-block-editor { border-top: 1px solid var(--border); padding: 14px; background: rgba(0,0,0,0.08); }
+.pb-editor-inline { display: flex; flex-direction: column; gap: 10px; }
+.pb-editor-row { display: flex; gap: 12px; }
+.pb-add-block { width: 100%; padding: 12px; margin: 8px 0 4px; border: 1px dashed var(--border); border-radius: var(--radius-sm); background: transparent; color: var(--text-muted); font-size: 0.82rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.pb-add-block:hover { border-color: var(--accent); color: var(--accent); background: rgba(108,171,150,0.03); }
+.pb-modal-overlay { position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 20px; }
+.pb-modal { background: var(--bg-alt); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; max-width: 520px; width: 100%; max-height: 80vh; overflow-y: auto; }
+.pb-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 1rem; }
+.pb-modal-close { font-size: 1.4rem; background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px 8px; }
+.pb-modal-close:hover { color: var(--accent2); }
+.pb-modal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+.pb-modal-item { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 14px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg); color: var(--text-secondary); cursor: pointer; font-size: 0.72rem; font-family: inherit; transition: all 0.2s; position: relative; }
+.pb-modal-item:hover { border-color: var(--accent); color: var(--accent); background: rgba(108,171,150,0.03); }
+.pb-modal-item i { font-size: 1.2rem; }
+.pb-modal-custom { border-style: dashed; border-color: var(--accent2); color: var(--accent2); }
+.pb-modal-custom:hover { border-color: var(--accent2); color: var(--accent2); background: rgba(232,168,124,0.04); }
+.pb-modal-badge { position: absolute; top: 4px; right: 4px; font-size: 0.55rem; padding: 1px 5px; border-radius: 3px; background: var(--accent); color: #0f0f1a; }
+
 /* === Admin Toggle Switch === */
 .admin-toggle { position: relative; display: inline-block; width: 36px; height: 20px; flex-shrink: 0; }
 .admin-toggle input { opacity: 0; width: 0; height: 0; }
