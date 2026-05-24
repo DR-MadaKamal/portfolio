@@ -26,22 +26,21 @@ export default function RelatedArticles({ current, articles, onOpenArticle }) {
 
   return (
     <div className="related-articles">
-      <h3 className="related-title">Related Articles</h3>
+      <h3>Related Articles</h3>
       <div className="related-grid">
         {related.map((a, i) => (
-          <motion.a key={i} href={`#article-${i}`} className="related-card article-card"
+          <motion.a key={i} href={`#article-${i}`} className="related-card"
             onClick={(e) => { e.preventDefault(); onOpenArticle?.(a) }}
             initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             {a.image && <img src={a.image} alt={a.title} className="related-img" loading="lazy" />}
-            <div className="article-card-body">
+            <div className="related-card-body">
               {a.tags && a.tags.length > 0 && (
-                <div style={{ display: 'flex', gap: 4, marginBottom: 6 }}>
-                  {a.tags.slice(0, 2).map(t => <span key={t} className="tag" style={{ fontSize: '0.6rem', padding: '1px 6px' }}>{t}</span>)}
+                <div className="related-tags">
+                  {a.tags.slice(0, 2).map(t => <span key={t} className="tag">{t}</span>)}
                 </div>
               )}
-              <h3>{a.title}</h3>
-              <p>{a.description}</p>
-              <span className="article-meta">{a.readTime} · {a.date}</span>
+              <h4>{a.title}</h4>
+              <p>{a.readTime}</p>
             </div>
           </motion.a>
         ))}

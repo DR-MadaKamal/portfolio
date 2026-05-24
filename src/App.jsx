@@ -1,36 +1,35 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense, lazy } from 'react'
+import ErrorBoundary from './components/ErrorBoundary'
+import LoadingSkeleton from './components/LoadingSkeleton'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
-import About from './components/About'
-import Projects from './components/Projects'
-import Articles from './components/Articles'
-import Testimonials from './components/Testimonials'
-import Achievements from './components/Achievements'
-import QuoteRotator from './components/QuoteRotator'
-import SayHello from './components/SayHello'
 import ScrollToTop from './components/ScrollToTop'
 import ScrollProgressBar from './components/ScrollProgressBar'
 import AnimatedBackground from './components/AnimatedBackground'
 import Toast from './components/Toast'
 import AdminPanel from './components/AdminPanel'
-import WhatsAppButton from './components/WhatsAppButton'
 import CustomCursor from './components/CustomCursor'
 import SoundEffects from './components/SoundEffects'
-import AnalyticsDashboard from './components/AnalyticsDashboard'
-import Footer from './components/Footer'
-import ClientLogoWall from './components/ClientLogoWall'
-import FAQSection from './components/FAQSection'
-import ToolsShowcase from './components/ToolsShowcase'
-import ServicesTimeline from './components/ServicesTimeline'
-import SearchBar from './components/SearchBar'
 
-import PortfolioDownload from './components/PortfolioDownload'
+const About = lazy(() => import('./components/About'))
+const Projects = lazy(() => import('./components/Projects'))
+const Articles = lazy(() => import('./components/Articles'))
+const Testimonials = lazy(() => import('./components/Testimonials'))
+const Achievements = lazy(() => import('./components/Achievements'))
+const QuoteRotator = lazy(() => import('./components/QuoteRotator'))
+const SayHello = lazy(() => import('./components/SayHello'))
+const Footer = lazy(() => import('./components/Footer'))
+const ClientLogoWall = lazy(() => import('./components/ClientLogoWall'))
+const FAQSection = lazy(() => import('./components/FAQSection'))
+const ToolsShowcase = lazy(() => import('./components/ToolsShowcase'))
+const ServicesTimeline = lazy(() => import('./components/ServicesTimeline'))
+const PortfolioDownload = lazy(() => import('./components/PortfolioDownload'))
 import CookieConsent from './components/CookieConsent'
-import NewsletterSignup from './components/NewsletterSignup'
-
-import ShareButtons from './components/ShareButtons'
+const NewsletterSignup = lazy(() => import('./components/NewsletterSignup'))
 import LiveChatWidget from './components/LiveChatWidget'
-import GoogleMapsEmbed from './components/GoogleMapsEmbed'
+const GoogleMapsEmbed = lazy(() => import('./components/GoogleMapsEmbed'))
+import AnalyticsDashboard from './components/AnalyticsDashboard'
+import WhatsAppButton from './components/WhatsAppButton'
 import { LangProvider } from './context/LangContext'
 import { personalData } from './data/portfolioData'
 
@@ -146,7 +145,13 @@ function App() {
         projects={d?.projects} articles={d?.articles} />
       {tools.cookieConsentEnabled !== false && <CookieConsent />}
       <main id="main-content">
-        {sectionMap.map(s => <span key={s.key}>{s.comp}</span>)}
+        {sectionMap.map(s => (
+          <ErrorBoundary key={s.key} fallbackMsg={`Section "${s.key}" failed to load.`}>
+            <Suspense fallback={<LoadingSkeleton type={s.key === 'articles' ? 'article' : 'card'} count={1} />}>
+              {s.comp}
+            </Suspense>
+          </ErrorBoundary>
+        ))}
       </main>
       <WhatsAppButton personalData={d?.personalData} />
       <ScrollToTop />

@@ -29,7 +29,7 @@ function renderMarkdown(content) {
 
     if (line.startsWith('```')) {
       if (inCode) {
-        html += `<pre><code>${codeContent}</code></pre>\n`
+        html += `<div class="code-block"><pre><code>${codeContent}</code></pre><button class="code-copy-btn" onclick="(function(btn){var t=btn.previousElementSibling.textContent;navigator.clipboard.writeText(t).then(function(){btn.textContent='Copied!';setTimeout(function(){btn.textContent='Copy'},2000)})})(this)" aria-label="Copy code">Copy</button></div>\n`
         codeContent = ''
         inCode = false
       } else {
@@ -53,7 +53,7 @@ function renderMarkdown(content) {
       continue
     }
     if (line.startsWith('> ')) {
-      html += `<blockquote>${inlineMarkdown(line.slice(2))}</blockquote>\n`
+      html += `<blockquote class="article-pullquote">${inlineMarkdown(line.slice(2))}</blockquote>\n`
       continue
     }
     if (line.startsWith('- ')) {
@@ -80,7 +80,7 @@ function renderMarkdown(content) {
       continue
     }
     if (line.startsWith('**') && line.endsWith('**')) {
-      html += `<p><strong>${inlineMarkdown(line.slice(2, -2))}</strong></p>\n`
+      html += `<p class="article-emphasis"><strong>${inlineMarkdown(line.slice(2, -2))}</strong></p>\n`
       continue
     }
     html += `<p>${inlineMarkdown(line)}</p>\n`
@@ -161,71 +161,105 @@ export default function ArticlePage({ articleIdx, onClose, articles: editedArtic
   if (!a) return null
 
   const readTime = a.readTime === 'auto' ? calcReadTime(a.content) : a.readTime
-
   const renderedContent = useMemo(() => renderMarkdown(a.content || a.description || ''), [a.content, a.description])
+  const prevA = idx > 0 ? allArticles[idx - 1] : null
+  const nextA = idx < allArticles.length - 1 ? allArticles[idx + 1] : null
 
   return (
     <AnimatePresence>
-      <motion.div
-        className="article-page-overlay"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        onClick={(e) => { if (e.target.className === 'article-page-overlay') onClose() }}
-      >
-        <motion.div
-          className="article-page"
-          initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 50, opacity: 0 }}
-        >
+      <motion.div className="article-page-overlay"
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        onClick={(e) => { if (e.target.className === 'article-page-overlay') onClose() }}>
+        <motion.div className="article-page"
+          initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }}>
           <ReadingProgress />
           <button className="article-page-close" onClick={onClose}>&times;</button>
 
-          {a.image && <img src={a.image} alt={a.title} className="article-page-img" loading="lazy" />}
+          {a.image && (
+            <div className="article-page-hero">
+              <img src={a.image} alt={a.title} loading="lazy" />
+              <div className="article-page-hero-overlay" />
+              <div className="article-page-hero-content">
+                <div className="article-page-meta">
+                  <span className="article-page-date">
+                    {monthNames[new Date(a.date).getMonth()]} {new Date(a.date).getDate()}, {new Date(a.date).getFullYear()}
+                  </span>
+                  <span className="article-page-readtime"><i className="far fa-clock" /> {readTime}</span>
+                </div>
+                {a.tags && a.tags.length > 0 && (
+                  <div className="article-page-tags">
+                    {a.tags.map(tag => <span key={tag} className="tag">{tag}</span>)}
+                  </div>
+                )}
+                <h1 className="article-page-hero-title">{a.title}</h1>
+              </div>
+            </div>
+          )}
 
           <div className="article-page-body">
-            <div className="article-page-meta">
-              <span>{monthNames[new Date(a.date).getMonth()]} {new Date(a.date).getDate()}, {new Date(a.date).getFullYear()}</span>
-              <span><i className="far fa-clock" /> {readTime}</span>
-            </div>
-
-            {a.tags && a.tags.length > 0 && (
-              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
-                {a.tags.map(tag => <span key={tag} className="tag">{tag}</span>)}
-              </div>
+            {!a.image && (
+              <>
+                <div className="article-page-meta">
+                  <span>{monthNames[new Date(a.date).getMonth()]} {new Date(a.date).getDate()}, {new Date(a.date).getFullYear()}</span>
+                  <span><i className="far fa-clock" /> {readTime}</span>
+                </div>
+                {a.tags && a.tags.length > 0 && (
+                  <div className="article-page-tags">{a.tags.map(tag => <span key={tag} className="tag">{tag}</span>)}</div>
+                )}
+                <h1>{a.title}</h1>
+              </>
             )}
 
-            <h1>{a.title}</h1>
             <p className="article-page-desc">{a.description}</p>
 
             {a.author && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, paddingBottom: 16, borderBottom: '1px solid var(--border)' }}>
-                {a.author.avatar && <img src={a.author.avatar} alt={a.author.name} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }} />}
+              <div className="article-page-author">
+                <img src={a.author.avatar} alt={a.author.name} loading="lazy" />
                 <div>
-                  <strong style={{ fontSize: '0.85rem' }}>{a.author.name}</strong>
-                  <span style={{ display: 'block', fontSize: '0.72rem', color: 'var(--text-muted)' }}>Author</span>
+                  <strong>{a.author.name}</strong>
+                  <span>Author &bull; Published on {monthNames[new Date(a.date).getMonth()]} {new Date(a.date).getDate()}, {new Date(a.date).getFullYear()}</span>
                 </div>
               </div>
             )}
 
             <ShareButtons title={a.title} />
 
-            <ArticleTOC content={a.content} />
-
-            <div className="article-page-content" dangerouslySetInnerHTML={{ __html: renderedContent }} />
+            <div className="article-page-layout">
+              <div className="article-page-main">
+                <ArticleTOC content={a.content} />
+                <div className="article-page-content" dangerouslySetInnerHTML={{ __html: renderedContent }} />
+              </div>
+            </div>
 
             <RelatedArticles current={a} articles={allArticles}
               onOpenArticle={(article) => { const found = allArticles.findIndex(x => x.title === article.title); if (found >= 0) { setIdx(found); onNavigate?.(found) } }} />
 
             <div className="article-page-nav">
-              <button disabled={idx === 0} onClick={() => navigate(-1)}>
-                <i className="fas fa-arrow-left" /> Previous
-              </button>
-              <span>{idx + 1} / {allArticles.length}</span>
-              <button disabled={idx === allArticles.length - 1} onClick={() => navigate(1)}>
-                Next <i className="fas fa-arrow-right" />
-              </button>
+              {prevA ? (
+                <button className="article-nav-card" onClick={() => navigate(-1)}>
+                  <span className="article-nav-label"><i className="fas fa-arrow-left" /> Previous</span>
+                  <div className="article-nav-preview">
+                    {prevA.image && <img src={prevA.image} alt="" loading="lazy" />}
+                    <div>
+                      <strong>{prevA.title}</strong>
+                      <span>{prevA.readTime}</span>
+                    </div>
+                  </div>
+                </button>
+              ) : <div />}
+              <span className="article-nav-count">{idx + 1} / {allArticles.length}</span>
+              {nextA ? (
+                <button className="article-nav-card" onClick={() => navigate(1)}>
+                  <span className="article-nav-label">Next <i className="fas fa-arrow-right" /></span>
+                  <div className="article-nav-preview">
+                    {nextA.image && <img src={nextA.image} alt="" loading="lazy" />}
+                    <div>
+                      <strong>{nextA.title}</strong>
+                      <span>{nextA.readTime}</span>
+                    </div>
+                  </div>
+                </button>
+              ) : <div />}
             </div>
           </div>
         </motion.div>

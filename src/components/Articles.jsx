@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { articles as defaultArticles } from '../data/portfolioData'
 import ArticlePage from './ArticlePage'
@@ -16,12 +16,14 @@ const thumbnails = [
 ]
 
 const cardAnim = { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: '-40px' }, transition: { duration: 0.5 } }
+const stagger = { initial: {}, animate: { transition: { staggerChildren: 0.08 } } }
 
 export default function Articles({ articles: editedArticles, initialArticleIdx, onArticleOpened }) {
   const articles = editedArticles || defaultArticles
   const { t } = useLang()
   const [articleIdx, setArticleIdx] = useState(initialArticleIdx != null ? initialArticleIdx : null)
   const [activeTag, setActiveTag] = useState('')
+  const gridRef = useRef(null)
 
   useEffect(() => {
     if (initialArticleIdx != null) setArticleIdx(initialArticleIdx)
@@ -55,48 +57,65 @@ export default function Articles({ articles: editedArticles, initialArticleIdx, 
           </div>
         )}
 
-        <div className="articles-grid">
-          {filtered.map((a, i) => (
-            <motion.div key={i} className="article-card" {...cardAnim}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              whileHover={{ y: -6 }}
-              onClick={() => openArticle(i)}
-              style={{ cursor: 'pointer' }}>
-              {a.image ? (
-                <img src={a.image} alt={a.title} className="article-thumb-img" loading="lazy" />
-              ) : (
-                <div className="article-thumb" style={{ background: thumbnails[i % thumbnails.length]?.gradient || 'var(--accent)' }}>
-                  <i className={`fas ${thumbnails[i % thumbnails.length]?.icon || 'fa-file'}`} />
-                </div>
-              )}
-              <div className="article-card-body">
-                {a.tags && a.tags.length > 0 && (
-                  <div className="article-tags" style={{ marginBottom: 8, display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                    {a.tags.slice(0, 3).map(tag => (
-                      <span key={tag} className="tag" style={{ fontSize: '0.65rem', padding: '2px 8px' }}>{tag}</span>
-                    ))}
-                  </div>
-                )}
-                <h3>{a.title}</h3>
-                <p>{a.description}</p>
-                <div className="article-meta">
-                  {a.author && (
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginRight: 8 }}>
-                      {a.author.avatar && <img src={a.author.avatar} alt="" style={{ width: 16, height: 16, borderRadius: '50%', objectFit: 'cover' }} />}
-                      <span>{a.author.name}</span>
-                    </span>
+        <motion.div className="articles-grid" ref={gridRef} variants={stagger} initial="initial" animate="animate">
+          {filtered.map((a, i) => {
+            const thumb = thumbnails[i % thumbnails.length]
+            return (
+              <motion.div key={i} className="article-card" variants={cardAnim}
+                whileHover={{ y: -8 }}
+                onClick={() => openArticle(i)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openArticle(i) } }}
+                role="button" tabIndex={0} aria-label={`Read article: ${a.title}`}>
+                <div className="article-card-thumb">
+                  {a.image ? (
+                    <>
+                      <img src={a.image} alt={a.title} className="article-thumb-img" loading="lazy" />
+                      <div className="article-thumb-overlay" />
+                    </>
+                  ) : (
+                    <div className="article-thumb" style={{ background: thumb?.gradient || 'var(--accent)' }}>
+                      <i className={`fas ${thumb?.icon || 'fa-file'}`} />
+                    </div>
                   )}
-                  {a.date && `${monthNames[new Date(a.date).getMonth()]} ${new Date(a.date).getDate()}, ${new Date(a.date).getFullYear()} · `}
-                  <i className="far fa-clock" style={{ marginRight: 3 }} /> {a.readTime}
+                  <div className="article-card-badge">
+                    {a.tags?.[0] || 'Article'}
+                  </div>
+                  <div className="article-card-meta-float">
+                    <span><i className="far fa-clock" /> {a.readTime}</span>
+                  </div>
                 </div>
-                <span className="article-read-link">{t.articles.read} <i className="fas fa-arrow-right" /></span>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+                <div className="article-card-body">
+                  {a.tags && a.tags.length > 1 && (
+                    <div className="article-tags">
+                      {a.tags.slice(1, 3).map(tag => (
+                        <span key={tag} className="tag">{tag}</span>
+                      ))}
+                    </div>
+                  )}
+                  <h3 className="article-card-title">{a.title}</h3>
+                  <p className="article-card-excerpt">{a.description}</p>
+                  <div className="article-card-footer">
+                    <div className="article-card-author">
+                      {a.author?.avatar && <img src={a.author.avatar} alt="" className="article-avatar-sm" loading="lazy" />}
+                      <div>
+                        <span className="article-author-name">{a.author?.name || 'Author'}</span>
+                        <span className="article-date">{a.date ? `${monthNames[new Date(a.date).getMonth()]} ${new Date(a.date).getDate()}, ${new Date(a.date).getFullYear()}` : ''}</span>
+                      </div>
+                    </div>
+                    <span className="article-read-link">{t.articles.read} <i className="fas fa-arrow-right" /></span>
+                  </div>
+                </div>
+              </motion.div>
+            )
+          })}
+        </motion.div>
 
         {filtered.length === 0 && (
-          <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 40 }}>No articles match the selected tag.</p>
+          <div className="empty-state">
+            <i className="fas fa-newspaper" />
+            <h3>No articles found</h3>
+            <p>No articles match the selected tag.</p>
+          </div>
         )}
 
         {articleIdx != null && (

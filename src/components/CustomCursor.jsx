@@ -52,7 +52,7 @@ export default function CustomCursor() {
       clearTimeout(idleTimer.current)
       idleTimer.current = setTimeout(stopLoop, 2000)
     }
-    const enter = (e) => { if (e.target.closest('a, button, .btn, .project-card, .article-card, .skill-card, .section-title, h2')) setHovering(true) }
+    const enter = (e) => { if (e.target.closest('a, button, .btn, .project-card, .article-card, .skill-ring-card, .section-title, h2')) setHovering(true) }
     const leave = () => { setHovering(false); stopLoop(); idleTimer.current && clearTimeout(idleTimer.current) }
 
     startLoop()
