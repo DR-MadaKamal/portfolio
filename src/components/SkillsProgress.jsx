@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { skillCategories as defaultSkills } from '../data/portfolioData'
+
 const skillProgress = {
   'Pharmacy Operations & Inventory Control': 90, 'Team Leadership': 85,
   'Pharmaceutical Knowledge': 95, 'HCPs Targeting': 92,
@@ -19,33 +20,10 @@ const skillProgress = {
 
 const catColors = ['var(--accent)', '#48c6ef', '#f093fb', '#fa709a']
 
-function SkillRing({ pct, label, count, icon, color }) {
-  const r = 42
-  const circ = 2 * Math.PI * r
-  const offset = circ - (circ * pct) / 100
-
-  return (
-    <svg className="skill-ring-svg" viewBox="0 0 100 100" width="100" height="100">
-      <circle cx="50" cy="50" r={r} fill="none" stroke="var(--border)" strokeWidth="5" />
-      <motion.circle cx="50" cy="50" r={r} fill="none" stroke={color} strokeWidth="5"
-        strokeLinecap="round" strokeDasharray={circ}
-        initial={{ strokeDashoffset: circ }}
-        whileInView={{ strokeDashoffset: offset }}
-        viewport={{ once: true }}
-        transition={{ duration: 1.2, ease: 'easeOut' }}
-        transform="rotate(-90 50 50)" />
-      <motion.text x="50" y="42" textAnchor="middle" fill="var(--text)"
-        fontSize="18" fontWeight="700"
-        initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
-        transition={{ delay: 0.6 }}>{pct}%</motion.text>
-      <text x="50" y="58" textAnchor="middle" fill="var(--text-dim)" fontSize="8">{count} skills</text>
-    </svg>
-  )
-}
-
 export default function SkillsProgress({ skillCategories: editedSkills }) {
   const cats = editedSkills || defaultSkills
   const [openSet, setOpenSet] = useState(new Set())
+
   const toggle = (i) => {
     setOpenSet(prev => {
       const next = new Set(prev)
@@ -62,65 +40,60 @@ export default function SkillsProgress({ skillCategories: editedSkills }) {
     }), [cats])
 
   return (
-    <div className="skills-dashboard">
-      <div className="skills-ring-grid">
-        {catsWithAvg.map((c, i) => {
-          const isOpen = openSet.has(i)
-          return (
-            <motion.div key={i} className={`skill-ring-card${isOpen ? ' expanded' : ''}`}
-              layout transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}>
-              <button type="button" className="skill-ring-trigger"
-                onClick={() => toggle(i)}
-                aria-label={`${c.category}: ${c.avg}% proficiency. Click to ${isOpen ? 'collapse' : 'expand'} skills.`}>
-                <SkillRing pct={c.avg} label={c.category} count={c.skills.length}
-                  icon={c.icon} color={c.color} />
-                <div className="skill-ring-label">
-                  <i className={`fas ${c.icon}`} style={{ color: c.color }} />
-                  <span>{c.category}</span>
-                  <motion.i className="fas fa-chevron-down skill-ring-chevron"
-                    animate={{ rotate: isOpen ? 180 : 0 }}
-                    transition={{ duration: 0.3 }} />
-                </div>
-              </button>
+    <div className="skills-grid">
+      {catsWithAvg.map((c, i) => {
+        const isOpen = openSet.has(i)
+        return (
+          <div key={i} className={`skills-cat${isOpen ? ' open' : ''}`}>
+            <button type="button" className="skills-cat-header"
+              onClick={() => toggle(i)}
+              aria-expanded={isOpen}>
+              <span className="skills-cat-icon" style={{ color: c.color }}>
+                <i className={`fas ${c.icon}`} />
+              </span>
+              <span className="skills-cat-info">
+                <span className="skills-cat-name">{c.category}</span>
+                <span className="skills-cat-avg">{c.avg}%</span>
+              </span>
+              <span className="skills-cat-count">{c.skills.length} skills</span>
+              <i className={`fas fa-chevron-down skills-chevron${isOpen ? ' open' : ''}`} />
+            </button>
 
-              <AnimatePresence initial={false}>
-                {isOpen && (
-                  <motion.div className="skill-ring-detail"
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}>
-                    <div className="skill-detail-inner"
-                      style={{ borderTopColor: c.color }}>
-                      {c.skills.map((s, j) => {
-                        const pct = skillProgress[s] || 70
-                        return (
-                          <motion.div className="skill-detail-row" key={s}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: j * 0.035 }}>
-                            <div className="skill-detail-header">
-                              <span className="skill-detail-name">{s}</span>
-                              <span className="skill-detail-pct">{pct}%</span>
-                            </div>
-                            <div className="skill-detail-track">
-                              <motion.div className="skill-detail-fill"
-                                style={{ background: c.color }}
-                                initial={{ width: 0 }}
-                                animate={{ width: `${pct}%` }}
-                                transition={{ duration: 0.7, delay: j * 0.035, ease: 'easeOut' }} />
-                            </div>
-                          </motion.div>
-                        )
-                      })}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          )
-        })}
-      </div>
+            <AnimatePresence initial={false}>
+              {isOpen && (
+                <motion.div className="skills-cat-body"
+                  key="body"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3 }}>
+                  <div className="skills-cat-inner">
+                    {c.skills.map((s, j) => {
+                      const pct = skillProgress[s] || 70
+                      return (
+                        <div key={s} className="skills-row"
+                          style={{ animationDelay: `${j * 35}ms` }}>
+                          <div className="skills-row-top">
+                            <span className="skills-row-name">{s}</span>
+                            <span className="skills-row-pct">{pct}%</span>
+                          </div>
+                          <div className="skills-row-track">
+                            <motion.div className="skills-row-fill"
+                              style={{ background: c.color, width: `${pct}%` }}
+                              initial={{ width: 0 }}
+                              animate={{ width: `${pct}%` }}
+                              transition={{ duration: 0.6, delay: j * 0.035 }} />
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )
+      })}
     </div>
   )
 }
