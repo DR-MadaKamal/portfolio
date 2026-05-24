@@ -7,8 +7,8 @@ import MagneticButton from './MagneticButton'
 import { useLang } from '../context/LangContext'
 
 const container = { animate: { transition: { staggerChildren: 0.12 } } }
-const child = { initial: { opacity: 0, y: 30 }, animate: { opacity: 1, y: 0, transition: { duration: 0.6 } } }
-const imgChild = { initial: { opacity: 0, scale: 0.8 }, animate: { opacity: 1, scale: 1, transition: { duration: 0.8 } } }
+const child = { initial: { opacity: 0, y: 30 }, animate: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 120, damping: 20 } } }
+const imgChild = { initial: { opacity: 0, scale: 0.8 }, animate: { opacity: 1, scale: 1, transition: { type: 'spring', stiffness: 100, damping: 18, delay: 0.3 } } }
 
 export default function Hero({ personalData: editedPersonalData }) {
   const data = editedPersonalData || personalData

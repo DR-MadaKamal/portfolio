@@ -5,7 +5,7 @@ import SkillsProgress from './SkillsProgress'
 import TextReveal from './TextReveal'
 import { useLang } from '../context/LangContext'
 
-const fadeUp = { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: '-60px' }, transition: { duration: 0.5 } }
+const fadeUp = { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100, damping: 20 } }, viewport: { once: true, margin: '-60px' } }
 const stagger = { initial: {}, whileInView: { transition: { staggerChildren: 0.06 } }, viewport: { once: true, margin: '-60px' } }
 const childUp = { initial: { opacity: 0, y: 20 }, whileInView: { opacity: 1, y: 0, transition: { duration: 0.4 } }, viewport: { once: true } }
 
