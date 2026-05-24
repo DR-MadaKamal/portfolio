@@ -4,6 +4,11 @@ import { skillCategories as defaultSkills } from '../data/portfolioData'
 
 const catColors = ['var(--accent)', '#48c6ef', '#f093fb', '#fa709a']
 
+const itemVariants = {
+  hidden: { opacity: 0, x: -8 },
+  visible: (i) => ({ opacity: 1, x: 0, transition: { duration: 0.2, delay: i * 0.025, ease: 'easeOut' } }),
+}
+
 export default function SkillsProgress({ skillCategories: editedSkills }) {
   const cats = editedSkills || defaultSkills
   const [openSet, setOpenSet] = useState(new Set())
@@ -32,7 +37,6 @@ export default function SkillsProgress({ skillCategories: editedSkills }) {
     <div className="skills-grid">
       {cats.map((c, i) => {
         const isOpen = openSet.has(i)
-        const h = heights[i] || 500
         return (
           <div key={i} className={`skills-cat${isOpen ? ' open' : ''}`}>
             <button type="button" className="skills-cat-header"
@@ -48,22 +52,26 @@ export default function SkillsProgress({ skillCategories: editedSkills }) {
               <i className={`fas fa-chevron-down skills-chevron${isOpen ? ' open' : ''}`} />
             </button>
 
-            <div className="skills-cat-body"
-              style={{ maxHeight: isOpen ? h : 0 }}>
+            <motion.div className="skills-cat-body"
+              layout
+              initial={false}
+              animate={{ height: isOpen ? (heights[i] || 400) : 0, opacity: isOpen ? 1 : 0 }}
+              transition={{ type: 'spring', stiffness: 180, damping: 24, mass: 0.8 }}>
               <div ref={el => innerRefs.current[i] = el} className="skills-cat-inner">
                 <ul className="skills-bullets">
                   {c.skills.map((s, j) => (
                     <motion.li key={s} className="skills-bullet"
-                      initial={false}
-                      animate={isOpen ? { opacity: 1, x: 0 } : { opacity: 0, x: -6 }}
-                      transition={{ duration: 0.2, delay: isOpen ? j * 0.02 : 0 }}>
+                      variants={itemVariants}
+                      initial="hidden"
+                      animate={isOpen ? 'visible' : 'hidden'}
+                      custom={j}>
                       <span className="skills-bullet-dot" style={{ background: catColors[i] }} />
                       {s}
                     </motion.li>
                   ))}
                 </ul>
               </div>
-            </div>
+            </motion.div>
           </div>
         )
       })}

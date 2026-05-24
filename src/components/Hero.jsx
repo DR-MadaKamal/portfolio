@@ -13,7 +13,7 @@ const imgChild = { initial: { opacity: 0, scale: 0.8 }, animate: { opacity: 1, s
 
 export default function Hero({ personalData: editedPersonalData, quotes: editedQuotes }) {
   const data = editedPersonalData || personalData
-  const quotes = editedQuotes || defaultQuotes
+  const quotes = (editedQuotes && editedQuotes.length > 0) ? editedQuotes : defaultQuotes
   const { t } = useLang()
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
   const { scrollY } = useScroll()

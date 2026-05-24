@@ -334,7 +334,7 @@ img { max-width: 100%; height: auto; }
 .skills-chevron { font-size: 0.7rem; color: var(--text-dim); transition: transform 0.3s; flex-shrink: 0; }
 .skills-chevron.open { transform: rotate(180deg); }
 
-.skills-cat-body { overflow: hidden; transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease; }
+.skills-cat-body { overflow: hidden; }
 .skills-cat-inner { padding: 4px 18px 16px; border-top: 1px solid var(--border); }
 .skills-bullets { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
 .skills-bullet { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4; }
