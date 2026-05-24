@@ -881,6 +881,22 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .elm-add-section { width: 100%; padding: 14px; border: 1px dashed #2a2a44; border-radius: 4px; background: transparent; color: #555; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.15s; font-family: inherit; }
 .elm-add-section:hover { border-color: #6cab96; color: #6cab96; background: rgba(108,171,150,0.03); }
 
+.elm-section-live { pointer-events: none; min-height: 50px; }
+.elm-section-live .scroll-progress-bar,
+.elm-section-live .skip-link,
+.elm-section-live .navbar,
+.elm-section-live footer,
+.elm-section-live .footer,
+.elm-section-live .cookie-consent,
+.elm-section-live .toast-container,
+.elm-section-live .whatsapp-btn,
+.elm-section-live .custom-cursor,
+.elm-section-live .admin-toggle,
+.elm-section-live .sound-effects,
+.elm-section-live .live-chat,
+.elm-section-live .scroll-to-top { display: none !important; }
+.elm-section-live section[id] { scroll-margin-top: 0; }
+
 /* === Admin Toggle Switch === */
 .admin-toggle { position: relative; display: inline-block; width: 36px; height: 20px; flex-shrink: 0; }
 .admin-toggle input { opacity: 0; width: 0; height: 0; }
