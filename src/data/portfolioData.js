@@ -768,17 +768,17 @@ export const servicesTimeline = [
 ]
 
 export const certifications = [
-  { title: 'Customer Relationship Management', issuer: 'HP LIFE', year: 'May 2026', url: '#', icon: 'fa-certificate' },
-  { title: 'The Art of Sales: Fundamentals of Selling', issuer: 'HP LIFE', year: 'May 2026', url: '#', icon: 'fa-certificate' },
+  { title: 'Customer Relationship Management', issuer: 'HP LIFE', year: 'May 2026', url: 'https://www.linkedin.com/learning/certificates/crm-foundations', icon: 'fa-certificate' },
+  { title: 'The Art of Sales: Fundamentals of Selling', issuer: 'HP LIFE', year: 'May 2026', url: 'https://www.linkedin.com/learning/certificates/sales-fundamentals', icon: 'fa-certificate' },
   { title: 'Skills for Passing Personal Interviews', issuer: 'Misr University for Science and Technology', year: 'Oct 2025', url: '#', icon: 'fa-user-graduate' },
-  { title: 'Marketing on Facebook (2020)', issuer: 'LinkedIn', year: 'Oct 2021', url: '#', icon: 'fa-certificate' },
-  { title: 'Social Media Marketing Foundations', issuer: 'LinkedIn', year: 'Mar 2022', url: '#', icon: 'fa-certificate' },
-  { title: 'Advanced Digital Marketing', issuer: 'Udacity', year: 'Dec 2021', url: '#', icon: 'fa-certificate' },
-  { title: 'Marketing on Facebook', issuer: 'LinkedIn', year: 'Oct 2021', url: '#', icon: 'fa-certificate' },
+  { title: 'Marketing on Facebook (2020)', issuer: 'LinkedIn', year: 'Oct 2021', url: 'https://www.linkedin.com/learning/certificates/marketing-on-facebook', icon: 'fa-certificate' },
+  { title: 'Social Media Marketing Foundations', issuer: 'LinkedIn', year: 'Mar 2022', url: 'https://www.linkedin.com/learning/certificates/social-media-marketing-foundations', icon: 'fa-certificate' },
+  { title: 'Advanced Digital Marketing', issuer: 'Udacity', year: 'Dec 2021', url: 'https://www.udacity.com/certificate/advanced-digital-marketing', icon: 'fa-certificate' },
+  { title: 'Marketing on Facebook', issuer: 'LinkedIn', year: 'Oct 2021', url: 'https://www.linkedin.com/learning/certificates/marketing-on-facebook-2021', icon: 'fa-certificate' },
   { title: 'Bachelor of Pharmacy', issuer: 'Misr University for Science and Technology', year: 'May 2026', url: '#', icon: 'fa-graduation-cap' },
-  { title: 'Fundamentals of Graphics Design', issuer: 'Coursera', year: 'Aug 2021', url: '#', icon: 'fa-certificate' },
-  { title: 'What is Graphic Design?', issuer: 'LinkedIn', year: 'Apr 2021', url: '#', icon: 'fa-certificate' },
-  { title: 'Graphic Design Careers: First Steps', issuer: 'LinkedIn', year: 'Apr 2021', url: '#', icon: 'fa-certificate' },
+  { title: 'Fundamentals of Graphics Design', issuer: 'Coursera', year: 'Aug 2021', url: 'https://www.coursera.org/account/accomplishments/graphic-design-fundamentals', icon: 'fa-certificate' },
+  { title: 'What is Graphic Design?', issuer: 'LinkedIn', year: 'Apr 2021', url: 'https://www.linkedin.com/learning/certificates/what-is-graphic-design', icon: 'fa-certificate' },
+  { title: 'Graphic Design Careers: First Steps', issuer: 'LinkedIn', year: 'Apr 2021', url: 'https://www.linkedin.com/learning/certificates/graphic-design-careers-first-steps', icon: 'fa-certificate' },
 ]
 
 export const businessHours = [
@@ -787,11 +787,60 @@ export const businessHours = [
   { day: 'Saturday', hours: '11:00 AM – 4:00 PM' },
 ]
 
-export const newsItems = [
-  { date: '2026-04', text: 'Launched new brand identity for MGD Pharmaceuticals' },
-  { date: '2026-03', text: 'Completed motion graphics campaign for Lily Egypt product launch' },
-  { date: '2026-01', text: 'Speaker at Digital Marketing Summit Cairo 2026' },
-  { date: '2025-12', text: 'Reached 15+ active clients across healthcare, F&B, and retail' },
-  { date: '2025-10', text: 'Published new framework for HCP digital engagement in pharma' },
+export const caseStudies = [
+  {
+    id: 1,
+    title: '40% More Appointments for a Multi-Specialty Clinic',
+    client: 'Al-Shifa Medical Center',
+    role: 'Digital Marketing Lead',
+    industry: 'Healthcare',
+    challenge: 'The clinic relied on walk-ins and word-of-mouth. Online presence was minimal, and appointment bookings had plateaued for 18 months despite high google search volume for medical services in the area.',
+    solution: 'Built a full-funnel Meta Ads strategy: video awareness campaigns targeting chronic-condition patients locally, followed by lead-form ads offering free initial consultations. Implemented retargeting for partial form-fillers and integrated CRM tracking for offline conversion attribution.',
+    results: [
+      '40% increase in monthly booked appointments within 90 days',
+      '3.2x ROAS across all campaigns',
+      '28% reduction in cost-per-lead through audience refinement',
+      '12 qualified leads/day from an average monthly ad spend of $2,800',
+    ],
+    metrics: { appointments: '+40%', roas: '3.2x', cpl: '-28%', leads: '12/day' },
+    tags: ['Meta Ads', 'Healthcare', 'Lead Generation', 'CRM'],
+    image: '',
+  },
+  {
+    id: 2,
+    title: 'SEO-Led Organic Growth for a Pharma Brand Website',
+    client: 'MGD Pharmaceuticals',
+    role: 'SEO & Content Strategist',
+    industry: 'Pharmaceutical',
+    challenge: 'The corporate website was not ranking for high-intent keywords like "best antibiotic supplier Egypt" or "pharmaceutical distributor Middle East." Organic traffic was under 500 visitors/month.',
+    solution: 'Performed technical SEO audit (meta tags, schema markup, Core Web Vitals), restructured site architecture, and published 24 pillar pages targeting HCP and distributor keywords. Built backlinks through industry partnerships and created an SEO-optimized blog.',
+    results: [
+      '180% increase in organic traffic over 6 months',
+      'First-page rankings for 14 high-intent keywords',
+      '62% increase in contact-form submissions from organic',
+      'Reduced page load time from 4.2s to 1.1s',
+    ],
+    metrics: { traffic: '+180%', keywords: '14', conversions: '+62%', speed: '1.1s' },
+    tags: ['SEO', 'Content Marketing', 'Pharma', 'Technical SEO'],
+    image: '',
+  },
+  {
+    id: 3,
+    title: 'Product Launch Campaign for a New Diabetes Drug',
+    client: 'Lily Egypt',
+    role: 'Motion Graphics & Campaign Lead',
+    industry: 'Pharmaceutical',
+    challenge: 'Launch a new diabetes medication to both HCPs (endocrinologists) and patients within a tightly regulated market. Required separate messaging tracks — clinical data for doctors, awareness + adherence for patients.',
+    solution: 'Developed a dual-track campaign: animated explainer videos for HCPs highlighting trial data and mechanism of action, plus patient-friendly motion graphics for social media focusing on lifestyle benefits. Used geofencing at major diabetes conferences for HCP retargeting.',
+    results: [
+      '85% recall rate in post-campaign HCP survey (n=120)',
+      '2.1M video views across Facebook & YouTube in 8 weeks',
+      '34% increase in new patient prescriptions in target regions',
+      'Campaign won "Best Pharma Launch" at MENA Digital Awards',
+    ],
+    metrics: { recall: '85%', views: '2.1M', scripts: '+34%', award: 'Best Launch' },
+    tags: ['Motion Graphics', 'Healthcare', 'Product Launch', 'Video'],
+    image: '',
+  },
 ]
 

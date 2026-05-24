@@ -39,17 +39,29 @@ export default function Achievements({ awards: editedAwards, certifications: edi
         </h3>
         <div className="certs-grid">
           {certifications.map((c, i) => (
-            <motion.div
-              key={i} className="cert-item"
+            <motion.div key={i} className="cert-item"
               initial={{ opacity: 0, y: 15 }} whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }} transition={{ delay: i * 0.04 }}
-              whileHover={{ y: -3 }}
-            >
-              <i className={`fas ${c.icon}`} />
-              <div>
-                <strong>{c.title}</strong>
-                <span>{c.issuer} &middot; {c.year}</span>
-              </div>
+              whileHover={{ y: -3 }}>
+              {c.url && c.url !== '#' ? (
+                <a href={c.url} target="_blank" rel="noopener" className="cert-link"
+                  aria-label={`View ${c.title} certificate`}>
+                  <i className={`fas ${c.icon}`} />
+                  <div>
+                    <strong>{c.title}</strong>
+                    <span>{c.issuer} &middot; {c.year}</span>
+                  </div>
+                  <i className="fas fa-external-link-alt cert-external" />
+                </a>
+              ) : (
+                <div className="cert-link">
+                  <i className={`fas ${c.icon}`} />
+                  <div>
+                    <strong>{c.title}</strong>
+                    <span>{c.issuer} &middot; {c.year}</span>
+                  </div>
+                </div>
+              )}
             </motion.div>
           ))}
         </div>

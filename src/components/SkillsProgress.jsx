@@ -68,25 +68,17 @@ export default function SkillsProgress({ skillCategories: editedSkills }) {
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.3 }}>
                   <div className="skills-cat-inner">
-                    {c.skills.map((s, j) => {
-                      const pct = skillProgress[s] || 70
-                      return (
-                        <div key={s} className="skills-row"
-                          style={{ animationDelay: `${j * 35}ms` }}>
-                          <div className="skills-row-top">
-                            <span className="skills-row-name">{s}</span>
-                            <span className="skills-row-pct">{pct}%</span>
-                          </div>
-                          <div className="skills-row-track">
-                            <motion.div className="skills-row-fill"
-                              style={{ background: c.color, width: `${pct}%` }}
-                              initial={{ width: 0 }}
-                              animate={{ width: `${pct}%` }}
-                              transition={{ duration: 0.6, delay: j * 0.035 }} />
-                          </div>
-                        </div>
-                      )
-                    })}
+                    <ul className="skills-bullets">
+                      {c.skills.map((s, j) => (
+                        <motion.li key={s} className="skills-bullet"
+                          initial={{ opacity: 0, x: -8 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: j * 0.03 }}>
+                          <span className="skills-bullet-dot" style={{ background: c.color }} />
+                          {s}
+                        </motion.li>
+                      ))}
+                    </ul>
                   </div>
                 </motion.div>
               )}

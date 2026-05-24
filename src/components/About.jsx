@@ -86,10 +86,13 @@ export default function About({ editedData }) {
 
         {/* Skills with progress bars */}
         <motion.div {...fadeUp} style={{ marginTop: 60 }}>
-          <h2 className="section-title" style={{ marginBottom: 32 }}>
-            <small>Proficiencies</small>
-            <TextReveal text={t.about.expertise} as="span" />
+          <h2 className="section-title" style={{ marginBottom: 24 }}>
+            <small>{t.about.expertise}</small>
+            <TextReveal text="Core Competencies" as="span" />
           </h2>
+          <p className="skills-intro">
+            Healthcare · Digital Marketing & Strategy · Creative & Design · Business & Leadership
+          </p>
           <SkillsProgress skillCategories={skillCategories} />
         </motion.div>
 

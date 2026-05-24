@@ -23,6 +23,7 @@ const ClientLogoWall = lazy(() => import('./components/ClientLogoWall'))
 const FAQSection = lazy(() => import('./components/FAQSection'))
 const ToolsShowcase = lazy(() => import('./components/ToolsShowcase'))
 const ServicesTimeline = lazy(() => import('./components/ServicesTimeline'))
+const CaseStudies = lazy(() => import('./components/CaseStudies'))
 const PortfolioDownload = lazy(() => import('./components/PortfolioDownload'))
 import CookieConsent from './components/CookieConsent'
 const NewsletterSignup = lazy(() => import('./components/NewsletterSignup'))
@@ -116,6 +117,7 @@ function App() {
 
     { key: 'logos', comp: <ClientLogoWall clientLogos={d?.clientLogos} /> },
     { key: 'projects', comp: <Projects projects={d?.projects} /> },
+    { key: 'case-studies', comp: <CaseStudies caseStudies={d?.caseStudies} /> },
     { key: 'testimonials', comp: <Testimonials testimonials={d?.testimonials} /> },
 
     { key: 'achievements', comp: <Achievements awards={d?.awards} certifications={d?.certifications} /> },
