@@ -880,7 +880,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .elm-add-section { width: 100%; padding: 14px; border: 1px dashed #2a2a44; border-radius: 4px; background: transparent; color: #555; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.15s; font-family: inherit; }
 .elm-add-section:hover { border-color: #6cab96; color: #6cab96; background: rgba(108,171,150,0.03); }
 
-.elm-section-live { pointer-events: none; min-height: 50px; position: relative; }
+.elm-section-live { min-height: 50px; position: relative; }
+.elm-section-live-inner { position: relative; }
+.elm-section-live-inner[contenteditable=true] { outline: none; cursor: text; }
+.elm-section-live-inner[contenteditable=true] *:hover { outline: 2px solid #6cab96; outline-offset: 1px; border-radius: 2px; }
+.elm-el-highlight { pointer-events: none; z-index: 20; }
+.elm-el-overlay { position: absolute; inset: 0; z-index: 15; cursor: crosshair; }
+.elm-inline-toolbar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 8px; background: #252540; border: 1px solid #2a2a44; border-radius: 8px; padding: 8px 16px; z-index: 9999; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
 .elm-section-label { position: absolute; top: 0; left: 0; z-index: 10; background: #6cab96; color: #0f0f1a; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 2px 8px; border-radius: 0 0 4px 0; opacity: 0; transition: opacity 0.15s; line-height: 1.4; pointer-events: none; }
 .elm-section-active .elm-section-label { opacity: 1; }
 .elm-section:hover .elm-section-label { opacity: 1; }
