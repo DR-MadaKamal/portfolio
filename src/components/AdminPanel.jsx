@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { personalData as defaultPersonal, experience as defaultExp, projects as defaultProjects, articles as defaultArticles, skillCategories as defaultSkills, education as defaultEdu, courses as defaultCourses, testimonials as defaultTestimonials, awards as defaultAwards, certifications as defaultCerts, clientLogos as defaultLogos, servicesTimeline as defaultTimeline, quotes as defaultQuotes, tools as defaultToolsData, faq as defaultFaq } from '../data/portfolioData'
+import { SortableList, SortableItem } from './SortableList'
 
 const STORAGE_KEY = 'portfolio-admin-data'
 const HISTORY_KEY = 'portfolio-admin-history'
@@ -328,7 +329,6 @@ function ExperienceForm({ data, onSave }) {
   const r = useRef(true)
   useEffect(() => { if (r.current) { r.current = false; return }; const t = setTimeout(() => onSave({ ...data, experience: list }, 'Experience'), 500); return () => clearTimeout(t) }, [list])
   const update = (i, f, v) => setList(p => { const c = [...p]; c[i] = { ...c[i], [f]: v }; return c })
-  const move = (i, d) => setList(p => { const j = i + d; if (j < 0 || j >= p.length) return p; const c = [...p]; [c[i], c[j]] = [c[j], c[i]]; return c })
   const add = () => setList(p => [...p, { role: 'New Role', company: 'Company', period: '', highlights: [], links: [], media: [] }])
   const remove = (i) => { if (confirm('Delete?')) setList(p => p.filter((_, idx) => idx !== i)) }
   const dup = (i) => setList(p => { const c = [...p]; c.splice(i + 1, 0, { ...JSON.parse(JSON.stringify(p[i])) }); return c })
@@ -336,18 +336,22 @@ function ExperienceForm({ data, onSave }) {
   const updH = (i, j, v) => setList(p => { const c = [...p]; const h = [...(c[i].highlights || [])]; h[j] = v; c[i] = { ...c[i], highlights: h }; return c })
   const delH = (i, j) => setList(p => { const c = [...p]; c[i] = { ...c[i], highlights: (c[i].highlights || []).filter((_, idx) => idx !== j) }; return c })
   return (<div>
-    {list.map((exp, i) => (<div key={i} className="admin-card">
-      <div className="admin-card-header"><strong>{exp.role || 'New'}</strong><div className="admin-card-actions"><button onClick={() => move(i, -1)} disabled={i === 0}>&uarr;</button><button onClick={() => move(i, 1)} disabled={i === list.length - 1}>&darr;</button><button onClick={() => dup(i)} title="Duplicate">&#x1F4CB;</button><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div></div>
-      <Input label="Role" value={exp.role} onChange={v => update(i, 'role', v)} />
-      <Input label="Company" value={exp.company} onChange={v => update(i, 'company', v)} />
-      <Input label="Period" value={exp.period} onChange={v => update(i, 'period', v)} />
-      <Input label="Location" value={exp.location} onChange={v => update(i, 'location', v)} />
-      <Input label="Logo Path" value={exp.logo} onChange={v => update(i, 'logo', v)} />
-      <details><summary style={{fontSize:'0.78rem',cursor:'pointer',color:'var(--text-muted)'}}>Highlights ({exp.highlights?.length || 0})</summary>
-        {(exp.highlights || []).map((h, j) => (<div key={j} className="admin-inline-row"><input value={h} onChange={e => updH(i, j, e.target.value)} /><button className="admin-del-btn-sm" onClick={() => delH(i, j)}>&times;</button></div>))}
-        <button className="admin-add-small" onClick={() => addH(i)}>+ Highlight</button>
-      </details>
-    </div>))}
+    <SortableList items={list} onReorder={setList} getId={(_, i) => i}>
+      {list.map((exp, i) => (<SortableItem key={i} id={i}>
+        {(listeners) => (<div className="admin-card">
+          <div className="admin-card-header"><button {...listeners} className="admin-drag-handle" title="Drag to reorder"><i className="fas fa-grip-vertical"></i></button><strong style={{flex:1}}>{exp.role || 'New'}</strong><div className="admin-card-actions"><button onClick={() => dup(i)} title="Duplicate">&#x1F4CB;</button><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div></div>
+          <Input label="Role" value={exp.role} onChange={v => update(i, 'role', v)} />
+          <Input label="Company" value={exp.company} onChange={v => update(i, 'company', v)} />
+          <Input label="Period" value={exp.period} onChange={v => update(i, 'period', v)} />
+          <Input label="Location" value={exp.location} onChange={v => update(i, 'location', v)} />
+          <Input label="Logo Path" value={exp.logo} onChange={v => update(i, 'logo', v)} />
+          <details><summary style={{fontSize:'0.78rem',cursor:'pointer',color:'var(--text-muted)'}}>Highlights ({exp.highlights?.length || 0})</summary>
+            {(exp.highlights || []).map((h, j) => (<div key={j} className="admin-inline-row"><input value={h} onChange={e => updH(i, j, e.target.value)} /><button className="admin-del-btn-sm" onClick={() => delH(i, j)}>&times;</button></div>))}
+            <button className="admin-add-small" onClick={() => addH(i)}>+ Highlight</button>
+          </details>
+        </div>)}
+      </SortableItem>))}
+    </SortableList>
     <button className="admin-add-btn" onClick={add}>+ Add Experience</button>
   </div>)
 }
@@ -357,7 +361,6 @@ function ProjectsForm({ data, onSave }) {
   const r = useRef(true)
   useEffect(() => { if (r.current) { r.current = false; return }; const t = setTimeout(() => onSave({ ...data, projects: list }, 'Projects'), 500); return () => clearTimeout(t) }, [list])
   const update = (i, f, v) => setList(p => { const c = [...p]; c[i] = { ...c[i], [f]: v }; return c })
-  const move = (i, d) => setList(p => { const j = i + d; if (j < 0 || j >= p.length) return p; const c = [...p]; [c[i], c[j]] = [c[j], c[i]]; return c })
   const add = () => setList(p => [...p, { title: 'New Project', description: '', url: '', tags: [], challenge: '', solution: '', result: '', images: [] }])
   const remove = (i) => { if (confirm('Delete?')) setList(p => p.filter((_, idx) => idx !== i)) }
   const dup = (i) => setList(p => { const c = [...p]; c.splice(i + 1, 0, { ...JSON.parse(JSON.stringify(p[i])) }); return c })
@@ -368,23 +371,27 @@ function ProjectsForm({ data, onSave }) {
   const updImg = (i, j, v) => setList(p => { const c = [...p]; const im = [...(c[i].images || [])]; im[j] = v; c[i] = { ...c[i], images: im }; return c })
   const delImg = (i, j) => setList(p => { const c = [...p]; c[i] = { ...c[i], images: (c[i].images || []).filter((_, idx) => idx !== j) }; return c })
   return (<div>
-    {list.map((p, i) => (<div key={i} className="admin-card">
-      <div className="admin-card-header"><strong>{p.title}</strong><div className="admin-card-actions"><button onClick={() => move(i, -1)} disabled={i === 0}>&uarr;</button><button onClick={() => move(i, 1)} disabled={i === list.length - 1}>&darr;</button><button onClick={() => dup(i)} title="Duplicate">&#x1F4CB;</button><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div></div>
-      <Input label="Title" value={p.title} onChange={v => update(i, 'title', v)} />
-      <Input label="Description" value={p.description} onChange={v => update(i, 'description', v)} multiline />
-      <Input label="URL" value={p.url} onChange={v => update(i, 'url', v)} />
-      <Input label="Challenge" value={p.challenge} onChange={v => update(i, 'challenge', v)} multiline />
-      <Input label="Solution" value={p.solution} onChange={v => update(i, 'solution', v)} multiline />
-      <Input label="Result" value={p.result} onChange={v => update(i, 'result', v)} multiline />
-      <details><summary style={{fontSize:'0.78rem',cursor:'pointer',color:'var(--text-muted)'}}>Tags ({p.tags?.length || 0})</summary>
-        {(p.tags || []).map((t, j) => (<div key={j} className="admin-inline-row"><input value={t} onChange={e => updTag(i, j, e.target.value)} /><button className="admin-del-btn-sm" onClick={() => delTag(i, j)}>&times;</button></div>))}
-        <button className="admin-add-small" onClick={() => addTag(i)}>+ Tag</button>
-      </details>
-      <details><summary style={{fontSize:'0.78rem',cursor:'pointer',color:'var(--text-muted)'}}>Screenshots ({p.images?.length || 0})</summary>
-        {(p.images || []).map((im, j) => (<div key={j} className="admin-inline-row"><input value={im} placeholder="Image URL" onChange={e => updImg(i, j, e.target.value)} /><button className="admin-del-btn-sm" onClick={() => delImg(i, j)}>&times;</button></div>))}
-        <button className="admin-add-small" onClick={() => addImg(i)}>+ Image</button>
-      </details>
-    </div>))}
+    <SortableList items={list} onReorder={setList} getId={(_, i) => i}>
+      {list.map((p, i) => (<SortableItem key={i} id={i}>
+        {(listeners) => (<div className="admin-card">
+          <div className="admin-card-header"><button {...listeners} className="admin-drag-handle" title="Drag to reorder"><i className="fas fa-grip-vertical"></i></button><strong style={{flex:1}}>{p.title}</strong><div className="admin-card-actions"><button onClick={() => dup(i)} title="Duplicate">&#x1F4CB;</button><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div></div>
+          <Input label="Title" value={p.title} onChange={v => update(i, 'title', v)} />
+          <Input label="Description" value={p.description} onChange={v => update(i, 'description', v)} multiline />
+          <Input label="URL" value={p.url} onChange={v => update(i, 'url', v)} />
+          <Input label="Challenge" value={p.challenge} onChange={v => update(i, 'challenge', v)} multiline />
+          <Input label="Solution" value={p.solution} onChange={v => update(i, 'solution', v)} multiline />
+          <Input label="Result" value={p.result} onChange={v => update(i, 'result', v)} multiline />
+          <details><summary style={{fontSize:'0.78rem',cursor:'pointer',color:'var(--text-muted)'}}>Tags ({p.tags?.length || 0})</summary>
+            {(p.tags || []).map((t, j) => (<div key={j} className="admin-inline-row"><input value={t} onChange={e => updTag(i, j, e.target.value)} /><button className="admin-del-btn-sm" onClick={() => delTag(i, j)}>&times;</button></div>))}
+            <button className="admin-add-small" onClick={() => addTag(i)}>+ Tag</button>
+          </details>
+          <details><summary style={{fontSize:'0.78rem',cursor:'pointer',color:'var(--text-muted)'}}>Screenshots ({p.images?.length || 0})</summary>
+            {(p.images || []).map((im, j) => (<div key={j} className="admin-inline-row"><input value={im} placeholder="Image URL" onChange={e => updImg(i, j, e.target.value)} /><button className="admin-del-btn-sm" onClick={() => delImg(i, j)}>&times;</button></div>))}
+            <button className="admin-add-small" onClick={() => addImg(i)}>+ Image</button>
+          </details>
+        </div>)}
+      </SortableItem>))}
+    </SortableList>
     <button className="admin-add-btn" onClick={add}>+ Add Project</button>
   </div>)
 }
@@ -401,21 +408,25 @@ function ArticlesForm({ data, onSave }) {
   const updTag = (i, j, v) => setList(p => { const c = [...p]; const t = [...(c[i].tags || [])]; t[j] = v; c[i] = { ...c[i], tags: t }; return c })
   const delTag = (i, j) => setList(p => { const c = [...p]; c[i] = { ...c[i], tags: (c[i].tags || []).filter((_, idx) => idx !== j) }; return c })
   return (<div>
-    {list.map((a, i) => (<div key={i} className="admin-card">
-      <div className="admin-card-header"><strong>{a.title}</strong><div className="admin-card-actions"><button onClick={() => dup(i)} title="Duplicate">&#x1F4CB;</button><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div></div>
-      <Input label="Title" value={a.title} onChange={v => update(i, 'title', v)} />
-      <Input label="Description" value={a.description} onChange={v => update(i, 'description', v)} multiline />
-      <Input label="Image URL" value={a.image} onChange={v => update(i, 'image', v)} />
-      <Input label="Content (Markdown)" value={a.content} onChange={v => update(i, 'content', v)} multiline />
-      <Input label="Read Time (or 'auto')" value={a.readTime} onChange={v => update(i, 'readTime', v)} />
-      <Input label="Date" value={a.date} onChange={v => update(i, 'date', v)} />
-      <Input label="Author Name" value={a.author?.name || ''} onChange={v => update(i, 'author', { ...(a.author || {}), name: v })} />
-      <Input label="Author Avatar URL" value={a.author?.avatar || ''} onChange={v => update(i, 'author', { ...(a.author || {}), avatar: v })} />
-      <details><summary style={{fontSize:'0.78rem',cursor:'pointer',color:'var(--text-muted)'}}>Tags ({a.tags?.length || 0})</summary>
-        {(a.tags || []).map((t, j) => (<div key={j} className="admin-inline-row"><input value={t} onChange={e => updTag(i, j, e.target.value)} /><button className="admin-del-btn-sm" onClick={() => delTag(i, j)}>&times;</button></div>))}
-        <button className="admin-add-small" onClick={() => addTag(i)}>+ Tag</button>
-      </details>
-    </div>))}
+    <SortableList items={list} onReorder={setList} getId={(_, i) => i}>
+      {list.map((a, i) => (<SortableItem key={i} id={i}>
+        {(listeners) => (<div className="admin-card">
+          <div className="admin-card-header"><button {...listeners} className="admin-drag-handle" title="Drag to reorder"><i className="fas fa-grip-vertical"></i></button><strong style={{flex:1}}>{a.title}</strong><div className="admin-card-actions"><button onClick={() => dup(i)} title="Duplicate">&#x1F4CB;</button><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div></div>
+          <Input label="Title" value={a.title} onChange={v => update(i, 'title', v)} />
+          <Input label="Description" value={a.description} onChange={v => update(i, 'description', v)} multiline />
+          <Input label="Image URL" value={a.image} onChange={v => update(i, 'image', v)} />
+          <Input label="Content (Markdown)" value={a.content} onChange={v => update(i, 'content', v)} multiline />
+          <Input label="Read Time (or 'auto')" value={a.readTime} onChange={v => update(i, 'readTime', v)} />
+          <Input label="Date" value={a.date} onChange={v => update(i, 'date', v)} />
+          <Input label="Author Name" value={a.author?.name || ''} onChange={v => update(i, 'author', { ...(a.author || {}), name: v })} />
+          <Input label="Author Avatar URL" value={a.author?.avatar || ''} onChange={v => update(i, 'author', { ...(a.author || {}), avatar: v })} />
+          <details><summary style={{fontSize:'0.78rem',cursor:'pointer',color:'var(--text-muted)'}}>Tags ({a.tags?.length || 0})</summary>
+            {(a.tags || []).map((t, j) => (<div key={j} className="admin-inline-row"><input value={t} onChange={e => updTag(i, j, e.target.value)} /><button className="admin-del-btn-sm" onClick={() => delTag(i, j)}>&times;</button></div>))}
+            <button className="admin-add-small" onClick={() => addTag(i)}>+ Tag</button>
+          </details>
+        </div>)}
+      </SortableItem>))}
+    </SortableList>
     <button className="admin-add-btn" onClick={add}>+ Add Article</button>
   </div>)
 }
@@ -451,7 +462,7 @@ function EducationForm({ data, onSave }) {
   const update = (i, f, v) => setList(p => { const c = [...p]; c[i] = { ...c[i], [f]: v }; return c })
   const add = () => setList(p => [...p, { degree: 'Degree', school: 'School', year: 'Year' }])
   const remove = (i) => setList(p => p.filter((_, idx) => idx !== i))
-  return (<div>{list.map((e, i) => (<div key={i} className="admin-card"><div className="admin-card-header"><strong>{e.degree}</strong><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div><Input label="Degree" value={e.degree} onChange={v => update(i, 'degree', v)} /><Input label="School" value={e.school} onChange={v => update(i, 'school', v)} /><Input label="Year" value={e.year} onChange={v => update(i, 'year', v)} /></div>))}<button className="admin-add-btn" onClick={add}>+ Add Education</button></div>)
+  return (<div><SortableList items={list} onReorder={setList} getId={(_, i) => i}>{list.map((e, i) => (<SortableItem key={i} id={i}>{(listeners) => (<div className="admin-card"><div className="admin-card-header"><button {...listeners} className="admin-drag-handle" title="Drag to reorder"><i className="fas fa-grip-vertical"></i></button><strong style={{flex:1}}>{e.degree}</strong><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div><Input label="Degree" value={e.degree} onChange={v => update(i, 'degree', v)} /><Input label="School" value={e.school} onChange={v => update(i, 'school', v)} /><Input label="Year" value={e.year} onChange={v => update(i, 'year', v)} /></div>)}</SortableItem>))}</SortableList><button className="admin-add-btn" onClick={add}>+ Add Education</button></div>)
 }
 
 function CoursesForm({ data, onSave }) {
@@ -461,7 +472,7 @@ function CoursesForm({ data, onSave }) {
   const update = (i, f, v) => setList(p => { const c = [...p]; c[i] = { ...c[i], [f]: v }; return c })
   const add = () => setList(p => [...p, { name: 'Course', provider: 'Provider', year: '' }])
   const remove = (i) => setList(p => p.filter((_, idx) => idx !== i))
-  return (<div>{list.map((c, i) => (<div key={i} className="admin-card"><div className="admin-card-header"><strong>{c.name}</strong><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div><Input label="Name" value={c.name} onChange={v => update(i, 'name', v)} /><Input label="Provider" value={c.provider} onChange={v => update(i, 'provider', v)} /><Input label="Year" value={c.year} onChange={v => update(i, 'year', v)} /></div>))}<button className="admin-add-btn" onClick={add}>+ Add Course</button></div>)
+  return (<div><SortableList items={list} onReorder={setList} getId={(_, i) => i}>{list.map((c, i) => (<SortableItem key={i} id={i}>{(listeners) => (<div className="admin-card"><div className="admin-card-header"><button {...listeners} className="admin-drag-handle" title="Drag to reorder"><i className="fas fa-grip-vertical"></i></button><strong style={{flex:1}}>{c.name}</strong><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div><Input label="Name" value={c.name} onChange={v => update(i, 'name', v)} /><Input label="Provider" value={c.provider} onChange={v => update(i, 'provider', v)} /><Input label="Year" value={c.year} onChange={v => update(i, 'year', v)} /></div>)}</SortableItem>))}</SortableList><button className="admin-add-btn" onClick={add}>+ Add Course</button></div>)
 }
 
 function TestimonialsForm({ data, onSave }) {
@@ -469,7 +480,6 @@ function TestimonialsForm({ data, onSave }) {
   const r = useRef(true)
   useEffect(() => {
     if (r.current) { r.current = false; return }
-    // save to settings.testimonials for persistence
     const s = data.settings || {}
     const timer = setTimeout(() => onSave({ ...data, testimonials: list, settings: { ...s, testimonialData: list } }, 'Testimonials'), 500)
     return () => clearTimeout(timer)
@@ -477,7 +487,7 @@ function TestimonialsForm({ data, onSave }) {
   const update = (i, f, v) => setList(p => { const c = [...p]; c[i] = { ...c[i], [f]: v }; return c })
   const add = () => setList(p => [...p, { name: 'Name', role: 'Role', text: 'Review text', rating: 5 }])
   const remove = (i) => setList(p => p.filter((_, idx) => idx !== i))
-  return (<div>{list.map((t, i) => (<div key={i} className="admin-card"><div className="admin-card-header"><strong>{t.name}</strong><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div><Input label="Name" value={t.name} onChange={v => update(i, 'name', v)} /><Input label="Role" value={t.role} onChange={v => update(i, 'role', v)} /><Input label="Text" value={t.text} onChange={v => update(i, 'text', v)} multiline /><Input label="Rating (1-5)" value={t.rating} type="number" onChange={v => update(i, 'rating', parseInt(v) || 5)} /></div>))}<button className="admin-add-btn" onClick={add}>+ Add Testimonial</button></div>)
+  return (<div><SortableList items={list} onReorder={setList} getId={(_, i) => i}>{list.map((t, i) => (<SortableItem key={i} id={i}>{(listeners) => (<div className="admin-card"><div className="admin-card-header"><button {...listeners} className="admin-drag-handle" title="Drag to reorder"><i className="fas fa-grip-vertical"></i></button><strong style={{flex:1}}>{t.name}</strong><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div><Input label="Name" value={t.name} onChange={v => update(i, 'name', v)} /><Input label="Role" value={t.role} onChange={v => update(i, 'role', v)} /><Input label="Text" value={t.text} onChange={v => update(i, 'text', v)} multiline /><Input label="Rating (1-5)" value={t.rating} type="number" onChange={v => update(i, 'rating', parseInt(v) || 5)} /></div>)}</SortableItem>))}</SortableList><button className="admin-add-btn" onClick={add}>+ Add Testimonial</button></div>)
 }
 
 function AwardsForm({ data, onSave }) {
@@ -491,7 +501,7 @@ function AwardsForm({ data, onSave }) {
   const update = (i, f, v) => setList(p => { const c = [...p]; c[i] = { ...c[i], [f]: v }; return c })
   const add = () => setList(p => [...p, { title: 'Award', issuer: 'Issuer', year: '', icon: 'fa-trophy' }])
   const remove = (i) => setList(p => p.filter((_, idx) => idx !== i))
-  return (<div>{list.map((a, i) => (<div key={i} className="admin-card"><div className="admin-card-header"><strong>{a.title}</strong><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div><Input label="Title" value={a.title} onChange={v => update(i, 'title', v)} /><Input label="Issuer" value={a.issuer} onChange={v => update(i, 'issuer', v)} /><Input label="Year" value={a.year} onChange={v => update(i, 'year', v)} /><Input label="Icon Class" value={a.icon} onChange={v => update(i, 'icon', v)} /></div>))}<button className="admin-add-btn" onClick={add}>+ Add Award</button></div>)
+  return (<div><SortableList items={list} onReorder={setList} getId={(_, i) => i}>{list.map((a, i) => (<SortableItem key={i} id={i}>{(listeners) => (<div className="admin-card"><div className="admin-card-header"><button {...listeners} className="admin-drag-handle" title="Drag to reorder"><i className="fas fa-grip-vertical"></i></button><strong style={{flex:1}}>{a.title}</strong><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div><Input label="Title" value={a.title} onChange={v => update(i, 'title', v)} /><Input label="Issuer" value={a.issuer} onChange={v => update(i, 'issuer', v)} /><Input label="Year" value={a.year} onChange={v => update(i, 'year', v)} /><Input label="Icon Class" value={a.icon} onChange={v => update(i, 'icon', v)} /></div>)}</SortableItem>))}</SortableList><button className="admin-add-btn" onClick={add}>+ Add Award</button></div>)
 }
 
 function ClientsForm({ data, onSave }) {
@@ -499,17 +509,20 @@ function ClientsForm({ data, onSave }) {
   const r = useRef(true)
   useEffect(() => { if (r.current) { r.current = false; return }; const timer = setTimeout(() => onSave({ ...data, clientLogos: list }, 'Clients'), 500); return () => clearTimeout(timer) }, [list])
   const update = (i, f, v) => setList(p => { const c = [...p]; c[i] = { ...c[i], [f]: v }; return c })
-  const move = (i, d) => setList(p => { const j = i + d; if (j < 0 || j >= p.length) return p; const c = [...p]; [c[i], c[j]] = [c[j], c[i]]; return c })
   const add = () => setList(p => [...p, { src: '/portfolio/images/logos/new-logo.png', name: 'New Client', link: '' }])
   const remove = (i) => { if (confirm('Delete this client?')) setList(p => p.filter((_, idx) => idx !== i)) }
   return (<div>
     <p style={{fontSize:'0.75rem',color:'var(--text-muted)',marginBottom:12}}>Manage client logos. Add their logo image URL, display name, and an optional work link (Google Drive, OneDrive, etc.).</p>
-    {list.map((c, i) => (<div key={i} className="admin-card">
-      <div className="admin-card-header"><strong>{c.name || 'Client'}</strong><div className="admin-card-actions"><button onClick={() => move(i, -1)} disabled={i === 0}>&uarr;</button><button onClick={() => move(i, 1)} disabled={i === list.length - 1}>&darr;</button><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div></div>
-      <Input label="Company Name" value={c.name} onChange={v => update(i, 'name', v)} />
-      <Input label="Logo Image URL" value={c.src} onChange={v => update(i, 'src', v)} />
-      <Input label="Work Link (Google Drive / OneDrive)" value={c.link || ''} onChange={v => update(i, 'link', v)} />
-    </div>))}
+    <SortableList items={list} onReorder={setList} getId={(_, i) => i}>
+      {list.map((c, i) => (<SortableItem key={i} id={i}>
+        {(listeners) => (<div className="admin-card">
+          <div className="admin-card-header"><button {...listeners} className="admin-drag-handle" title="Drag to reorder"><i className="fas fa-grip-vertical"></i></button><strong style={{flex:1}}>{c.name || 'Client'}</strong><div className="admin-card-actions"><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div></div>
+          <Input label="Company Name" value={c.name} onChange={v => update(i, 'name', v)} />
+          <Input label="Logo Image URL" value={c.src} onChange={v => update(i, 'src', v)} />
+          <Input label="Work Link (Google Drive / OneDrive)" value={c.link || ''} onChange={v => update(i, 'link', v)} />
+        </div>)}
+      </SortableItem>))}
+    </SortableList>
     <button className="admin-add-btn" onClick={add}>+ Add Client</button>
   </div>)
 }
@@ -526,43 +539,64 @@ function SectionsForm({ data, onSave }) {
   }, [sections, customSections])
 
   const toggle = (key) => setSections(p => ({ ...p, [key]: { ...p[key], visible: !p[key]?.visible } }))
-  const setOrder = (key, val) => setSections(p => ({ ...p, [key]: { ...p[key], order: parseInt(val) || 0 } }))
+
+  const sectionEntries = Object.entries(sections)
+    .sort((a, b) => (a[1]?.order || 0) - (b[1]?.order || 0))
+    .map(([key, val]) => ({ key, ...val }))
+
+  const reorderSections = (arr) => {
+    const next = { ...sections }
+    arr.forEach((item, index) => { next[item.key] = { ...next[item.key], order: index } })
+    setSections(next)
+  }
 
   const csAdd = () => setCustomSections(p => [...p, { id: Date.now(), title: 'New Section', content: '', icon: 'fa-star', bg: '', layout: 'full' }])
   const csUpd = (i, f, v) => setCustomSections(p => { const c = [...p]; c[i] = { ...c[i], [f]: v }; return c })
   const csDel = (i) => { if (confirm('Delete this custom section?')) setCustomSections(p => p.filter((_, idx) => idx !== i)) }
-  const csMove = (i, d) => setCustomSections(p => { const j = i + d; if (j < 0 || j >= p.length) return p; const c = [...p]; [c[i], c[j]] = [c[j], c[i]]; return c })
 
   return (
     <div>
-      <p style={{fontSize:'0.75rem',color:'var(--text-muted)',marginBottom:12}}>Toggle sections on/off, set order, or create custom sections.</p>
+      <p style={{fontSize:'0.75rem',color:'var(--text-muted)',marginBottom:12}}>Toggle sections on/off, reorder by dragging, or create custom sections.</p>
       <div className="admin-sub-tabs" style={{marginBottom:12}}>
         <span style={{fontSize:'0.82rem',fontWeight:600}}>Built-in Sections</span>
       </div>
-      {Object.entries(sections).sort((a, b) => (a[1]?.order || 0) - (b[1]?.order || 0)).map(([key, s]) => (
-        <div key={key} className="admin-card" style={{display:'flex',alignItems:'center',gap:12,padding:'10px 14px'}}>
-          <label className="admin-toggle"><input type="checkbox" checked={s.visible !== false} onChange={() => toggle(key)} /><span className="admin-toggle-slider"></span></label>
-          <span style={{flex:1,fontSize:'0.82rem',textTransform:'capitalize'}}>{key.replace(/-/g, ' ')}</span>
-          <label style={{fontSize:'0.72rem',color:'var(--text-muted)',display:'flex',alignItems:'center',gap:4}}>Order: <input type="number" value={s.order || 0} onChange={e => setOrder(key, e.target.value)} style={{width:48,padding:'2px 4px',fontSize:'0.8rem',background:'var(--bg)',border:'1px solid var(--border)',borderRadius:4,color:'var(--text)'}} /></label>
-        </div>
-      ))}
+      <SortableList items={sectionEntries} onReorder={reorderSections} getId={item => item.key}>
+        {sectionEntries.map(item => (
+          <SortableItem key={item.key} id={item.key}>
+            {(listeners) => (
+              <div className="admin-card" style={{display:'flex',alignItems:'center',gap:12,padding:'10px 14px'}}>
+                <button {...listeners} className="admin-drag-handle" title="Drag to reorder"><i className="fas fa-grip-vertical"></i></button>
+                <label className="admin-toggle"><input type="checkbox" checked={item.visible !== false} onChange={() => toggle(item.key)} /><span className="admin-toggle-slider"></span></label>
+                <span style={{flex:1,fontSize:'0.82rem',textTransform:'capitalize'}}>{item.key.replace(/-/g, ' ')}</span>
+              </div>
+            )}
+          </SortableItem>
+        ))}
+      </SortableList>
       <div className="admin-sub-tabs" style={{margin:'16px 0 8px'}}>
         <span style={{fontSize:'0.82rem',fontWeight:600}}>Custom Sections ({customSections.length})</span>
       </div>
-      {customSections.map((cs, i) => (
-        <div key={cs.id} className="admin-card">
-          <div className="admin-card-header">
-            <Input label="Section Title" value={cs.title} onChange={v => csUpd(i, 'title', v)} />
-            <div className="admin-card-actions"><button onClick={() => csMove(i, -1)} disabled={i === 0}>&uarr;</button><button onClick={() => csMove(i, 1)} disabled={i === customSections.length - 1}>&darr;</button><button className="admin-del-btn" onClick={() => csDel(i)}>&times;</button></div>
-          </div>
-          <Input label="Content (HTML or text)" value={cs.content} onChange={v => csUpd(i, 'content', v)} multiline />
-          <Input label="Icon (FontAwesome class)" value={cs.icon} onChange={v => csUpd(i, 'icon', v)} />
-          <Input label="Background (color/gradient)" value={cs.bg} onChange={v => csUpd(i, 'bg', v)} />
-          <select value={cs.layout} onChange={e => csUpd(i, 'layout', e.target.value)} style={{padding:'6px',fontSize:'0.82rem',background:'var(--bg)',border:'1px solid var(--border)',borderRadius:4,color:'var(--text)',width:'100%',marginBottom:8}}>
-            <option value="full">Full Width</option><option value="contained">Contained</option><option value="split">Split (2 col)</option>
-          </select>
-        </div>
-      ))}
+      <SortableList items={customSections} onReorder={setCustomSections} getId={cs => cs.id}>
+        {customSections.map((cs, i) => (
+          <SortableItem key={cs.id} id={cs.id}>
+            {(listeners) => (
+              <div className="admin-card">
+                <div className="admin-card-header">
+                  <button {...listeners} className="admin-drag-handle" title="Drag to reorder"><i className="fas fa-grip-vertical"></i></button>
+                  <Input label="Section Title" value={cs.title} onChange={v => csUpd(i, 'title', v)} />
+                  <button className="admin-del-btn" onClick={() => csDel(i)}>&times;</button>
+                </div>
+                <Input label="Content (HTML or text)" value={cs.content} onChange={v => csUpd(i, 'content', v)} multiline />
+                <Input label="Icon (FontAwesome class)" value={cs.icon} onChange={v => csUpd(i, 'icon', v)} />
+                <Input label="Background (color/gradient)" value={cs.bg} onChange={v => csUpd(i, 'bg', v)} />
+                <select value={cs.layout} onChange={e => csUpd(i, 'layout', e.target.value)} style={{padding:'6px',fontSize:'0.82rem',background:'var(--bg)',border:'1px solid var(--border)',borderRadius:4,color:'var(--text)',width:'100%',marginBottom:8}}>
+                  <option value="full">Full Width</option><option value="contained">Contained</option><option value="split">Split (2 col)</option>
+                </select>
+              </div>
+            )}
+          </SortableItem>
+        ))}
+      </SortableList>
       <button className="admin-add-btn" onClick={csAdd}>+ Add Custom Section</button>
     </div>
   )

@@ -752,6 +752,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
 .admin-inline-row { display: flex; gap: 6px; margin-bottom: 6px; }
 .admin-inline-row input { flex: 1; padding: 6px 10px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 0.82rem; }
 .admin-add-small { padding: 4px 12px; border-radius: 4px; border: 1px dashed var(--accent); background: transparent; color: var(--accent); cursor: pointer; font-size: 0.75rem; margin-top: 4px; }
+.admin-drag-handle { padding: 2px 6px; border-radius: 4px; border: 1px solid transparent; background: transparent; color: var(--text-dim); cursor: grab; font-size: 0.85rem; display: inline-flex; align-items: center; transition: color 0.2s, border-color 0.2s; user-select: none; touch-action: none; }
+.admin-drag-handle:hover { color: var(--accent); border-color: var(--border); }
+.admin-drag-handle:active { cursor: grabbing; }
 .admin-msg { color: var(--accent); font-size: 0.82rem; margin-top: 8px; }
 
 /* === Admin Stat Cards === */
