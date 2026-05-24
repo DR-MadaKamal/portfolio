@@ -26,7 +26,6 @@ const ServicesTimeline = lazy(() => import('./components/ServicesTimeline'))
 const CaseStudies = lazy(() => import('./components/CaseStudies'))
 const PortfolioGallery = lazy(() => import('./components/PortfolioGallery'))
 const PortfolioDownload = lazy(() => import('./components/PortfolioDownload'))
-const PrintableResume = lazy(() => import('./components/PrintableResume'))
 import CookieConsent from './components/CookieConsent'
 const NewsletterSignup = lazy(() => import('./components/NewsletterSignup'))
 import LiveChatWidget from './components/LiveChatWidget'
@@ -133,7 +132,6 @@ function App() {
     { key: 'articles', comp: <Articles articles={d?.articles} initialArticleIdx={articleHashIdx} onArticleOpened={(idx) => { if (idx < 0) setArticleHashIdx(null); else setArticleHashIdx(idx) }} /> },
     { key: 'portfolio-download', comp: <PortfolioDownload /> },
     { key: 'contact', comp: <SayHello /> },
-    { key: 'resume', comp: <PrintableResume /> },
     { key: 'map', comp: <GoogleMapsEmbed location={d?.personalData?.location} /> },
     { key: 'newsletter', comp: tools.newsletterEnabled !== false ? <NewsletterSignup /> : null },
   ].filter(s => s.comp && sec(s.key))

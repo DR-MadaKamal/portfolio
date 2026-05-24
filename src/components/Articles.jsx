@@ -15,11 +15,11 @@ const thumbnails = [
   { gradient: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)', icon: 'fa-laptop-code' },
 ]
 
-const cardAnim = { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: '-40px' }, transition: { duration: 0.5 } }
+const cardAnim = { initial: { opacity: 0, y: 30 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } }
 const stagger = { initial: {}, animate: { transition: { staggerChildren: 0.08 } } }
 
 export default function Articles({ articles: editedArticles, initialArticleIdx, onArticleOpened }) {
-  const articles = editedArticles || defaultArticles
+  const articles = (editedArticles && editedArticles.length > 0) ? editedArticles : defaultArticles
   const { t } = useLang()
   const [articleIdx, setArticleIdx] = useState(initialArticleIdx != null ? initialArticleIdx : null)
   const [activeTag, setActiveTag] = useState('')
@@ -57,7 +57,8 @@ export default function Articles({ articles: editedArticles, initialArticleIdx, 
           </div>
         )}
 
-        <motion.div className="articles-grid" ref={gridRef} variants={stagger} initial="initial" animate="animate">
+        <motion.div className="articles-grid" ref={gridRef} variants={stagger}
+          initial="initial" whileInView="animate" viewport={{ once: true, margin: '-40px' }}>
           {filtered.map((a, i) => {
             const thumb = thumbnails[i % thumbnails.length]
             return (
