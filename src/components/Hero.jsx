@@ -37,8 +37,9 @@ export default function Hero({ personalData: editedPersonalData, quotes: editedQ
           </motion.div>
 
           <motion.h1 variants={child}>
-            Bridging <span className="gradient-text">healthcare</span> & <span className="gradient-text">marketing</span><br />
-            to drive real impact.
+            {data.title ? data.title.split('|').map((part, i, arr) => (
+              <span key={i}>{i > 0 && <br />}<span className={i % 2 === 0 ? 'gradient-text' : ''}>{part.trim()}</span>{i < arr.length - 1 ? '' : ''}</span>
+            )) : <>Bridging <span className="gradient-text">healthcare</span> & <span className="gradient-text">marketing</span><br />to drive real impact.</>}
           </motion.h1>
 
           <motion.p variants={child} style={{ fontSize: '1.1rem', color: 'var(--accent)', fontFamily: 'monospace' }}>

@@ -60,6 +60,10 @@ export default function About({ editedData }) {
                   <h4>{edu.degree}</h4>
                   <p className="edu-school">{edu.school}</p>
                   <span className="timeline-period">{edu.year}</span>
+                  {edu.location && <p className="meta" style={{ fontSize: '0.75rem', marginTop: 2 }}><i className="fas fa-map-marker-alt" style={{ marginRight: 4, fontSize: '0.6rem' }} />{edu.location}</p>}
+                  {edu.coursework && edu.coursework.length > 0 && (
+                    <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 2 }}>Coursework: {edu.coursework.join(', ')}</p>
+                  )}
                 </div>
               </motion.div>
             ))}
@@ -91,7 +95,7 @@ export default function About({ editedData }) {
             <TextReveal text="Core Competencies" as="span" />
           </h2>
           <p className="skills-intro">
-            Healthcare · Digital Marketing & Strategy · Creative & Design · Business & Leadership
+            {skillCategories.map((c, i) => (i > 0 ? ' · ' : '') + c.category).join('')}
           </p>
           <SkillsProgress skillCategories={skillCategories} />
         </motion.div>

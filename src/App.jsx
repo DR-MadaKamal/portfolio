@@ -34,7 +34,7 @@ const GoogleMapsEmbed = lazy(() => import('./components/GoogleMapsEmbed'))
 import AnalyticsDashboard from './components/AnalyticsDashboard'
 import WhatsAppButton from './components/WhatsAppButton'
 import { LangProvider } from './context/LangContext'
-import { personalData } from './data/portfolioData'
+import { personalData as defaultPersonalData, experience as defaultExperience, skillCategories as defaultSkills, education as defaultEducation, awards as defaultAwards, certifications as defaultCerts, projects as defaultProjects, articles as defaultArticles, testimonials as defaultTestimonials, quotes as defaultQuotes, tools as defaultToolsData, clientLogos as defaultLogos, servicesTimeline as defaultTimeline, faq as defaultFaq, courses as defaultCourses, portfolioWorks as defaultWorks, pricingPlans as defaultPricing, caseStudies as defaultCaseStudies, languagesList as defaultLanguages, businessHours as defaultHours } from './data/portfolioData'
 import { reportWebVitals } from './utils/webVitals'
 
 const STORAGE_KEY = 'portfolio-admin-data'
@@ -109,7 +109,16 @@ function App() {
     return () => observer.disconnect()
   }, [])
 
-  const d = editedData
+  const defaults = {
+    personalData: defaultPersonalData, experience: defaultExperience, skillCategories: defaultSkills,
+    education: defaultEducation, awards: defaultAwards, certifications: defaultCerts,
+    projects: defaultProjects, articles: defaultArticles, testimonials: defaultTestimonials,
+    quotes: defaultQuotes, tools: defaultToolsData, clientLogos: defaultLogos,
+    servicesTimeline: defaultTimeline, faq: defaultFaq, courses: defaultCourses,
+    portfolioWorks: defaultWorks, pricingPlans: defaultPricing, caseStudies: defaultCaseStudies,
+    languagesList: defaultLanguages, businessHours: defaultHours,
+  }
+  const d = editedData ? { ...defaults, ...editedData, personalData: { ...defaultPersonalData, ...(editedData.personalData || {}) } } : null
   const sections = d?.settings?.sections || {}
   const tools = d?.settings?.tools || {}
   const sec = (key) => sections[key]?.visible !== false
