@@ -53,7 +53,7 @@ export default function PrintableResume() {
                 <span className="resume-entry-date">{edu.year}</span>
               </div>
               <p className="resume-entry-org">{edu.school} — {edu.location}</p>
-              {edu.details && <p className="resume-entry-detail">{edu.details}</p>}
+              {edu.coursework && edu.coursework.length > 0 && <p className="resume-entry-detail">Coursework: {edu.coursework.join(', ')}</p>}
             </div>
           ))}
         </section>

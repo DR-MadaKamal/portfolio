@@ -12,8 +12,33 @@ const MAX_HISTORY = 50
 const PASSWORD = 'admin2026'
 
 function loadSaved() {
-  try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : null }
-  catch { return null }
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return null
+    const saved = JSON.parse(raw)
+    return {
+      personalData: { ...defaultPersonal, ...(saved.personalData || {}) },
+      experience: saved.experience || defaultExp,
+      skillCategories: saved.skillCategories || defaultSkills,
+      education: saved.education || defaultEdu,
+      awards: saved.awards || defaultAwards,
+      certifications: saved.certifications || defaultCerts,
+      projects: saved.projects || defaultProjects,
+      articles: saved.articles || defaultArticles,
+      testimonials: saved.testimonials || defaultTestimonials,
+      quotes: saved.quotes || defaultQuotes,
+      tools: saved.tools || defaultToolsData,
+      clientLogos: saved.clientLogos || defaultLogos,
+      servicesTimeline: saved.servicesTimeline || defaultTimeline,
+      faq: saved.faq || defaultFaq,
+      courses: saved.courses || defaultCourses,
+      settings: saved.settings,
+      customSections: saved.customSections || [],
+      customPages: saved.customPages || [],
+      sectionDesign: saved.sectionDesign || {},
+      builder: saved.builder,
+    }
+  } catch { return null }
 }
 function saveToStorage(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)) }
 function loadHistory() {
