@@ -10,6 +10,8 @@ import Toast from './components/Toast'
 import AdminPanel from './components/AdminPanel'
 import CustomCursor from './components/CustomCursor'
 import SoundEffects from './components/SoundEffects'
+import PopupRenderer from './components/PopupRenderer'
+import ThemeRenderer from './components/ThemeRenderer'
 
 const About = lazy(() => import('./components/About'))
 const Projects = lazy(() => import('./components/Projects'))
@@ -111,6 +113,10 @@ function App() {
   const sections = d?.settings?.sections || {}
   const tools = d?.settings?.tools || {}
   const sec = (key) => sections[key]?.visible !== false
+  const themes = d?.builder?.themes || {}
+  const headerTheme = themes.header?.rows?.length ? themes.header : null
+  const footerTheme = themes.footer?.rows?.length ? themes.footer : null
+  const popups = d?.builder?.popups || []
 
   const sectionMap = [
     { key: 'hero', comp: <Hero personalData={d?.personalData} quotes={d?.quotes} /> },
@@ -144,8 +150,8 @@ function App() {
       <Toast />
       <AdminPanel onDataChange={setEditedData} />
       <LiveChatWidget chatCode={tools.chatCode} />
-      <Navbar activeSection={activeSection} setActiveSection={setActiveSection}
-        projects={d?.projects} articles={d?.articles} />
+      {headerTheme ? <ThemeRenderer theme={headerTheme} localData={d} /> : <Navbar activeSection={activeSection} setActiveSection={setActiveSection}
+        projects={d?.projects} articles={d?.articles} />}
       {tools.cookieConsentEnabled !== false && <CookieConsent />}
       <main id="main-content">
         {sectionMap.map(s => (
@@ -159,12 +165,13 @@ function App() {
       <WhatsAppButton personalData={d?.personalData} />
       <ScrollToTop />
       <AnalyticsDashboard />
-      <Footer personalData={d?.personalData} />
+      {footerTheme ? <ThemeRenderer theme={footerTheme} localData={d} /> : <Footer personalData={d?.personalData} />}
       {tools.googleAnalyticsId && (
         <script dangerouslySetInnerHTML={{
           __html: `(self.requestIdleCallback||setTimeout)(function(){var s=document.createElement('script');s.async=!0;s.src='https://www.googletagmanager.com/gtag/js?id=${tools.googleAnalyticsId}';document.head.appendChild(s);window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${tools.googleAnalyticsId}');});`
         }} />
       )}
+      <PopupRenderer popups={popups} />
       {tools.facebookPixelId && (
         <script dangerouslySetInnerHTML={{
           __html: `(self.requestIdleCallback||setTimeout)(function(){!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${tools.facebookPixelId}');fbq('track','PageView');});`

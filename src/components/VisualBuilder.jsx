@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+const COLOR_PRESETS = ['#0f0f1a','#252540','#2a2a44','#6cab96','#f0c040','#f14d4d','#a0a0b0','#d5d8e2','#ffffff']
+import { useState, useEffect, useRef, useCallback, useMemo, memo } from 'react'
 import { SortableList, SortableItem } from './SortableList'
 import { DndContext, useSensor, useSensors, PointerSensor, TouchSensor } from '@dnd-kit/core'
 import { SortableContext, useSortable, arrayMove } from '@dnd-kit/sortable'
@@ -216,6 +217,19 @@ const WIDGETS = {
       html: { icon: 'fa-code', label: 'Custom HTML', defaults: { html: '<div>Custom HTML</div>' } },
       shortcode: { icon: 'fa-code-branch', label: 'Shortcode', defaults: { key: '', placeholder: 'Insert shortcode...' } },
       container: { icon: 'fa-layer-group', label: 'Container', defaults: { children: [] } },
+      form: { icon: 'fa-wpforms', label: 'Form', defaults: { fields:[{type:'text',label:'Name',required:true,placeholder:'Your name'},{type:'email',label:'Email',required:true,placeholder:'your@email.com'},{type:'textarea',label:'Message',required:false,placeholder:'Your message'}], submitText:'Send Message', successMsg:'Thank you!', redirectUrl:'', emailTo:'' } },
+      'loop-grid': { icon: 'fa-th-list', label: 'Loop Grid', defaults: { source:'projects', layout:'grid', columns:3, itemTemplate:'card', maxItems:6, filterKey:'' } },
+    }
+  },
+  advanced: {
+    label: 'Interactive',
+    items: {
+      tabs: { icon: 'fa-folder-tree', label: 'Tabs', defaults: { items: [{label:'Tab 1',content:'<p>Content 1</p>'},{label:'Tab 2',content:'<p>Content 2</p>'},{label:'Tab 3',content:'<p>Content 3</p>'}], activeTab:0 } },
+      accordion: { icon: 'fa-list', label: 'Accordion', defaults: { items: [{title:'Item 1',content:'<p>Content</p>',open:false},{title:'Item 2',content:'<p>Content</p>',open:false}], multiOpen:false } },
+      counter: { icon: 'fa-chart-line', label: 'Counter', defaults: { number:100, suffix:'+', prefix:'', label:'Projects', duration:2, startCounting:false } },
+      progress: { icon: 'fa-tasks', label: 'Progress Bar', defaults: { percent:75, label:'Skills', color:'#6cab96', showLabel:true } },
+      carousel: { icon: 'fa-images', label: 'Image Carousel', defaults: { images:[{src:'https://placehold.co/600x400/252540/a0a0b0?text=Slide+1',caption:''},{src:'https://placehold.co/600x400/252540/a0a0b0?text=Slide+2',caption:''}], autoplay:true, speed:3000, arrows:true } },
+      'star-rating': { icon: 'fa-star', label: 'Star Rating', defaults: { rating:4.5, max:5, size:'1.2rem', color:'#ffd700' } },
     }
   },
   global: {
@@ -252,25 +266,50 @@ export default function VisualBuilder({ data, onSave, onExit }) {
   const [selEl, setSelEl] = useState(null)
   const [previewMode, setPreviewMode] = useState(false)
   const [clipboard, setClipboard] = useState(null)
+  const [sectionClipboard, setSectionClipboard] = useState(null)
   const [contextMenu, setContextMenu] = useState(null)
   const [globalWidgets, setGlobalWidgets] = useState(() => data.builder?.globalWidgets || [])
   const [colResizing, setColResizing] = useState(null)
+  const [panelCollapsed, setPanelCollapsed] = useState(() => document.cookie.includes('elm_panel_collapsed=1'))
+  const [showShortcuts, setShowShortcuts] = useState(false)
+  const [selectedWidgets, setSelectedWidgets] = useState([])
+  const [selectedSectionIds, setSelectedSectionIds] = useState([])
+  const [collapsedSections, setCollapsedSections] = useState([])
+  const [widgetPresets, setWidgetPresets] = useState(() => data.builder?.widgetPresets || [])
+  const [zoom, setZoom] = useState(100)
+  const [showGrid, setShowGrid] = useState(false)
+  const [builderMode, setBuilderMode] = useState('page')
+  const [themes, setThemes] = useState(() => data.builder?.themes || { header: null, footer: null })
+  const [activeThemeType, setActiveThemeType] = useState('header')
+  const [themeRows, setThemeRows] = useState(null)
+  const [themeConditions, setThemeConditions] = useState({})
+  const [popups, setPopups] = useState(() => data.builder?.popups || [])
+  const [activePopupId, setActivePopupId] = useState(null)
+  const [editingPopupTrigger, setEditingPopupTrigger] = useState(false)
   const r = useRef(true)
   const inlinePrevRef = useRef(null)
   const latestRef = useRef({ rows, localData })
+  const colResizingRef = useRef(null)
+  const hoverTimerRef = useRef(null)
+  const syncingRef = useRef(false)
+  const lastSavedRef = useRef(JSON.stringify(data))
 
   latestRef.current = { rows, localData }
 
   useEffect(() => {
-    if (data && Object.keys(data).length) setLocalData(prev => { const m = JSON.parse(JSON.stringify(data)); if (prev?.builder?.rows) m.builder = { rows: prev.builder.rows, globalWidgets: prev.builder?.globalWidgets || globalWidgets }; return m })
+    if (data && Object.keys(data).length) {
+      syncingRef.current = true
+      setLocalData(prev => { const m = JSON.parse(JSON.stringify(data)); if (prev?.builder?.rows) m.builder = { rows: prev.builder.rows, globalWidgets: prev.builder?.globalWidgets || globalWidgets }; return m })
+    }
   }, [data])
 
   useEffect(() => {
     if (r.current) { r.current = false; return }
+    if (syncingRef.current) { syncingRef.current = false; return }
     const timer = setTimeout(() => {
       const { rows: r2, localData: d } = latestRef.current
       const saved = JSON.parse(JSON.stringify(d))
-      saved.builder = { rows: r2, globalWidgets }
+      saved.builder = { rows: r2, globalWidgets, themes, popups }
       if (saved.settings?.sections) {
         const visibles = new Set()
         r2.forEach((row, i) => {
@@ -281,12 +320,17 @@ export default function VisualBuilder({ data, onSave, onExit }) {
             visibles.add(row.sectionKey)
           }
         })
-        Object.keys(saved.settings.sections).forEach(k => { if (!visibles.has(k)) saved.settings.sections[k].visible = false })
       }
+      lastSavedRef.current = JSON.stringify(saved)
       onSave(saved, 'Builder')
     }, 500)
     return () => clearTimeout(timer)
   }, [rows, localData, globalWidgets])
+  
+  const isDirty = useMemo(() => {
+    const cur = JSON.stringify(localData) + JSON.stringify(rows)
+    return cur !== lastSavedRef.current
+  }, [localData, rows])
 
   const pushHistory = useCallback((newRows) => {
     setRows(newRows)
@@ -299,9 +343,11 @@ export default function VisualBuilder({ data, onSave, onExit }) {
 
   const addSectionRow = (key, idx) => { const arr = [...rows]; arr.splice(idx ?? rows.length, 0, defaultSectionRow(key)); pushHistory(arr) }
   const addCustomRow = (idx) => { const arr = [...rows]; arr.splice(idx ?? rows.length, 0, defaultCustomRow()); pushHistory(arr) }
-  const removeRow = (id) => { if (confirm('Delete this section?')) pushHistory(rows.filter(r => r.id !== id)) }
-  const duplicateRow = (id) => { const ri = rows.findIndex(r => r.id === id); if (ri < 0) return; const c = JSON.parse(JSON.stringify(rows[ri])); c.id = uid(); const arr = [...rows]; arr.splice(ri + 1, 0, c); pushHistory(arr) }
+  const removeRow = (id) => { const row = rows.find(r => r.id === id); if (row?.locked) return alert('Section is locked'); if (confirm('Delete this section?')) pushHistory(rows.filter(r => r.id !== id)) }
+  const duplicateRow = (id) => { const row = rows.find(r => r.id === id); if (row?.locked) return; const ri = rows.findIndex(r => r.id === id); if (ri < 0) return; const c = JSON.parse(JSON.stringify(rows[ri])); c.id = uid(); const arr = [...rows]; arr.splice(ri + 1, 0, c); pushHistory(arr) }
   const toggleSectionVisibility = (id) => { setRows(prev => prev.map(r => r.id === id ? { ...r, hidden: !r.hidden } : r)) }
+  const toggleSectionLock = (id) => { setRows(prev => prev.map(r => r.id === id ? { ...r, locked: !r.locked } : r)) }
+  const toggleCollapse = (id) => { setCollapsedSections(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]) }
 
   const addNestedRow = (rowId, colId) => {
     pushHistory(rows.map(r => r.id === rowId ? { ...r, columns: r.columns.map(c => c.id === colId ? { ...c, blocks: [...c.blocks, { id: uid(), type: 'nested-row', row: defaultNestedRow() }] } : c) } : r))
@@ -425,7 +471,7 @@ export default function VisualBuilder({ data, onSave, onExit }) {
   function handleSaveNow() {
     const { localData: d } = latestRef.current
     const saved = JSON.parse(JSON.stringify(d))
-    saved.builder = { rows: latestRef.current.rows, globalWidgets }
+    saved.builder = { rows: latestRef.current.rows, globalWidgets, themes, popups }
     if (saved.settings?.sections) {
       const visibles = new Set()
       latestRef.current.rows.forEach((row, i) => {
@@ -436,7 +482,6 @@ export default function VisualBuilder({ data, onSave, onExit }) {
           visibles.add(row.sectionKey)
         }
       })
-      Object.keys(saved.settings.sections).forEach(k => { if (!visibles.has(k)) saved.settings.sections[k].visible = false })
     }
     onSave(saved, 'Builder')
   }
@@ -480,13 +525,17 @@ export default function VisualBuilder({ data, onSave, onExit }) {
 
   function handleElHover(e, rowId) {
     if (inlineEl) { setHoveredEl(null); setHoverPos(null); return }
-    handleElPointer(e, rowId, (target) => {
-      if (!target) { setHoveredEl(null); setHoverPos(null); return }
-      const rect = target.getBoundingClientRect()
-      const cr = document.getElementById(`sec-${rowId}`)?.getBoundingClientRect()
-      if (!cr) return
-      setHoveredEl({ el: target, rowId, tag: target.tagName.toLowerCase() })
-      setHoverPos({ top: rect.top - cr.top, left: rect.left - cr.left, width: rect.width, height: rect.height })
+    if (hoverTimerRef.current) cancelAnimationFrame(hoverTimerRef.current)
+    const cx = e.clientX, cy = e.clientY
+    hoverTimerRef.current = requestAnimationFrame(() => {
+      handleElPointer({ clientX: cx, clientY: cy, target: e.target }, rowId, (target) => {
+        if (!target) { setHoveredEl(null); setHoverPos(null); return }
+        const rect = target.getBoundingClientRect()
+        const cr = document.getElementById(`sec-${rowId}`)?.getBoundingClientRect()
+        if (!cr) return
+        setHoveredEl({ el: target, rowId, tag: target.tagName.toLowerCase() })
+        setHoverPos({ top: rect.top - cr.top, left: rect.left - cr.left, width: rect.width, height: rect.height })
+      })
     })
   }
 
@@ -569,6 +618,18 @@ export default function VisualBuilder({ data, onSave, onExit }) {
     pushHistory(rows.map(r => r.id === rowId ? { ...r, columns: r.columns.map(c => c.id === colId ? { ...c, blocks: [...c.blocks, pasted] } : c) } : r))
   }
 
+  function handleCopySection(rowId) {
+    const row = rows.find(r => r.id === rowId)
+    if (!row) return
+    setSectionClipboard({ ...JSON.parse(JSON.stringify(row)), id: uid() })
+  }
+
+  function handlePasteSection() {
+    if (!sectionClipboard) return
+    const pasted = { ...JSON.parse(JSON.stringify(sectionClipboard)), id: uid() }
+    pushHistory([...rows, pasted])
+  }
+
   function handleSaveGlobalWidget(rowId, colId, blockId) {
     const row = rows.find(r => r.id === rowId)
     if (!row) return
@@ -625,16 +686,34 @@ export default function VisualBuilder({ data, onSave, onExit }) {
     return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp) }
   }, [colResizing])
 
-  const allWidgets = Object.entries(WIDGETS).flatMap(([catKey, cat]) => catKey === 'sections' ? [] : Object.entries(cat.items).map(([k, v]) => ({ key: k, ...v, category: cat.label })))
-  const filteredWidgets = search ? allWidgets.filter(w => w.label.toLowerCase().includes(search.toLowerCase())) : null
-  const isSection = (type) => SECTION_COMPONENTS[type] != null
-  const canvasWidth = previewMode ? '100%' : responsiveMode === 'mobile' ? '480px' : responsiveMode === 'tablet' ? '900px' : 'min(100%, 1400px)'
+  const searchableWidgets = useMemo(() => Object.entries(WIDGETS).flatMap(([catKey, cat]) => catKey === 'sections' ? [] : Object.entries(cat.items).map(([k, v]) => ({ key: k, ...v, category: cat.label }))), [])
+  const filteredWidgets = search ? searchableWidgets.filter(w => w.label.toLowerCase().includes(search.toLowerCase())) : null
+  const isSection = useCallback((type) => SECTION_COMPONENTS[type] != null, [])
+  const canvasWidth = useMemo(() => previewMode ? '100%' : responsiveMode === 'mobile' ? '480px' : responsiveMode === 'tablet' ? '900px' : 'min(100%, 1400px)', [previewMode, responsiveMode])
 
-  const selectedRow = selected?.rowId ? rows.find(r => r.id === selected.rowId) : null
-  const selectedSectionKey = selectedRow?.type === 'section' || selectedRow?.type === 'widget-section' ? selectedRow.sectionKey : null
-  const selectedDataPaths = selectedSectionKey ? (SECTION_DATA_PATHS[selectedSectionKey] || []) : []
-  const selectedBlock = selected?.element === 'widget' ? selected?.block : null
-  const isWidgetMode = selectedRow?.type === 'widget-section'
+  const selectedRow = useMemo(() => selected?.rowId ? rows.find(r => r.id === selected.rowId) : null, [selected?.rowId, rows])
+  const selectedSectionKey = useMemo(() => selectedRow?.type === 'section' || selectedRow?.type === 'widget-section' ? selectedRow.sectionKey : null, [selectedRow])
+  const selectedDataPaths = useMemo(() => selectedSectionKey ? (SECTION_DATA_PATHS[selectedSectionKey] || []) : [], [selectedSectionKey])
+  const selectedBlock = useMemo(() => {
+    if (selected?.element !== 'widget') return null
+    const row = rows.find(r => r.id === selected.rowId)
+    if (!row) return null
+    const col = row.columns?.find(c => c.id === selected.colId)
+    if (!col) return null
+    return col.blocks.find(b => b.id === selected.block?.id) || null
+  }, [selected, rows])
+  const isWidgetMode = useMemo(() => selectedRow?.type === 'widget-section', [selectedRow])
+  const allWidgets = useMemo(() => {
+    const w = { ...WIDGETS }
+    if (globalWidgets.length) w.global = { ...w.global, items: Object.fromEntries(globalWidgets.map(gw => [gw.id, { icon: 'fa-globe', label: gw.globalName || gw.type, ...gw }])) }
+    return w
+  }, [globalWidgets])
+  const vr = useMemo(() => rows.filter(r => !r.hidden), [rows])
+  const canvasRows = useMemo(() => {
+    if (builderMode === 'theme' && themeRows) return themeRows
+    if (builderMode === 'popup' && activePopupId) { const p = popups.find(x => x.id === activePopupId); return p?.rows || [] }
+    return rows
+  }, [builderMode, themeRows, activePopupId, popups, rows])
 
   const rowActions = (row, ri) => {
     if (!contextMenu || contextMenu.rowId !== row.id) return null
@@ -643,15 +722,18 @@ export default function VisualBuilder({ data, onSave, onExit }) {
         onClick={()=>setContextMenu(null)}>
         {[
           {icon:'fa-pen',label:'Edit',action:()=>{setLeftTab('settings');setEditPane('content');setSelected({rowId:row.id,colId:null,element:'row'})}},
+          {icon:'fa-pen',label:'Edit',action:()=>{setLeftTab('settings');setEditPane('content');setSelected({rowId:row.id,colId:null,element:'row'})}},
           {icon:'fa-copy',label:'Duplicate',action:()=>duplicateRow(row.id)},
+          {icon:'fa-clipboard',label:'Copy Section',action:()=>handleCopySection(row.id)},
+          {icon:row.locked?'fa-lock':'fa-unlock',label:row.locked?'Unlock':'Lock',action:()=>toggleSectionLock(row.id)},
           {icon:'fa-eye-slash',label:row.hidden?'Show':'Hide',action:()=>toggleSectionVisibility(row.id)},
-          row.type==='section'?{icon:'fa-th-large',label:'Convert to Widgets',action:()=>convertSectionToWidgets(row.id)}:null,
-          {icon:'fa-chevron-up',label:'Move Up',action:()=>{const arr=[...rows];if(ri>0){[arr[ri-1],arr[ri]]=[arr[ri],arr[ri-1]];pushHistory(arr)}}},
-          {icon:'fa-chevron-down',label:'Move Down',action:()=>{const arr=[...rows];if(ri<arr.length-1){[arr[ri],arr[ri+1]]=[arr[ri+1],arr[ri]];pushHistory(arr)}}},
+          row.type==='section'&&!row.locked?{icon:'fa-th-large',label:'Convert to Widgets',action:()=>convertSectionToWidgets(row.id)}:null,
+          {icon:'fa-chevron-up',label:'Move Up',action:()=>{if(!row.locked){const arr=[...rows];if(ri>0){[arr[ri-1],arr[ri]]=[arr[ri],arr[ri-1]];pushHistory(arr)}}}},
+          {icon:'fa-chevron-down',label:'Move Down',action:()=>{if(!row.locked){const arr=[...rows];if(ri<arr.length-1){[arr[ri],arr[ri+1]]=[arr[ri+1],arr[ri]];pushHistory(arr)}}}},
           {icon:'fa-trash',label:'Delete',action:()=>removeRow(row.id),danger:true},
         ].filter(Boolean).map((item,i)=>(
           <div key={i} onClick={()=>{setContextMenu(null);item.action()}}
-            style={{display:'flex',alignItems:'center',gap:8,padding:'6px 12px',cursor:'pointer',fontSize:12,color:item.danger?'#f14d4d':'#a0a0b0',transition:'background 0.1s'}}
+            style={{display:'flex',alignItems:'center',gap:8,padding:'6px 12px',cursor:item.disabled?'not-allowed':'pointer',fontSize:12,color:item.danger?'#f14d4d':item.disabled?'#555':'#a0a0b0',transition:'background 0.1s'}}
             onMouseEnter={e=>e.target.style.background='rgba(108,171,150,0.08)'}
             onMouseLeave={e=>e.target.style.background='transparent'}>
             <i className={`fas ${item.icon}`} style={{width:14,fontSize:11,color:item.danger?'#f14d4d':'#6cab96'}}></i>
@@ -662,10 +744,12 @@ export default function VisualBuilder({ data, onSave, onExit }) {
     )
   }
 
-  const renderBlock = (b, row, col, bSel, isCol) => (
+  const renderBlock = (b, row, col, bSel, isCol) => {
+    const isMulti = selectedWidgets.includes(b.id)
+    return (
     <SortableBlock key={b.id} id={b.id}>
-      <div className={`elm-widget ${bSel?'elm-widget-active':''}`}
-        onClick={e=>{e.stopPropagation();setSelected({rowId:row.id,colId:col.id,block:b,element:'widget'})}}>
+      <div className={`elm-widget ${bSel?'elm-widget-active':''} ${isMulti?'elm-widget-multi':''}`}
+        onClick={e=>{e.stopPropagation();if(e.shiftKey){setSelectedWidgets(prev=>prev.includes(b.id)?prev.filter(id=>id!==b.id):[...prev,b.id]);setSelected({rowId:row.id,colId:col.id,block:b,element:'widget'})}else{setSelectedWidgets([]);setSelected({rowId:row.id,colId:col.id,block:b,element:'widget'})}}}>
         {bSel&&<div className="elm-widget-tools">
           <button className="elm-widget-tool" onClick={e=>{e.stopPropagation();handleCopyBlock(row.id,col.id,b.id)}} title="Copy"><i className="fas fa-copy"></i></button>
           <button className="elm-widget-tool" onClick={e=>{e.stopPropagation();handlePasteBlock(row.id,col.id)}} title="Paste"><i className="fas fa-paste"></i></button>
@@ -677,17 +761,18 @@ export default function VisualBuilder({ data, onSave, onExit }) {
           <div className="elm-nested-row">
             <div className="elm-nested-row-label"><i className="fas fa-layer-group"></i> Inner Section</div>
             <NestedRowView row={b.row} parentRowId={row.id} parentColId={col.id}
-              selected={selected} setSelected={setSelected}
+              selected={selected} setSelected={setSelected} localData={localData}
               onUpdate={(updatedRow) => {
                 setRows(prev => prev.map(r => r.id === row.id ? { ...r, columns: r.columns.map(c => c.id === col.id ? { ...c, blocks: c.blocks.map(bl => bl.id === b.id ? { ...bl, row: updatedRow } : bl) } : c) } : r))
               }} />
           </div>
         ) : (
-          <WidgetPreview block={b} />
+          <WidgetPreview block={b} localData={localData} />
         )}
       </div>
     </SortableBlock>
   )
+  }
 
   return (
     <div className="elm-overlay" onKeyDown={(e) => {
@@ -698,7 +783,10 @@ export default function VisualBuilder({ data, onSave, onExit }) {
       if ((e.ctrlKey||e.metaKey) && e.key === 's') { e.preventDefault(); handleSaveNow() }
       if ((e.ctrlKey||e.metaKey) && e.key === 'c' && selectedBlock) { e.preventDefault(); handleCopyBlock(selected.rowId, selected.colId, selectedBlock.id) }
       if ((e.ctrlKey||e.metaKey) && e.key === 'v' && clipboard && selected?.colId) { e.preventDefault(); handlePasteBlock(selected.rowId, selected.colId) }
+      if ((e.ctrlKey||e.metaKey) && e.shiftKey && e.key === 'V' && sectionClipboard) { e.preventDefault(); handlePasteSection() }
       if (e.key === 'Delete' && selEl?.el?.parentNode) { const rid = selEl.rowId; selEl.el.remove(); setSelEl(null); const inner = document.getElementById(`sec-${rid}`)?.querySelector('.elm-section-live-inner'); if (inner) setRows(prev => prev.map(r => r.id === rid ? { ...r, inlineHTML: inner.innerHTML } : r)) }
+      if (e.key === '/' && (e.ctrlKey||e.metaKey)) { e.preventDefault(); setShowShortcuts(p=>!p) }
+      if (e.key === 'Delete' && selected?.element === 'row' && selectedRow && !selectedRow.locked && rows.filter(r=>!r.hidden).length>1) { e.preventDefault(); if (confirm('Delete this section?')) pushHistory(rows.filter(r => r.id !== selectedRow.id)) }
     }} tabIndex={0}>
       {previewMode ? (
         <div className="elm-preview-overlay" onClick={()=>setPreviewMode(false)}>
@@ -731,20 +819,45 @@ export default function VisualBuilder({ data, onSave, onExit }) {
           <div className="elm-topbar-divider"></div>
           <button className={`elm-topbar-btn ${previewMode?'active':''}`} onClick={()=>setPreviewMode(true)} title="Preview"><i className="fas fa-eye"></i></button>
           <div className="elm-topbar-divider"></div>
+          <div className="elm-mode-switch">
+            <button className={`elm-mode-btn ${builderMode==='page'?'active':''}`} onClick={()=>{setBuilderMode('page');setLeftTab('widgets')}} title="Page Builder"><i className="fas fa-file"></i> Page</button>
+            <button className={`elm-mode-btn ${builderMode==='theme'?'active':''}`} onClick={()=>{setBuilderMode('theme');setLeftTab('widgets')}} title="Theme Builder"><i className="fas fa-paint-roller"></i> Theme</button>
+            <button className={`elm-mode-btn ${builderMode==='popup'?'active':''}`} onClick={()=>{setBuilderMode('popup');setLeftTab('widgets')}} title="Popup Builder"><i className="fas fa-external-link-alt"></i> Popups</button>
+          </div>
+          <div className="elm-topbar-divider"></div>
           <div className="elm-responsive">
             <button className={`elm-resp-btn ${responsiveMode==='desktop'?'active':''}`} onClick={()=>setResponsiveMode('desktop')} title="Desktop"><i className="fas fa-desktop"></i></button>
             <button className={`elm-resp-btn ${responsiveMode==='tablet'?'active':''}`} onClick={()=>setResponsiveMode('tablet')} title="Tablet"><i className="fas fa-tablet-alt"></i></button>
             <button className={`elm-resp-btn ${responsiveMode==='mobile'?'active':''}`} onClick={()=>setResponsiveMode('mobile')} title="Mobile"><i className="fas fa-mobile-alt"></i></button>
+            <button className={`elm-resp-btn ${showGrid?'active':''}`} onClick={()=>setShowGrid(p=>!p)} title="Toggle grid overlay" style={{marginLeft:4}}><i className="fas fa-th"></i></button>
+          </div>
+          <div className="elm-zoom-control" style={{display:'flex',alignItems:'center',gap:6,marginLeft:12}}>
+            <i className="fas fa-search-minus" style={{fontSize:10,color:'#6cab96'}}></i>
+            <input type="range" min="50" max="200" value={zoom} onChange={e=>setZoom(parseInt(e.target.value))}
+              style={{width:60,height:3,cursor:'pointer',accentColor:'#6cab96'}} />
+            <i className="fas fa-search-plus" style={{fontSize:10,color:'#6cab96'}}></i>
+            <span style={{fontSize:10,color:'#a0a0b0',minWidth:30}}>{zoom}%</span>
+          </div>
+          <div className="elm-quick-nav" style={{marginLeft:12}}>
+            <select className="elm-input" style={{fontSize:10,padding:'3px 6px',width:'auto',maxWidth:130,cursor:'pointer'}} value="" onChange={e=>{const id=e.target.value;if(id){const el=document.getElementById(`sec-${id}`);if(el){el.scrollIntoView({behavior:'smooth',block:'center'});setSelected({rowId:id,colId:null,element:'row'})}}}}>
+              <option value="">Sections</option>
+              {[builderMode==='page'?vr:canvasRows].flat().map(row=>(
+                <option key={row.id} value={row.id}>{SECTION_LABELS[row.sectionKey]||row.sectionKey||'Custom'}{row.hidden?' (hidden)':''}{row.locked?' 🔒':''}</option>
+              ))}
+            </select>
           </div>
         </div>
         <div className="elm-topbar-right">
-          <span className="elm-status">Auto-saving...</span>
+          <button className={`elm-topbar-btn elm-collapse-btn ${panelCollapsed?'active':''}`} onClick={()=>{const next=!panelCollapsed;setPanelCollapsed(next);document.cookie=`elm_panel_collapsed=${next?1:0};path=/;max-age=31536000`}} title={panelCollapsed?'Show Panel':'Hide Panel'}><i className={`fas ${panelCollapsed?'fa-chevron-right':'fa-chevron-left'}`}></i></button>
+          <span className="elm-status" style={{color:isDirty?'#f0c040':'#6cab96'}}><i className={`fas ${isDirty?'fa-circle':'fa-check-circle'}`} style={{fontSize:8,marginRight:4}}></i>{isDirty?'Unsaved':'Saved'}</span>
+          <button className="elm-topbar-btn" onClick={()=>setShowShortcuts(true)} title="Shortcuts (Ctrl+/)"><i className="fas fa-keyboard"></i></button>
+          {sectionClipboard&&<button className="elm-topbar-btn" onClick={handlePasteSection} title="Paste section (Ctrl+Shift+V)"><i className="fas fa-clipboard"></i></button>}
           <button className="elm-save-btn" onClick={handleSaveNow}><i className="fas fa-save"></i> Save</button>
         </div>
       </div>
 
       <div className="elm-body">
-        <div className="elm-panel">
+        <div className={`elm-panel ${panelCollapsed?'elm-panel-collapsed':''}`}>
           <div className="elm-panel-tabs">
             <button className={`elm-panel-tab ${leftTab==='widgets'?'active':''}`} onClick={()=>setLeftTab('widgets')}><i className="fas fa-th"></i> Add</button>
             <button className={`elm-panel-tab ${leftTab==='structure'?'active':''}`} onClick={()=>setLeftTab('structure')}><i className="fas fa-list"></i> Structure</button>
@@ -753,15 +866,78 @@ export default function VisualBuilder({ data, onSave, onExit }) {
             <button className={`elm-panel-tab ${leftTab==='settings'?'active':''}`} onClick={()=>{setLeftTab('settings');setEditPane('content')}}><i className="fas fa-cog"></i> Settings</button>
           </div>
           <div className="elm-panel-content">
-            {leftTab === 'widgets' && (
+            {builderMode === 'theme' && (
+              <div className="elm-structure">
+                <div className="elm-structure-title"><i className="fas fa-paint-roller"></i> Theme Builder</div>
+                <div className="elm-templates-list">
+                  {['header','footer'].map(type=>{
+                    const tmpl = themes[type]
+                    const isActive = activeThemeType === type
+                    return <div key={type} className={`elm-struct-item ${isActive?'active':''}`} style={{cursor:'pointer',marginBottom:4}} onClick={()=>setActiveThemeType(type)}>
+                      <i className={`fas fa-${type==='header'?'arrow-up':'arrow-down'}`} style={{color:'#6cab96'}}></i>
+                      <div style={{flex:1}}>
+                        <div style={{fontSize:12,color:'#a0a0b0',fontWeight:600,textTransform:'capitalize'}}>{type}</div>
+                        <div style={{fontSize:10,color:'#666'}}>{tmpl ? 'Template created' : 'Not set'}</div>
+                      </div>
+                      {tmpl ? <span className="elm-struct-badge" style={{cursor:'pointer'}} onClick={e=>{e.stopPropagation();setThemeRows(tmpl.rows||[]);setThemeConditions(tmpl.conditions||{})}}>Edit</span> : <span className="elm-struct-badge" style={{cursor:'pointer',background:'#6cab96',color:'#0f0f1a'}} onClick={e=>{e.stopPropagation();const newRows=[];setThemeRows(newRows);setThemeConditions({})}}>Create</span>}
+                    </div>
+                  })}
+                </div>
+                {themeRows!==null&&<div style={{marginTop:12,borderTop:'1px solid #2a2a44',paddingTop:12}}>
+                  <div className="elm-settings-heading">Display Conditions</div>
+                  {['entire_site','home_page','all_pages','all_articles','all_projects'].map(cond=>(
+                    <label key={cond} style={{display:'flex',alignItems:'center',gap:6,padding:'4px 0',fontSize:11,color:'#a0a0b0',cursor:'pointer'}}>
+                      <input type="radio" name="themeCond" checked={themeConditions.rule===cond} onChange={()=>setThemeConditions(c=>({...c,rule:cond}))} style={{accentColor:'#6cab96'}} />
+                      {cond.replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase())}
+                    </label>
+                  ))}
+                  <div style={{display:'flex',gap:6,marginTop:8}}>
+                    <button className="elm-tool-btn" style={{background:'#6cab96',color:'#0f0f1a',padding:'6px 14px',borderRadius:3,fontSize:11}} onClick={()=>{setThemes(t=>({...t,[activeThemeType]:{rows:themeRows,conditions:themeConditions}}));setThemeRows(null);alert(`${activeThemeType} template saved!`)}}><i className="fas fa-save"></i> Save Template</button>
+                    <button className="elm-tool-btn elm-tool-btn-del" style={{padding:'6px 14px',borderRadius:3,fontSize:11}} onClick={()=>setThemeRows(null)}><i className="fas fa-times"></i> Cancel</button>
+                  </div>
+                </div>}
+                <p style={{fontSize:'0.7rem',color:'#666',marginTop:12}}>Theme templates let you design your site header and footer separately from the page content.</p>
+              </div>
+            )}
+            {builderMode === 'popup' && (
+              <div className="elm-structure">
+                <div className="elm-structure-title"><i className="fas fa-external-link-alt"></i> Popup Builder</div>
+                <button className="elm-tool-btn" style={{width:'100%',padding:'8px',border:'1px dashed #6cab96',borderRadius:4,color:'#6cab96',fontSize:11,marginBottom:10,background:'transparent',cursor:'pointer'}} onClick={()=>{const id=uid();setPopups(p=>[...p,{id,name:`Popup ${p.length+1}`,rows:[],trigger:{type:'click',value:''},settings:{width:'auto',animation:'fade',closeBtn:true}}]);setActivePopupId(id)}}><i className="fas fa-plus"></i> New Popup</button>
+                {popups.map(p=>(
+                  <div key={p.id} className={`elm-struct-item ${activePopupId===p.id?'active':''}`} style={{cursor:'pointer',marginBottom:2}} onClick={()=>setActivePopupId(p.id)}>
+                    <i className="fas fa-external-link-alt" style={{color:'#6cab96'}}></i>
+                    <span style={{flex:1}}>{p.name||'Unnamed Popup'}</span>
+                    <span className="elm-struct-badge">{p.trigger?.type||'click'}</span>
+                    <button className="elm-tool-btn elm-tool-btn-del" style={{padding:'1px 4px',fontSize:9}} onClick={e=>{e.stopPropagation();if(confirm('Delete this popup?'))setPopups(prev=>prev.filter(x=>x.id!==p.id))}}><i className="fas fa-times"></i></button>
+                  </div>
+                ))}
+                {activePopupId&&(()=>{const p=popups.find(x=>x.id===activePopupId);if(!p)return null;return <div style={{marginTop:12,borderTop:'1px solid #2a2a44',paddingTop:12}}>
+                  <input value={p.name||''} onChange={e=>setPopups(prev=>prev.map(x=>x.id===activePopupId?{...x,name:e.target.value}:x))} className="elm-input" placeholder="Popup name" />
+                  <div className="elm-settings-heading" style={{marginTop:8}}>Trigger</div>
+                  <select value={p.trigger?.type||'click'} onChange={e=>setPopups(prev=>prev.map(x=>x.id===activePopupId?{...x,trigger:{...x.trigger,type:e.target.value}}:x))} className="elm-input"><option value="click">On Click</option><option value="onload">On Page Load</option><option value="scroll">On Scroll</option><option value="exit">Exit Intent</option><option value="timer">After Timer</option></select>
+                  {p.trigger?.type==='click'&&<input value={p.trigger?.value||''} onChange={e=>setPopups(prev=>prev.map(x=>x.id===activePopupId?{...x,trigger:{...x.trigger,value:e.target.value}}:x))} className="elm-input" placeholder="CSS selector (e.g. #my-button)" />}
+                  {p.trigger?.type==='timer'&&<input type="number" value={p.trigger?.value||3} onChange={e=>setPopups(prev=>prev.map(x=>x.id===activePopupId?{...x,trigger:{...x.trigger,value:e.target.value}}:x))} className="elm-input" placeholder="Seconds" />}
+                  {p.trigger?.type==='scroll'&&<input type="number" value={p.trigger?.value||50} onChange={e=>setPopups(prev=>prev.map(x=>x.id===activePopupId?{...x,trigger:{...x.trigger,value:e.target.value}}:x))} className="elm-input" placeholder="Scroll %" />}
+                  <div className="elm-settings-heading" style={{marginTop:8}}>Settings</div>
+                  <select value={p.settings?.width||'auto'} onChange={e=>setPopups(prev=>prev.map(x=>x.id===activePopupId?{...x,settings:{...x.settings,width:e.target.value}}:x))} className="elm-input"><option value="auto">Auto</option><option value="small">Small (400px)</option><option value="medium">Medium (600px)</option><option value="large">Large (900px)</option><option value="full">Full Screen</option></select>
+                  <select value={p.settings?.animation||'fade'} onChange={e=>setPopups(prev=>prev.map(x=>x.id===activePopupId?{...x,settings:{...x.settings,animation:e.target.value}}:x))} className="elm-input"><option value="fade">Fade</option><option value="slide-up">Slide Up</option><option value="slide-down">Slide Down</option><option value="zoom">Zoom</option></select>
+                  <label style={{display:'flex',alignItems:'center',gap:6,fontSize:11,color:'#a0a0b0',margin:'4px 0'}}><input type="checkbox" checked={p.settings?.closeBtn!==false} onChange={e=>setPopups(prev=>prev.map(x=>x.id===activePopupId?{...x,settings:{...x.settings,closeBtn:e.target.checked}}:x))} style={{accentColor:'#6cab96'}} /> Show close button</label>
+                  <div style={{display:'flex',gap:6,marginTop:8}}>
+                    <button className="elm-tool-btn" style={{background:'#6cab96',color:'#0f0f1a',padding:'6px 14px',borderRadius:3,fontSize:11}} onClick={()=>{setPopups(prev=>prev.map(x=>x.id===activePopupId?{...x,rows:latestRef.current.rows}:x));alert('Popup content saved!')}}><i className="fas fa-save"></i> Save Content</button>
+                    <button className="elm-tool-btn" style={{padding:'6px 14px',borderRadius:3,fontSize:11}} onClick={()=>setActivePopupId(null)}><i className="fas fa-times"></i> Close</button>
+                  </div>
+                </div>})()}
+              </div>
+            )}
+            {builderMode === 'page' && leftTab === 'widgets' && (
               <div className="elm-widgets">
                 <div className="elm-widgets-search"><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search widgets & sections..." /></div>
                 {(() => {
-                  const cats = Object.entries(WIDGETS).filter(([ck]) => ck !== 'global' || globalWidgets.length > 0)
+                  const cats = Object.entries(allWidgets).filter(([ck]) => ck !== 'global' || globalWidgets.length > 0)
                   return search ? (
                     <div className="elm-widget-grid">
-                      {cats.flatMap(([ck,cat])=>Object.entries(typeof cat.items === 'function' ? cat.items() : cat.items).map(([k,v])=>({key:k,...v,category:cat.label}))).filter(w=>w.label.toLowerCase().includes(search.toLowerCase())).map(w=>(
-                        <div key={w.key} className="elm-widget-item" draggable onDragStart={e=>e.dataTransfer.setData('text/plain',w.key)} onClick={()=>{if(isSection(w.key))addSectionRow(w.key,rows.length)}}><i className={`fas ${w.icon}`}></i><span>{w.label}</span></div>
+                      {cats.flatMap(([ck,cat])=>Object.entries(typeof cat.items === 'function' ? cat.items() : cat.items).map(([k,v])=>({key:k,...v,category:cat.label,catKey:ck}))).filter(w=>w.label.toLowerCase().includes(search.toLowerCase())).map(w=>(
+                        <div key={w.key} className="elm-widget-item" draggable onDragStart={e=>e.dataTransfer.setData('text/plain',w.key)} onClick={()=>{if(isSection(w.key))addSectionRow(w.key,rows.length);else if(w.catKey==='global'&&selected?.rowId){const ri=rows.findIndex(r=>r.id===selected.rowId);if(ri>=0)addGlobalWidget(w,selected.rowId,selected?.colId||rows[ri].columns?.[0]?.id)}}}><i className={`fas ${w.icon}`}></i><span>{w.label}</span></div>
                       ))}
                     </div>
                   ) : cats.map(([ck,cat])=>(
@@ -777,7 +953,7 @@ export default function VisualBuilder({ data, onSave, onExit }) {
                 })()}
               </div>
             )}
-            {leftTab === 'structure' && (
+            {builderMode === 'page' && leftTab === 'structure' && (
               <div className="elm-structure">
                 <div className="elm-structure-title"><i className="fas fa-sitemap"></i> Page Structure</div>
                 <div style={{display:'flex', gap:6, marginBottom:10}}>
@@ -785,17 +961,26 @@ export default function VisualBuilder({ data, onSave, onExit }) {
                   <button className="elm-tool-btn" style={{fontSize:9}} onClick={()=>document.getElementById('import-file-input').click()}><i className="fas fa-file-import"></i> Import</button>
                   <input id="import-file-input" type="file" accept=".json" style={{display:'none'}} onChange={handleImportTemplate} />
                 </div>
+                <div style={{display:'flex',gap:4,marginBottom:8}}>
+                  <button className="elm-tool-btn" style={{fontSize:9,flex:1}} onClick={()=>setRows(prev=>prev.map(r=>r.hidden?{...r,hidden:false}:r))}><i className="fas fa-eye"></i> Show all</button>
+                  <button className="elm-tool-btn" style={{fontSize:9,flex:1}} onClick={()=>setRows(prev=>prev.map(r=>({...r,hidden:true})))}><i className="fas fa-eye-slash"></i> Hide all</button>
+                </div>
                 {rows.length===0&&<p style={{fontSize:'0.75rem',color:'#666',padding:12}}>No sections yet.</p>}
                 {rows.map((row,ri)=>(
                   <div key={row.id} className={`elm-struct-item ${selected?.rowId===row.id?'active':''}`} onClick={()=>setSelected({rowId:row.id,colId:null,element:'row'})} style={{opacity:row.hidden?0.4:1}} onContextMenu={e=>handleContextMenu(e,row.id)}>
-                    <i className={`fas ${row.type==='widget-section'?'fa-th-large':row.type==='nested'?'fa-layer-group':row.type==='section'?'fa-layer-group':'fa-columns'}`}></i>
-                    <span>{row.type==='widget-section'?'✏️ ':''}{row.type==='section'||row.type==='widget-section'?(SECTION_LABELS[row.sectionKey]||row.sectionKey):row.type==='nested'?`Inner ${ri+1}`:`Custom Row ${ri+1}`}</span>
-                    <span className="elm-struct-badge">{row.hidden?'hidden':row.type==='widget-section'?'widgets':row.type==='nested'?'nested':row.type==='section'?'component':`${row.columns.length} col`}</span>
+                    <input type="checkbox" checked={selectedSectionIds.includes(row.id)} onChange={e=>{const c=e.target.checked;setSelectedSectionIds(prev=>c?[...prev,row.id]:prev.filter(id=>id!==row.id))}} onClick={e=>e.stopPropagation()} style={{accentColor:'#6cab96'}} />
+                    <i className={`fas ${row.type==='widget-section'?'fa-th-large':row.type==='nested'?'fa-layer-group':row.type==='section'?'fa-layer-group':'fa-columns'}`} style={{color:row.locked?'#f0c040':'inherit'}}></i>
+                    <span>{row.locked?'🔒 ':''}{row.type==='widget-section'?'✏️ ':''}{row.type==='section'||row.type==='widget-section'?(SECTION_LABELS[row.sectionKey]||row.sectionKey):row.type==='nested'?`Inner ${ri+1}`:`Custom Row ${ri+1}`}</span>
+                    <span className="elm-struct-badge">{row.hidden?'hidden':row.locked?'locked':row.type==='widget-section'?'widgets':row.type==='nested'?'nested':row.type==='section'?'component':`${row.columns.length} col`}</span>
                   </div>
                 ))}
+                {selectedSectionIds.length>0&&<div style={{display:'flex',gap:4,marginTop:8}}>
+                  <button className="elm-tool-btn" style={{fontSize:9,flex:1}} onClick={()=>setRows(prev=>prev.map(r=>selectedSectionIds.includes(r.id)?{...r,hidden:!r.hidden}:r))}><i className="fas fa-eye"></i> Toggle visibility</button>
+                  <button className="elm-tool-btn" style={{fontSize:9,flex:1}} onClick={()=>setSelectedSectionIds([])}>Clear</button>
+                </div>}
               </div>
             )}
-            {leftTab === 'templates' && (
+            {builderMode === 'page' && leftTab === 'templates' && (
               <div className="elm-structure">
                 <div className="elm-structure-title"><i className="fas fa-palette"></i> Quick Templates</div>
                 <p style={{fontSize:'0.7rem',color:'#666',marginBottom:10}}>Replace all sections with a pre-built layout.</p>
@@ -810,21 +995,26 @@ export default function VisualBuilder({ data, onSave, onExit }) {
                 ))}
               </div>
             )}
-            {leftTab === 'history' && (
+            {builderMode === 'page' && leftTab === 'history' && (
               <div className="elm-structure">
-                <div className="elm-structure-title"><i className="fas fa-history"></i> Change History</div>
+                <div className="elm-structure-title"><i className="fas fa-history"></i> Change History <span style={{fontSize:10,color:'#666',fontWeight:400}}>{history.length}/50</span></div>
                 <p style={{fontSize:'0.7rem',color:'#666',marginBottom:10}}>Click any state to restore. Ctrl+Z / Ctrl+Shift+Z to navigate.</p>
-                {history.map((h, idx) => (
-                  <div key={idx} className={`elm-struct-item ${historyIdx===idx?'active':''}`} style={{cursor:'pointer',marginBottom:2}}
-                    onClick={()=>goToHistory(idx)}>
-                    <i className={`fas ${idx===historyIdx?'fa-circle':'fa-circle-notch'}`} style={{fontSize:8,color:idx===historyIdx?'#6cab96':'#555'}}></i>
-                    <span style={{fontSize:11}}>State {idx+1}{idx===historyIdx?' ← current':''}</span>
-                    <span className="elm-struct-badge">{idx === 0 ? 'initial' : `step ${idx}`}</span>
-                  </div>
-                ))}
+                <div style={{position:'relative',paddingLeft:16}}>
+                  {history.map((h, idx) => {
+                    const sectionCount = h.filter(r=>r.type==='section'||r.type==='widget-section').length
+                    const widgetCount = h.reduce((s,r)=>(r.columns||[]).reduce((sc,c)=>(c.blocks||[]).length+sc,0)+s,0)
+                    return (
+                    <div key={idx} className={`elm-struct-item ${historyIdx===idx?'active':''}`} style={{cursor:'pointer',marginBottom:2,position:'relative'}}
+                      onClick={()=>goToHistory(idx)}>
+                      <div style={{position:'absolute',left:-12,top:'50%',transform:'translateY(-50%)',width:8,height:8,borderRadius:'50%',background:idx===historyIdx?'#6cab96':idx<historyIdx?'#2a2a44':'transparent',border:idx<historyIdx?'none':'1px solid #333'}} />
+                      <span style={{fontSize:11,flex:1}}>{idx===0?'Initial':`Step ${idx}`}{idx===historyIdx?' ← current':''}</span>
+                      <span className="elm-struct-badge">{sectionCount} sec, {widgetCount} w</span>
+                    </div>
+                  )})}
+                </div>
               </div>
             )}
-            {leftTab === 'settings' && selectedRow && (selectedRow.type === 'section' || selectedRow.type === 'widget-section') && selectedSectionKey && (
+            {builderMode === 'page' && leftTab === 'settings' && selectedRow && (selectedRow.type === 'section' || selectedRow.type === 'widget-section') && selectedSectionKey && (
               <div className="elm-settings-panel">
                 <div className="elm-settings-title"><i className={`fas ${SECTION_ICONS[selectedSectionKey]||'fa-layer-group'}`}></i> {SECTION_LABELS[selectedSectionKey]||selectedSectionKey}</div>
                 <div style={{display:'flex',gap:4,marginBottom:12,borderBottom:'1px solid #2a2a44'}}>
@@ -895,8 +1085,16 @@ export default function VisualBuilder({ data, onSave, onExit }) {
                 )}
                 {editPane === 'style' && (
                   <div className="elm-settings-section"><div className="elm-settings-heading">Section Style</div>
-                    <label className="elm-settings-label">Background</label><input value={(selectedRow.styles||{}).background||''} onChange={e=>updateRowStyle(selectedRow.id,{background:e.target.value})} className="elm-input" />
-                    <label className="elm-settings-label">Text Color</label><input value={(selectedRow.styles||{}).color||''} onChange={e=>updateRowStyle(selectedRow.id,{color:e.target.value})} className="elm-input" />
+                    <label className="elm-settings-label">Background</label>
+                    <div style={{display:'flex',gap:4,flexWrap:'wrap'}}>
+                      <input value={(selectedRow.styles||{}).background||''} onChange={e=>updateRowStyle(selectedRow.id,{background:e.target.value})} className="elm-input" style={{flex:1,minWidth:80}} />
+                      {COLOR_PRESETS.map(c=><div key={c} onClick={()=>updateRowStyle(selectedRow.id,{background:c})} style={{width:16,height:16,borderRadius:'50%',background:c,cursor:'pointer',border:c==='#ffffff'?'1px solid #333':'none',flexShrink:0}} title={c} />)}
+                    </div>
+                    <label className="elm-settings-label">Text Color</label>
+                    <div style={{display:'flex',gap:4,flexWrap:'wrap'}}>
+                      <input value={(selectedRow.styles||{}).color||''} onChange={e=>updateRowStyle(selectedRow.id,{color:e.target.value})} className="elm-input" style={{flex:1,minWidth:80}} />
+                      {COLOR_PRESETS.map(c=><div key={c} onClick={()=>updateRowStyle(selectedRow.id,{color:c})} style={{width:16,height:16,borderRadius:'50%',background:c,cursor:'pointer',border:c==='#ffffff'?'1px solid #333':'none',flexShrink:0}} title={c} />)}
+                    </div>
                     <label className="elm-settings-label">Text Align</label><select value={(selectedRow.styles||{}).textAlign||''} onChange={e=>updateRowStyle(selectedRow.id,{textAlign:e.target.value})} className="elm-input"><option value="">Default</option><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select>
                     <label className="elm-settings-label">Max Width</label><input value={(selectedRow.styles||{}).maxWidth||''} onChange={e=>updateRowStyle(selectedRow.id,{maxWidth:e.target.value})} className="elm-input" />
                     <label className="elm-settings-label">Padding</label><div className="elm-spacing-grid">{['top','right','bottom','left'].map(s=>(<div key={s}><label style={{fontSize:'0.6rem',color:'#666'}}>{s[0].toUpperCase()}</label><input type="number" value={parseInt((selectedRow.styles||{})[s])||0} onChange={e=>updateRowStyle(selectedRow.id,{[s]:e.target.value+'px'})} className="elm-input elm-input-sm" /></div>))}</div>
@@ -908,6 +1106,7 @@ export default function VisualBuilder({ data, onSave, onExit }) {
                 )}
                 {editPane === 'advanced' && (
                   <div className="elm-settings-section"><div className="elm-settings-heading">Advanced</div>
+                    <label className="elm-settings-label">Section Group</label><input value={(selectedRow.styles||{}).group||''} onChange={e=>updateRowStyle(selectedRow.id,{group:e.target.value})} className="elm-input" placeholder="e.g. hero, content, footer" />
                     <label className="elm-settings-label">CSS Class</label><input value={(selectedRow.styles||{}).cssClass||''} onChange={e=>updateRowStyle(selectedRow.id,{cssClass:e.target.value})} className="elm-input elm-mono" />
                     <label className="elm-settings-label">CSS ID</label><input value={(selectedRow.styles||{}).cssId||''} onChange={e=>updateRowStyle(selectedRow.id,{cssId:e.target.value})} className="elm-input elm-mono" />
                     <label className="elm-settings-label">HTML Tag</label><select value={(selectedRow.styles||{}).htmlTag||'section'} onChange={e=>updateRowStyle(selectedRow.id,{htmlTag:e.target.value})} className="elm-input"><option value="section">section</option><option value="div">div</option><option value="article">article</option></select>
@@ -916,7 +1115,7 @@ export default function VisualBuilder({ data, onSave, onExit }) {
                 )}
               </div>
             )}
-            {leftTab === 'settings' && selected?.element === 'widget' && selectedBlock && (
+            {builderMode === 'page' && leftTab === 'settings' && selected?.element === 'widget' && selectedBlock && (
               <div className="elm-settings-panel">
                 <div className="elm-settings-title">{selectedBlock.type.charAt(0).toUpperCase()+selectedBlock.type.slice(1)} Settings</div>
                 <div style={{display:'flex',gap:4,marginBottom:12,borderBottom:'1px solid #2a2a44'}}>
@@ -924,8 +1123,16 @@ export default function VisualBuilder({ data, onSave, onExit }) {
                 </div>
                 {editPane === 'content' && <div className="elm-settings-section"><div className="elm-settings-heading">Content</div><WidgetContentFields block={selectedBlock} onUpdate={(patch)=>{updateWidgetWithSync(selected.rowId,selected.colId,selectedBlock.id,patch)}} /></div>}
                 {editPane === 'style' && <div className="elm-settings-section"><div className="elm-settings-heading">Style</div>
-                  <label className="elm-settings-label">Background</label><input value={(selectedBlock.styles||{}).background||''} onChange={e=>updateBlockStyle(selected.rowId,selected.colId,selectedBlock.id,{background:e.target.value})} className="elm-input" />
-                  <label className="elm-settings-label">Text Color</label><input value={(selectedBlock.styles||{}).color||''} onChange={e=>updateBlockStyle(selected.rowId,selected.colId,selectedBlock.id,{color:e.target.value})} className="elm-input" />
+                  <label className="elm-settings-label">Background</label>
+                  <div style={{display:'flex',gap:4,flexWrap:'wrap'}}>
+                    <input value={(selectedBlock.styles||{}).background||''} onChange={e=>updateBlockStyle(selected.rowId,selected.colId,selectedBlock.id,{background:e.target.value})} className="elm-input" style={{flex:1,minWidth:80}} />
+                    {COLOR_PRESETS.map(c=><div key={c} onClick={()=>updateBlockStyle(selected.rowId,selected.colId,selectedBlock.id,{background:c})} style={{width:16,height:16,borderRadius:'50%',background:c,cursor:'pointer',border:c==='#ffffff'?'1px solid #333':'none',flexShrink:0}} title={c} />)}
+                  </div>
+                  <label className="elm-settings-label">Text Color</label>
+                  <div style={{display:'flex',gap:4,flexWrap:'wrap'}}>
+                    <input value={(selectedBlock.styles||{}).color||''} onChange={e=>updateBlockStyle(selected.rowId,selected.colId,selectedBlock.id,{color:e.target.value})} className="elm-input" style={{flex:1,minWidth:80}} />
+                    {COLOR_PRESETS.map(c=><div key={c} onClick={()=>updateBlockStyle(selected.rowId,selected.colId,selectedBlock.id,{color:c})} style={{width:16,height:16,borderRadius:'50%',background:c,cursor:'pointer',border:c==='#ffffff'?'1px solid #333':'none',flexShrink:0}} title={c} />)}
+                  </div>
                   <label className="elm-settings-label">Text Align</label><select value={(selectedBlock.styles||{}).textAlign||'left'} onChange={e=>updateBlockStyle(selected.rowId,selected.colId,selectedBlock.id,{textAlign:e.target.value})} className="elm-input"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select>
                   <label className="elm-settings-label">Font Size</label><input value={(selectedBlock.styles||{}).fontSize||''} onChange={e=>updateBlockStyle(selected.rowId,selected.colId,selectedBlock.id,{fontSize:e.target.value})} className="elm-input" />
                   <label className="elm-settings-label">Font Weight</label><select value={(selectedBlock.styles||{}).fontWeight||''} onChange={e=>updateBlockStyle(selected.rowId,selected.colId,selectedBlock.id,{fontWeight:e.target.value})} className="elm-input"><option value="">Default</option><option value="300">Light</option><option value="400">Regular</option><option value="600">Semi Bold</option><option value="700">Bold</option><option value="900">Black</option></select>
@@ -938,6 +1145,7 @@ export default function VisualBuilder({ data, onSave, onExit }) {
                 {editPane === 'advanced' && <div className="elm-settings-section"><div className="elm-settings-heading">Advanced</div>
                   <label className="elm-settings-label">CSS Class</label><input value={(selectedBlock.styles||{}).cssClass||''} onChange={e=>updateBlockStyle(selected.rowId,selected.colId,selectedBlock.id,{cssClass:e.target.value})} className="elm-input elm-mono" />
                   <label className="elm-settings-label">CSS ID</label><input value={(selectedBlock.styles||{}).cssId||''} onChange={e=>updateBlockStyle(selected.rowId,selected.colId,selectedBlock.id,{cssId:e.target.value})} className="elm-input elm-mono" />
+                  <label className="elm-settings-label">Custom CSS</label><textarea rows={4} value={(selectedBlock.styles||{}).customCSS||''} onChange={e=>updateBlockStyle(selected.rowId,selected.colId,selectedBlock.id,{customCSS:e.target.value})} className="elm-input elm-textarea elm-mono" placeholder=".my-class { color: red; }" />
                 </div>}
                 <div style={{marginTop:8,borderTop:'1px solid #2a2a44',paddingTop:8}}>
                   <div className="elm-settings-heading">Actions</div>
@@ -945,26 +1153,30 @@ export default function VisualBuilder({ data, onSave, onExit }) {
                     <button className="elm-tool-btn" style={{fontSize:10}} onClick={()=>handleCopyBlock(selected.rowId,selected.colId,selectedBlock.id)}><i className="fas fa-copy"></i> Copy</button>
                     {clipboard&&<button className="elm-tool-btn" style={{fontSize:10}} onClick={()=>handlePasteBlock(selected.rowId,selected.colId)}><i className="fas fa-paste"></i> Paste</button>}
                     <button className="elm-tool-btn" style={{fontSize:10}} onClick={()=>handleSaveGlobalWidget(selected.rowId,selected.colId,selectedBlock.id)}><i className="fas fa-globe"></i> Save Global</button>
+                    <button className="elm-tool-btn" style={{fontSize:10}} onClick={()=>{const name=prompt('Preset name:',selectedBlock.type);if(name){const preset={name,block:JSON.parse(JSON.stringify({...selectedBlock,id:undefined}))};setWidgetPresets(p=>[...p,preset])}}}><i className="fas fa-bookmark"></i> Save Preset</button>
+                    {widgetPresets.length>0&&<select className="elm-input" style={{fontSize:10,padding:'3px 6px',width:'auto'}} value="" onChange={e=>{const idx=parseInt(e.target.value);if(idx>=0){const p=widgetPresets[idx];if(p){const merged={...JSON.parse(JSON.stringify(p.block)),id:selectedBlock.id,type:selectedBlock.type};updateBlock(selected.rowId,selected.colId,selectedBlock.id,merged)}}}}><option value="">Load Preset</option>{widgetPresets.map((p,i)=><option key={i} value={i}>{p.name}</option>)}</select>}
                     <button className="elm-tool-btn elm-tool-btn-del" style={{fontSize:10}} onClick={()=>removeBlock(selected.rowId,selected.colId,selectedBlock.id)}><i className="fas fa-trash"></i> Delete</button>
                   </div>
                   {clipboard&&<p style={{fontSize:'0.65rem',color:'#6cab96',marginTop:6}}>📋 Widget copied — Ctrl+V to paste</p>}
                 </div>
               </div>
             )}
-            {leftTab === 'settings' && !selectedRow && !selectedBlock && <div className="elm-settings-panel"><p style={{fontSize:'0.75rem',color:'#666',padding:12}}>Click a section or widget in the canvas to edit.</p></div>}
-            {leftTab === 'settings' && selectedRow?.type === 'custom' && !selectedBlock && <div className="elm-settings-panel"><p style={{fontSize:'0.75rem',color:'#666',padding:12}}>Select a widget to edit its settings.</p></div>}
+            {builderMode === 'page' && leftTab === 'settings' && !selectedRow && !selectedBlock && <div className="elm-settings-panel"><p style={{fontSize:'0.75rem',color:'#666',padding:12}}>Click a section or widget in the canvas to edit.</p></div>}
+            {builderMode === 'page' && leftTab === 'settings' && selectedRow?.type === 'custom' && !selectedBlock && <div className="elm-settings-panel"><p style={{fontSize:'0.75rem',color:'#666',padding:12}}>Select a widget to edit its settings.</p></div>}
           </div>
         </div>
 
-        <div className="elm-canvas-wrap" style={{justifyContent:responsiveMode!=='desktop'?'center':'stretch'}}>
+        <div className="elm-canvas-wrap" style={{justifyContent:responsiveMode!=='desktop'?'center':'stretch',transform:`scale(${zoom/100})`,transformOrigin:'top center',...(showGrid?{backgroundImage:'linear-gradient(rgba(108,171,150,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(108,171,150,0.06) 1px,transparent 1px)',backgroundSize:'20px 20px'}:{})}}>
           <div className="elm-canvas" style={{maxWidth:canvasWidth,width:'100%'}}>
-            {rows.length===0&&<div className="elm-empty-state"><i className="fas fa-plus-circle"></i><h3>Start Building</h3><p>Click a section from the Add panel to add it.</p></div>}
+            {builderMode==='theme'&&<div className="elm-empty-state"><i className="fas fa-paint-roller"></i><h3>Theme Builder</h3><p>Design your section layout below, then click <strong>"Save Template"</strong> in the Theme panel to capture it. Drag sections onto the canvas and arrange them as needed.</p></div>}
+            {builderMode==='popup'&&<div className="elm-empty-state"><i className="fas fa-external-link-alt"></i><h3>Popup Builder</h3><p>Select or create a popup from the panel, design its content in Page mode, then click <strong>"Save Content"</strong> to capture it. Or add sections below and save when ready.</p></div>}
+            {builderMode==='page'&&rows.length===0&&<div className="elm-empty-state"><i className="fas fa-plus-circle"></i><h3>Start Building</h3><p>Click a section from the Add panel to add it.</p></div>}
             {(()=>{
-              const vr=rows.filter(r=>!r.hidden)
-              if(vr.length===0)return null
+              const displayRows = builderMode==='page' ? vr : canvasRows
+              if(displayRows.length===0)return null
               return (
-                <SortableList items={vr} onReorder={arr=>pushHistory(arr)} getId={r=>r.id}>
-                  {vr.map((row,ri)=>(
+                <SortableList items={displayRows} onReorder={arr=>{if(builderMode==='theme'&&themeRows!==null)setThemeRows(arr);else if(builderMode==='popup'&&activePopupId)setPopups(prev=>prev.map(x=>x.id===activePopupId?{...x,rows:arr}:x));else pushHistory(arr)}} getId={r=>r.id}>
+                  {displayRows.map((row,ri)=>(
                     <SortableItem key={row.id} id={row.id}>
                       {(listeners)=>{
                         const ms={...(row.styles||{})}
@@ -988,16 +1200,23 @@ export default function VisualBuilder({ data, onSave, onExit }) {
                             onDrop={e=>handleSectionDrop(e,row.id,ri)}
                             onClick={()=>{setSelEl(null);setSelected({rowId:row.id,colId:null,element:'row'})}}
                             onContextMenu={e=>handleContextMenu(e,row.id)}>
-                            <div className="elm-section-handle" {...listeners}><i className="fas fa-grip-vertical"></i></div>
+                            <div className="elm-section-handle" {...listeners} style={{opacity:row.locked?0.4:1}}><i className="fas fa-grip-vertical"></i></div>
                             <div className="elm-section-tools">
-                              <span className="elm-section-badge">{wm?'✏️ ':''}{SECTION_LABELS[row.sectionKey]||row.sectionKey||'Custom Row'}</span>
+                              <span className="elm-section-badge">{row.locked?'🔒 ':wm?'✏️ ':''}{SECTION_LABELS[row.sectionKey]||row.sectionKey||'Custom Row'}</span>
                               <button className="elm-tool-btn" onClick={e=>{e.stopPropagation();setLeftTab('settings');setEditPane('content');setSelected({rowId:row.id,colId:null,element:'row'})}} title="Edit"><i className="fas fa-pen"></i></button>
+                              <button className="elm-tool-btn" onClick={e=>{e.stopPropagation();toggleSectionLock(row.id)}} title={row.locked?'Unlock':'Lock'}><i className={`fas ${row.locked?'fa-lock':'fa-unlock'}`}></i></button>
+                              <button className="elm-tool-btn" onClick={e=>{e.stopPropagation();toggleCollapse(row.id)}} title={collapsedSections.includes(row.id)?'Expand':'Collapse'}><i className={`fas ${collapsedSections.includes(row.id)?'fa-chevron-right':'fa-chevron-up'}`}></i></button>
                               {!wm&&<button className="elm-tool-btn" onClick={e=>{e.stopPropagation();convertSectionToWidgets(row.id);setLeftTab('settings');setEditPane('content')}} title="Convert to Widgets"><i className="fas fa-th-large"></i></button>}
                               <button className="elm-tool-btn" onClick={e=>{e.stopPropagation();duplicateRow(row.id)}} title="Duplicate"><i className="fas fa-copy"></i></button>
                               <button className="elm-tool-btn" onClick={e=>{e.stopPropagation();toggleSectionVisibility(row.id)}} title="Hide"><i className="fas fa-eye-slash"></i></button>
-                              <button className="elm-tool-btn elm-tool-btn-del" onClick={e=>{e.stopPropagation();removeRow(row.id)}} title="Delete"><i className="fas fa-trash"></i></button>
+                              {!row.locked&&<button className="elm-tool-btn elm-tool-btn-del" onClick={e=>{e.stopPropagation();removeRow(row.id)}} title="Delete"><i className="fas fa-trash"></i></button>}
                             </div>
 
+                            {collapsedSections.includes(row.id) ? (
+                              <div className="elm-section-collapsed" onClick={e=>{e.stopPropagation();toggleCollapse(row.id)}} style={{padding:'8px 16px',color:'#6cab96',fontSize:11,cursor:'pointer',display:'flex',alignItems:'center',gap:6,borderTop:'1px solid #2a2a44'}}>
+                                <i className="fas fa-chevron-right"></i> {SECTION_LABELS[row.sectionKey]||row.sectionKey||'Section'} <span style={{color:'#555',marginLeft:4}}>(collapsed)</span>
+                              </div>
+                            ) : (<>
                             {wm ? (
                               <div className="elm-widget-section-content">
                                 <div className="elm-widget-section-header">✏️ {SECTION_LABELS[row.sectionKey]||'Section'} <span style={{fontSize:9,color:'#6cab96',fontWeight:400}}>widget mode</span></div>
@@ -1024,7 +1243,7 @@ export default function VisualBuilder({ data, onSave, onExit }) {
                                       <div className="elm-add-widget">
                                         <select className="elm-add-select" value="" onChange={e=>{if(e.target.value){addBlockToCol(row.id,col.id,e.target.value);e.target.value=''}}}>
                                           <option value="">+ Add Widget</option>
-                                          {Object.entries(WIDGETS).filter(([k])=>k!=='sections').flatMap(([,cat])=>Object.entries(cat.items).map(([k,m])=><option key={k} value={k}>{m.label}</option>))}
+                                          {Object.entries(allWidgets).filter(([k])=>k!=='sections'&&k!=='global').flatMap(([,cat])=>Object.entries(cat.items).map(([k,m])=><option key={k} value={k}>{m.label}</option>))}
                                         </select>
                                       </div>
                                     </div>
@@ -1045,7 +1264,7 @@ export default function VisualBuilder({ data, onSave, onExit }) {
                                     </div>
                                   ) : (
                                     <div className="elm-section-live-inner" onMouseMove={e=>handleElHover(e,row.id)} onClick={e=>handleElClick(e,row.id)} onDoubleClick={e=>handleElDblClick(e,row.id)}>
-                                      {(()=>{const Comp=SECTION_COMPONENTS[row.sectionKey];return <Comp {...resolveSectionProps(row.sectionKey,localData)}/>})()}
+                                      <LiveSectionContent sectionKey={row.sectionKey} localData={localData} />
                                       <div className="elm-el-highlight" style={{position:'absolute',pointerEvents:'none',zIndex:20,border:hoveredEl?.rowId===row.id&&hoverPos?'2px solid #6cab96':'none',borderRadius:2,transition:'all 0.08s',top:hoverPos?.top||0,left:hoverPos?.left||0,width:hoverPos?.width||0,height:hoverPos?.height||0}}/>
                                       <div className="elm-el-overlay"/>
                                     </div>
@@ -1081,14 +1300,14 @@ export default function VisualBuilder({ data, onSave, onExit }) {
                                         <option value="">+ Add</option>
                                         <option value="__nested__">📦 Inner Section</option>
                                         <option disabled>── Widgets ──</option>
-                                        {Object.entries(WIDGETS).filter(([k])=>k!=='sections'&&k!=='global').flatMap(([,cat])=>Object.entries(cat.items).map(([k,m])=><option key={k} value={k}>{m.label}</option>))}
+                                        {Object.entries(allWidgets).filter(([k])=>k!=='sections'&&k!=='global').flatMap(([,cat])=>Object.entries(cat.items).map(([k,m])=><option key={k} value={k}>{m.label}</option>))}
                                       </select>
                                     </div>
                                   </div>
                                 ))}
                                 {row.columns.length<4&&<button className="elm-add-col-btn" onClick={e=>{e.stopPropagation();addColumn(row.id)}} title="Add Column"><i className="fas fa-plus"></i></button>}
                               </div>
-                            )}
+                            )}</>)}
                           </Tag>
                         )
                       }}
@@ -1097,8 +1316,18 @@ export default function VisualBuilder({ data, onSave, onExit }) {
                 </SortableList>
               )
             })()}
-            {rows.some(r=>r.hidden)&&<div className="elm-hidden-sections-bar"><i className="fas fa-eye-slash"></i> {rows.filter(r=>r.hidden).length} hidden <button className="elm-restore-btn" onClick={()=>setRows(prev=>prev.map(r=>r.hidden?{...r,hidden:false}:r))}>Restore all</button></div>}
-            <button className="elm-add-section" onClick={()=>addCustomRow(rows.length)}><i className="fas fa-plus"></i> Add Custom Section</button>
+            {builderMode==='page'&&rows.some(r=>r.hidden)&&<div className="elm-hidden-sections-bar"><i className="fas fa-eye-slash"></i> {rows.filter(r=>r.hidden).length} hidden <button className="elm-restore-btn" onClick={()=>setRows(prev=>prev.map(r=>r.hidden?{...r,hidden:false}:r))}>Restore all</button></div>}
+            {builderMode==='page'&&<div style={{display:'flex',gap:6,alignItems:'center',justifyContent:'center',padding:12}}>
+              <select className="elm-input" style={{fontSize:11,padding:'6px 10px',cursor:'pointer',width:'auto'}} value="" onChange={e=>{const v=e.target.value;if(v){const layouts={single:[100],two:[50,50],three:[33,33,34],four:[25,25,25,25],sidebar:[30,70],sidebarRight:[70,30]};const widths=layouts[v];if(widths){const arr=[...rows];arr.splice(rows.length,0,{id:uid(),type:'custom',columns:widths.map(w=>({id:uid(),width:w,blocks:[],styles:{}})),styles:{}});pushHistory(arr)}}}}>
+                <option value="">+ Add Row</option>
+                <option value="single">Single column</option>
+                <option value="two">Two columns (50/50)</option>
+                <option value="three">Three columns</option>
+                <option value="four">Four columns</option>
+                <option value="sidebar">Sidebar left (30/70)</option>
+                <option value="sidebarRight">Sidebar right (70/30)</option>
+              </select>
+            </div>}
           </div>
         </div>
       </div>
@@ -1108,13 +1337,38 @@ export default function VisualBuilder({ data, onSave, onExit }) {
       </div>}
       {contextMenu && rows.filter(r=>!r.hidden).map(row => rowActions(row, rows.findIndex(r => r.id === row.id)))}
       {clipboard&&<div style={{position:'fixed',bottom:60,left:'50%',transform:'translateX(-50%)',background:'#252540',border:'1px solid #2a2a44',borderRadius:6,padding:'6px 14px',fontSize:11,color:'#6cab96',zIndex:9999}}>📋 Widget copied — Ctrl+V to paste</div>}
+      {sectionClipboard&&<div style={{position:'fixed',bottom:90,left:'50%',transform:'translateX(-50%)',background:'#252540',border:'1px solid #2a2a44',borderRadius:6,padding:'6px 14px',fontSize:11,color:'#6cab96',zIndex:9999}}>📋 Section copied — Ctrl+Shift+V to paste</div>}
+      {selectedWidgets.length>1&&<div style={{position:'fixed',bottom:100,left:'50%',transform:'translateX(-50%)',background:'#252540',border:'1px solid #2a2a44',borderRadius:6,padding:'6px 14px',fontSize:11,color:'#a0a0b0',zIndex:9999,display:'flex',alignItems:'center',gap:8,flexWrap:'wrap',justifyContent:'center'}}>
+        <span>{selectedWidgets.length} selected</span>
+        <button className="elm-tool-btn elm-tool-btn-del" style={{fontSize:10}} onClick={()=>{selectedWidgets.forEach(id=>{const r=rows.find(rr=>rr.columns?.some(c=>c.blocks?.some(b=>b.id===id)));if(r){const c=r.columns.find(cc=>cc.blocks?.some(b=>b.id===id));if(c)removeBlock(r.id,c.id,id)}});setSelectedWidgets([])}}><i className="fas fa-trash"></i> Delete</button>
+        <button className="elm-tool-btn" style={{fontSize:10}} onClick={()=>{selectedWidgets.forEach(id=>{rows.forEach(r=>r.columns?.forEach(c=>{const bi=c.blocks.findIndex(b=>b.id===id);if(bi>=0)duplicateBlock(r.id,c.id,id)}))});setSelectedWidgets([])}}><i className="fas fa-copy"></i> Duplicate</button>
+        <span style={{fontSize:9,color:'#555'}}>BG:</span>
+        <select className="elm-input" style={{width:60,fontSize:10,padding:'2px 4px'}} value="" onChange={e=>{const v=e.target.value;if(v){selectedWidgets.forEach(id=>{rows.forEach(r=>r.columns?.forEach(c=>{const bi=c.blocks.findIndex(b=>b.id===id);if(bi>=0)updateBlockStyle(r.id,c.id,id,{background:v})}))});setSelectedWidgets([])}}}>
+          <option value="">Color</option>
+          {COLOR_PRESETS.map(c=><option key={c} value={c}>{c}</option>)}
+        </select>
+        <button className="elm-tool-btn" style={{fontSize:10}} onClick={()=>setSelectedWidgets([])}>Clear</button>
+      </div>}
+      {showShortcuts&&<div className="elm-shortcuts-overlay" onClick={()=>setShowShortcuts(false)}>
+        <div className="elm-shortcuts-modal" onClick={e=>e.stopPropagation()}>
+          <div className="elm-shortcuts-title"><i className="fas fa-keyboard"></i> Keyboard Shortcuts <button className="elm-tool-btn elm-tool-btn-del" style={{float:'right',padding:'2px 8px'}} onClick={()=>setShowShortcuts(false)}><i className="fas fa-times"></i></button></div>
+          <div className="elm-shortcuts-grid">
+            {[
+              {keys:'Ctrl+Z',desc:'Undo'},{keys:'Ctrl+Shift+Z',desc:'Redo'},
+              {keys:'Ctrl+S',desc:'Save'},{keys:'Ctrl+C',desc:'Copy widget'},{keys:'Ctrl+V',desc:'Paste widget'},
+              {keys:'Ctrl+/',desc:'Toggle shortcuts'},{keys:'Esc',desc:'Cancel inline edit / Close menu'},
+              {keys:'Delete',desc:'Delete element'},{keys:'Shift+Click',desc:'Multi-select widgets'},
+            ].map(s=><div key={s.keys} className="elm-shortcuts-row"><span className="elm-shortcut-keys">{s.keys}</span><span className="elm-shortcut-desc">{s.desc}</span></div>)}
+          </div>
+        </div>
+      </div>}
       </>
       )}
     </div>
   )
 }
 
-function NestedRowView({ row, parentRowId, parentColId, selected, setSelected, onUpdate }) {
+const NestedRowView = memo(function NestedRowView({ row, parentRowId, parentColId, selected, setSelected, onUpdate, localData }) {
   const col = row.columns?.[0]
   const blockSensors = { current: null }
   return (
@@ -1124,7 +1378,7 @@ function NestedRowView({ row, parentRowId, parentColId, selected, setSelected, o
           {col.blocks.map(b => (
             <div key={b.id} className={`elm-widget ${selected?.block?.id===b.id?'elm-widget-active':''}`}
               onClick={e=>{e.stopPropagation();setSelected({rowId:parentRowId,colId:parentColId,block:b,element:'widget'})}}>
-              <WidgetPreview block={b} />
+              <WidgetPreview block={b} localData={localData} />
             </div>
           ))}
         </div>
@@ -1132,11 +1386,12 @@ function NestedRowView({ row, parentRowId, parentColId, selected, setSelected, o
     </div>
   )
 }
+)
 
-function WidgetContentFields({ block, onUpdate }) {
+const WidgetContentFields = memo(function WidgetContentFields({ block, onUpdate }) {
   if(block.type==='text')return <textarea rows={6} value={block.content||''} onChange={e=>onUpdate({content:e.target.value})} className="elm-input elm-textarea" />
   if(block.type==='heading')return(<><select value={block.level||'h2'} onChange={e=>onUpdate({level:e.target.value})} className="elm-input"><option value="h1">H1</option><option value="h2">H2</option><option value="h3">H3</option><option value="h4">H4</option></select><input value={block.content||''} onChange={e=>onUpdate({content:e.target.value})} className="elm-input" placeholder="Heading text" /></>)
-  if(block.type==='image')return(<><input value={block.src||''} onChange={e=>onUpdate({src:e.target.value})} className="elm-input" placeholder="Image URL" /><input value={block.alt||''} onChange={e=>onUpdate({alt:e.target.value})} className="elm-input" placeholder="Alt text" /><input value={block.caption||''} onChange={e=>onUpdate({caption:e.target.value})} className="elm-input" placeholder="Caption" /></>)
+  if(block.type==='image')return(<><div style={{display:'flex',gap:4}}><input value={block.src||''} onChange={e=>onUpdate({src:e.target.value})} className="elm-input" placeholder="Image URL" style={{flex:1}} /><label className="elm-tool-btn" style={{fontSize:10,padding:'4px 8px',cursor:'pointer',whiteSpace:'nowrap'}}><i className="fas fa-upload"></i> Upload<input type="file" accept="image/*" style={{display:'none'}} onChange={e=>{const f=e.target.files?.[0];if(f){const r=new FileReader();r.onload=ev=>onUpdate({src:ev.target.result});r.readAsDataURL(f)}}}/></label></div><input value={block.alt||''} onChange={e=>onUpdate({alt:e.target.value})} className="elm-input" placeholder="Alt text" /><input value={block.caption||''} onChange={e=>onUpdate({caption:e.target.value})} className="elm-input" placeholder="Caption" /></>)
   if(block.type==='button')return(<><input value={block.text||''} onChange={e=>onUpdate({text:e.target.value})} className="elm-input" placeholder="Button text" /><input value={block.url||''} onChange={e=>onUpdate({url:e.target.value})} className="elm-input" placeholder="URL" /><select value={block.style||'solid'} onChange={e=>onUpdate({style:e.target.value})} className="elm-input"><option value="solid">Solid</option><option value="outline">Outline</option></select></>)
   if(block.type==='spacer')return <input type="number" value={block.height||40} onChange={e=>onUpdate({height:parseInt(e.target.value)||40})} className="elm-input" />
   if(block.type==='html')return <textarea rows={6} value={block.html||''} onChange={e=>onUpdate({html:e.target.value})} className="elm-input elm-textarea elm-mono" />
@@ -1144,10 +1399,18 @@ function WidgetContentFields({ block, onUpdate }) {
   if(block.type==='container')return <p style={{fontSize:'0.7rem',color:'#666',padding:8}}>Container widget (drag widgets into it)</p>
   if(block.type==='icon')return(<><input value={block.icon||''} onChange={e=>onUpdate({icon:e.target.value})} className="elm-input" placeholder="fa-star" /><select value={block.size||'2x'} onChange={e=>onUpdate({size:e.target.value})} className="elm-input"><option value="1x">Small</option><option value="2x">Medium</option><option value="3x">Large</option></select><input value={block.color||''} onChange={e=>onUpdate({color:e.target.value})} className="elm-input" /></>)
   if(block.type==='video')return <input value={block.src||''} onChange={e=>onUpdate({src:e.target.value})} className="elm-input" />
+  if(block.type==='tabs')return (<div>{block.items?.map((item,i)=><div key={i} style={{marginBottom:8,border:'1px solid #2a2a44',borderRadius:4,padding:6}}><div style={{display:'flex',gap:4,marginBottom:4}}><input value={item.label||''} onChange={e=>{const n=[...block.items];n[i]={...n[i],label:e.target.value};onUpdate({items:n})}} className="elm-input" placeholder="Tab label" style={{margin:0,flex:1}} /><button style={{padding:'2px 6px',border:'none',background:'transparent',color:'#f14d4d',cursor:'pointer',fontSize:10}} onClick={()=>{const n=block.items.filter((_,j)=>j!==i);onUpdate({items:n})}}><i className="fas fa-times"></i></button></div><textarea rows={2} value={item.content||''} onChange={e=>{const n=[...block.items];n[i]={...n[i],content:e.target.value};onUpdate({items:n})}} className="elm-input elm-textarea" placeholder="Content HTML" /></div>)}<button className="elm-tool-btn" onClick={()=>onUpdate({items:[...block.items,{label:`Tab ${block.items.length+1}`,content:'<p>New tab</p>'}]})}><i className="fas fa-plus"></i> Add Tab</button></div>)
+  if(block.type==='accordion')return (<div>{block.items?.map((item,i)=><div key={i} style={{marginBottom:8,border:'1px solid #2a2a44',borderRadius:4,padding:6}}><div style={{display:'flex',gap:4,marginBottom:4}}><input value={item.title||''} onChange={e=>{const n=[...block.items];n[i]={...n[i],title:e.target.value};onUpdate({items:n})}} className="elm-input" placeholder="Title" style={{margin:0,flex:1}} /><button style={{padding:'2px 6px',border:'none',background:'transparent',color:'#f14d4d',cursor:'pointer',fontSize:10}} onClick={()=>{const n=block.items.filter((_,j)=>j!==i);onUpdate({items:n})}}><i className="fas fa-times"></i></button></div><textarea rows={2} value={item.content||''} onChange={e=>{const n=[...block.items];n[i]={...n[i],content:e.target.value};onUpdate({items:n})}} className="elm-input elm-textarea" placeholder="Content HTML" /></div>)}<button className="elm-tool-btn" onClick={()=>onUpdate({items:[...block.items,{title:`Item ${block.items.length+1}`,content:'<p>Content</p>',open:false}]})}><i className="fas fa-plus"></i> Add Item</button></div>)
+  if(block.type==='counter')return (<><input value={block.number||100} onChange={e=>onUpdate({number:parseInt(e.target.value)||0})} className="elm-input" type="number" placeholder="Number" /><div style={{display:'flex',gap:4}}><input value={block.prefix||''} onChange={e=>onUpdate({prefix:e.target.value})} className="elm-input" placeholder="Prefix (+)" style={{flex:1}} /><input value={block.suffix||''} onChange={e=>onUpdate({suffix:e.target.value})} className="elm-input" placeholder="Suffix (%)" style={{flex:1}} /></div><input value={block.label||''} onChange={e=>onUpdate({label:e.target.value})} className="elm-input" placeholder="Label" /><input value={block.duration||2} onChange={e=>onUpdate({duration:parseFloat(e.target.value)||2})} className="elm-input" type="number" step="0.5" placeholder="Duration (s)" /></>)
+  if(block.type==='progress')return (<><input value={block.percent||75} onChange={e=>onUpdate({percent:parseInt(e.target.value)||0})} className="elm-input" type="number" min="0" max="100" placeholder="Percent" /><input value={block.label||''} onChange={e=>onUpdate({label:e.target.value})} className="elm-input" placeholder="Label" /><input value={block.color||'#6cab96'} onChange={e=>onUpdate({color:e.target.value})} className="elm-input" placeholder="Color" /><label style={{display:'flex',alignItems:'center',gap:6,fontSize:11,color:'#a0a0b0',margin:'4px 0'}}><input type="checkbox" checked={block.showLabel!==false} onChange={e=>onUpdate({showLabel:e.target.checked})} style={{accentColor:'#6cab96'}} /> Show label</label></>)
+  if(block.type==='carousel')return (<div>{block.images?.map((img,i)=><div key={i} style={{display:'flex',gap:4,marginBottom:4}}><input value={img.src||''} onChange={e=>{const n=[...block.images];n[i]={...n[i],src:e.target.value};onUpdate({images:n})}} className="elm-input" placeholder="Image URL" style={{flex:1,margin:0}} /><button style={{padding:'2px 6px',border:'none',background:'transparent',color:'#f14d4d',cursor:'pointer',fontSize:10}} onClick={()=>{const n=block.images.filter((_,j)=>j!==i);onUpdate({images:n})}}><i className="fas fa-times"></i></button></div>)}<button className="elm-tool-btn" onClick={()=>onUpdate({images:[...block.images,{src:'https://placehold.co/600x400/252540/a0a0b0?text=Slide',caption:''}]})}><i className="fas fa-plus"></i> Add Image</button><div style={{display:'flex',gap:4,marginTop:6}}><label style={{display:'flex',alignItems:'center',gap:4,fontSize:11,color:'#a0a0b0'}}><input type="checkbox" checked={block.autoplay!==false} onChange={e=>onUpdate({autoplay:e.target.checked})} style={{accentColor:'#6cab96'}} /> Autoplay</label><input value={block.speed||3000} onChange={e=>onUpdate({speed:parseInt(e.target.value)||3000})} className="elm-input" type="number" placeholder="Speed (ms)" style={{width:80}} /></div></div>)
+  if(block.type==='star-rating')return (<><input value={block.rating||4.5} onChange={e=>onUpdate({rating:parseFloat(e.target.value)||0})} className="elm-input" type="number" step="0.1" min="0" max={block.max||5} placeholder="Rating" /><input value={block.max||5} onChange={e=>onUpdate({max:parseInt(e.target.value)||5})} className="elm-input" type="number" min="1" placeholder="Max stars" /><input value={block.color||'#ffd700'} onChange={e=>onUpdate({color:e.target.value})} className="elm-input" placeholder="Color" /></>)
+  if(block.type==='form')return (<div><div className="elm-settings-heading" style={{marginTop:0}}>Form Fields</div>{block.fields?.map((f,i)=><div key={i} style={{marginBottom:6,border:'1px solid #2a2a44',borderRadius:4,padding:6}}><div style={{display:'flex',gap:4,marginBottom:4}}><select value={f.type||'text'} onChange={e=>{const n=[...block.fields];n[i]={...n[i],type:e.target.value};onUpdate({fields:n})}} className="elm-input" style={{flex:1,margin:0}}><option value="text">Text</option><option value="email">Email</option><option value="textarea">Textarea</option><option value="select">Select</option><option value="checkbox">Checkbox</option><option value="radio">Radio</option><option value="number">Number</option><option value="url">URL</option><option value="tel">Tel</option><option value="date">Date</option><option value="file">File Upload</option><option value="hidden">Hidden</option></select><button style={{padding:'2px 6px',border:'none',background:'transparent',color:'#f14d4d',cursor:'pointer',fontSize:10}} onClick={()=>{const n=block.fields.filter((_,j)=>j!==i);onUpdate({fields:n})}}><i className="fas fa-times"></i></button></div><input value={f.label||''} onChange={e=>{const n=[...block.fields];n[i]={...n[i],label:e.target.value};onUpdate({fields:n})}} className="elm-input" placeholder="Label" style={{margin:0}} /><div style={{display:'flex',gap:4,marginTop:4}}><input value={f.placeholder||''} onChange={e=>{const n=[...block.fields];n[i]={...n[i],placeholder:e.target.value};onUpdate({fields:n})}} className="elm-input" placeholder="Placeholder" style={{flex:1,margin:0}} /><label style={{display:'flex',alignItems:'center',gap:3,fontSize:10,color:'#a0a0b0',whiteSpace:'nowrap'}}><input type="checkbox" checked={f.required!==false} onChange={e=>{const n=[...block.fields];n[i]={...n[i],required:e.target.checked};onUpdate({fields:n})}} style={{accentColor:'#6cab96'}} /> Required</label></div>{f.type==='select'&&<input value={f.options||''} onChange={e=>{const n=[...block.fields];n[i]={...n[i],options:e.target.value};onUpdate({fields:n})}} className="elm-input" placeholder="Options (comma separated)" style={{marginTop:4}} />}</div>)}<button className="elm-tool-btn" onClick={()=>onUpdate({fields:[...block.fields,{type:'text',label:'New Field',required:false,placeholder:''}]})}><i className="fas fa-plus"></i> Add Field</button><div style={{marginTop:8}}><div className="elm-settings-heading">Form Settings</div><input value={block.submitText||'Send Message'} onChange={e=>onUpdate({submitText:e.target.value})} className="elm-input" placeholder="Submit button text" /><input value={block.successMsg||'Thank you!'} onChange={e=>onUpdate({successMsg:e.target.value})} className="elm-input" placeholder="Success message" /><input value={block.redirectUrl||''} onChange={e=>onUpdate({redirectUrl:e.target.value})} className="elm-input" placeholder="Redirect URL (optional)" /><input value={block.emailTo||''} onChange={e=>onUpdate({emailTo:e.target.value})} className="elm-input" placeholder="Email to (optional)" /></div></div>)
+  if(block.type==='loop-grid')return (<><select value={block.source||'projects'} onChange={e=>onUpdate({source:e.target.value})} className="elm-input"><option value="projects">Projects</option><option value="articles">Articles</option><option value="testimonials">Testimonials</option><option value="portfolioWorks">Portfolio Works</option><option value="caseStudies">Case Studies</option><option value="experience">Experience</option><option value="education">Education</option></select><div style={{display:'flex',gap:4}}><select value={block.layout||'grid'} onChange={e=>onUpdate({layout:e.target.value})} className="elm-input" style={{flex:1}}><option value="grid">Grid</option><option value="list">List</option><option value="carousel">Carousel</option></select><select value={block.columns||3} onChange={e=>onUpdate({columns:parseInt(e.target.value)||3})} className="elm-input" style={{width:60}}><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></div><input value={block.maxItems||6} onChange={e=>onUpdate({maxItems:parseInt(e.target.value)||6})} className="elm-input" type="number" placeholder="Max items" /><input value={block.filterKey||''} onChange={e=>onUpdate({filterKey:e.target.value})} className="elm-input" placeholder="Filter key (e.g. category)" /></>)
   return <p style={{fontSize:'0.75rem',color:'#666',padding:8}}>No fields</p>
-}
+})
 
-function FieldEditor({ data, path, onUpdate, depth }) {
+const FieldEditor = memo(function FieldEditor({ data, path, onUpdate, depth }) {
   if(depth>5)return <div style={{fontSize:'0.7rem',color:'#666',padding:'4px 0'}}>Max depth</div>
   if(data===null||data===undefined)return null
   if(typeof data==='string')return data.length>120?<textarea rows={4} value={data} onChange={e=>onUpdate(path,e.target.value)} className="elm-input elm-textarea" />:<input value={data} onChange={e=>onUpdate(path,e.target.value)} className="elm-input" />
@@ -1156,9 +1419,9 @@ function FieldEditor({ data, path, onUpdate, depth }) {
   if(Array.isArray(data)){if(data.length===0)return <p style={{fontSize:'0.7rem',color:'#666',padding:'4px 0'}}>Empty list</p>;return <div style={{paddingLeft:depth>0?8:0}}>{data.map((item,idx)=><div key={idx} style={{marginBottom:8,border:'1px solid #2a2a44',borderRadius:4,padding:8,background:'#1a1a2e'}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}><span style={{fontSize:'0.65rem',color:'#666'}}>Item {idx+1}</span><button style={{padding:'2px 6px',border:'none',background:'transparent',color:'#f14d4d',cursor:'pointer',fontSize:'10px'}} onClick={()=>{const na=[...data];na.splice(idx,1);onUpdate(path,na)}}><i className="fas fa-times"></i></button></div><FieldEditor data={item} path={path+'.'+idx} onUpdate={onUpdate} depth={depth+1}/></div>)}</div>}
   if(typeof data==='object'){const entries=Object.entries(data).filter(([,v])=>v!==null&&v!==undefined&&typeof v!=='function');if(entries.length===0)return <p style={{fontSize:'0.7rem',color:'#666',padding:'4px 0'}}>Empty object</p>;return <div style={{paddingLeft:depth>0?8:0}}>{entries.map(([key,val])=>{const isSimple=typeof val==='string'||typeof val==='number'||typeof val==='boolean';return <div key={key} style={{marginBottom:isSimple?6:8}}>{!isSimple&&<label style={{fontSize:'0.65rem',fontWeight:600,color:'#6cab96',textTransform:'uppercase',display:'block',marginBottom:4}}>{key}</label>}<FieldEditor data={val} path={path+'.'+key} onUpdate={onUpdate} depth={depth+1}/></div>})}</div>}
   return null
-}
+})
 
-function WidgetPreview({ block }) {
+const WidgetPreview = memo(function WidgetPreview({ block, localData }) {
   const s=block.styles||{}
   const clazz = s.cssClass || ''
   const id = s.cssId || undefined
@@ -1175,16 +1438,147 @@ function WidgetPreview({ block }) {
   if(block.type==='html')return <div {...wrapProps} dangerouslySetInnerHTML={{__html:block.html||''}}/>
   if(block.type==='shortcode')return <div style={{...wrap,fontSize:'0.75rem',color:'#6cab96',fontFamily:'monospace',padding:'4px 8px',background:'rgba(108,171,150,0.06)',borderRadius:4,display:'inline-block'}}><i className="fas fa-code-branch" style={{marginRight:4}}></i> {block.key||'[shortcode]'}</div>
   if(block.type==='container')return <div style={{...wrap,border:'1px dashed #6cab96',borderRadius:4,minHeight:40,display:'flex',alignItems:'center',justifyContent:'center',color:'#6cab96',fontSize:'0.7rem'}}><i className="fas fa-layer-group"></i> Container</div>
+  if(block.type==='tabs')return <TabsPreview block={block} id={id} clazz={clazz} s={s} />
+  if(block.type==='accordion')return <AccordionPreview block={block} id={id} clazz={clazz} s={s} />
+  if(block.type==='counter')return <CounterPreview block={block} id={id} clazz={clazz} s={s} />
+  if(block.type==='progress')return <ProgressPreview block={block} id={id} clazz={clazz} s={s} />
+  if(block.type==='carousel')return <CarouselPreview block={block} id={id} clazz={clazz} s={s} />
+  if(block.type==='star-rating')return <StarRatingPreview block={block} id={id} clazz={clazz} s={s} />
+  if(block.type==='form')return <FormPreview block={block} id={id} clazz={clazz} s={s} />
+  if(block.type==='loop-grid')return <LoopGridPreview block={block} id={id} clazz={clazz} s={s} localData={localData} />
   if(block.type==='heading')return <div {...wrapProps}><WidgetPreview block={block}/></div>
   return <div {...wrapProps}>Unknown widget</div>
+})
+
+/* ── Interactive Widget Previews ── */
+function TabsPreview({ block, id, clazz, s }) {
+  const [active, setActive] = useState(block.activeTab||0)
+  return <div style={{border:'1px solid #2a2a44',borderRadius:4,overflow:'hidden'}}>
+    <div style={{display:'flex',borderBottom:'1px solid #2a2a44',background:'#1a1a2e'}}>
+      {block.items?.map((item,i)=>(
+        <button key={i} onClick={()=>setActive(i)}
+          style={{padding:'6px 12px',border:'none',background:active===i?'#252540':'transparent',color:active===i?'#6cab96':'#a0a0b0',cursor:'pointer',fontSize:11,fontWeight:active===i?600:400,borderBottom:active===i?'2px solid #6cab96':'2px solid transparent',fontFamily:'inherit'}}>
+          {item.label||`Tab ${i+1}`}
+        </button>
+      ))}
+    </div>
+    <div style={{padding:12,fontSize:12,color:'#a0a0b0',minHeight:40,lineHeight:1.5}}
+      dangerouslySetInnerHTML={{__html:block.items?.[active]?.content||'<p>Empty tab</p>'}} />
+  </div>
 }
+
+function AccordionPreview({ block, id, clazz, s }) {
+  const [open, setOpen] = useState(block.items?.map((_,i)=>i===0))
+  return <div style={{border:'1px solid #2a2a44',borderRadius:4,overflow:'hidden'}}>
+    {block.items?.map((item,i)=>(
+      <div key={i} style={{borderBottom:i<block.items.length-1?'1px solid #2a2a44':'none'}}>
+        <button onClick={()=>setOpen(prev=>{const n=[...prev];n[i]=!n[i];return n})}
+          style={{width:'100%',display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 12px',border:'none',background:'transparent',color:open[i]?'#6cab96':'#a0a0b0',cursor:'pointer',fontSize:12,fontFamily:'inherit',textAlign:'left'}}>
+          <span>{item.title||`Item ${i+1}`}</span>
+          <i className={`fas fa-chevron-${open[i]?'up':'down'}`} style={{fontSize:10,color:'#666'}}></i>
+        </button>
+        {open[i]&&<div style={{padding:'4px 12px 10px',fontSize:11,color:'#888',lineHeight:1.5}} dangerouslySetInnerHTML={{__html:item.content||''}} />}
+      </div>
+    ))}
+  </div>
+}
+
+function CounterPreview({ block, id, clazz, s }) {
+  return <div style={{textAlign:'center',padding:'12px 8px'}}>
+    <div style={{fontSize:28,fontWeight:800,color:'#6cab96',fontFamily:'monospace'}}>
+      {block.prefix||''}<span>{block.number||0}</span>{block.suffix||''}
+    </div>
+    {block.label&&<div style={{fontSize:11,color:'#a0a0b0',marginTop:4}}>{block.label}</div>}
+  </div>
+}
+
+function ProgressPreview({ block, id, clazz, s }) {
+  const pct = Math.min(100,Math.max(0,block.percent||75))
+  return <div style={{padding:'8px 0'}}>
+    {block.showLabel!==false&&block.label&&<div style={{display:'flex',justifyContent:'space-between',fontSize:11,marginBottom:4,color:'#a0a0b0'}}><span>{block.label}</span><span>{pct}%</span></div>}
+    <div style={{height:8,background:'#1a1a2e',borderRadius:4,overflow:'hidden',border:'1px solid #2a2a44'}}>
+      <div style={{height:'100%',width:pct+'%',background:block.color||'#6cab96',borderRadius:4,transition:'width 0.6s'}} />
+    </div>
+  </div>
+}
+
+function CarouselPreview({ block, id, clazz, s }) {
+  const [idx, setIdx] = useState(0)
+  const imgs = block.images||[]
+  useEffect(()=>{if(!block.autoplay||imgs.length<2)return;const t=setInterval(()=>setIdx(i=>(i+1)%imgs.length),block.speed||3000);return ()=>clearInterval(t)},[block.autoplay,block.speed,imgs.length])
+  if(!imgs.length)return <div style={{padding:20,textAlign:'center',color:'#555',fontSize:11}}>No images</div>
+  return <div style={{position:'relative',borderRadius:4,overflow:'hidden',background:'#1a1a2e'}}>
+    <img src={imgs[idx]?.src} alt="" style={{width:'100%',height:120,objectFit:'cover',display:'block'}} onError={e=>{e.target.style.display='none';e.target.parentElement.innerHTML='<div style=padding:40;text-align:center;color:#555;font-size:11px>Image not found</div>'}} />
+    {imgs.length>1&&<><button onClick={()=>setIdx(i=>(i-1+imgs.length)%imgs.length)} style={{position:'absolute',left:4,top:'50%',transform:'translateY(-50%)',padding:'4px 8px',border:'none',background:'rgba(0,0,0,0.5)',color:'#fff',borderRadius:3,cursor:'pointer',fontSize:11}}><i className="fas fa-chevron-left"></i></button>
+    <button onClick={()=>setIdx(i=>(i+1)%imgs.length)} style={{position:'absolute',right:4,top:'50%',transform:'translateY(-50%)',padding:'4px 8px',border:'none',background:'rgba(0,0,0,0.5)',color:'#fff',borderRadius:3,cursor:'pointer',fontSize:11}}><i className="fas fa-chevron-right"></i></button>
+    <div style={{position:'absolute',bottom:4,left:'50%',transform:'translateX(-50%)',display:'flex',gap:4}}>
+      {imgs.map((_,i)=><div key={i} style={{width:6,height:6,borderRadius:'50%',background:i===idx?'#6cab96':'rgba(255,255,255,0.3)',cursor:'pointer'}} onClick={()=>setIdx(i)} />)}
+    </div></>}
+  </div>
+}
+
+function StarRatingPreview({ block, id, clazz, s }) {
+  const r=block.rating||0,m=block.max||5,c=block.color||'#ffd700',sz=block.size||'1.2rem'
+  return <div style={{display:'flex',alignItems:'center',gap:2,padding:'4px 0'}}>
+    {[...Array(m)].map((_,i)=>{const v=i+1;const f=r>=v?1:r>=v-0.5?0.5:0
+    return <i key={i} className={`fas fa-star${f<1?'-half':''}${f===0?'-o':''}`} style={{color:c,fontSize:sz}} />
+    })}
+    <span style={{fontSize:11,color:'#a0a0b0',marginLeft:4}}>{r}/{m}</span>
+  </div>
+}
+
+/* ── Form Widget Preview ── */
+function FormPreview({ block, id, clazz, s }) {
+  const [submitted, setSubmitted] = useState(false)
+  const [vals, setVals] = useState({})
+  if(submitted)return <div style={{padding:16,textAlign:'center',color:'#6cab96',fontSize:12}}><i className="fas fa-check-circle" style={{fontSize:24,marginBottom:8,display:'block'}}></i>{block.successMsg||'Thank you!'}</div>
+  return <div style={{padding:8}}>
+    {block.fields?.map((f,i)=>(
+      <div key={i} style={{marginBottom:8}}>
+        {f.type!=='hidden'&&<label style={{display:'block',fontSize:11,color:'#a0a0b0',marginBottom:3}}>{f.label}{f.required?' *':''}</label>}
+        {f.type==='textarea'?<textarea value={vals[f.label]||''} onChange={e=>setVals(v=>({...v,[f.label]:e.target.value}))} placeholder={f.placeholder} style={{width:'100%',padding:'7px 10px',borderRadius:3,border:'1px solid #2a2a44',background:'#1a1a2e',color:'#d5d8e2',fontSize:12,fontFamily:'inherit',minHeight:60}} />:
+        f.type==='select'?<select value={vals[f.label]||''} onChange={e=>setVals(v=>({...v,[f.label]:e.target.value}))} style={{width:'100%',padding:'7px 10px',borderRadius:3,border:'1px solid #2a2a44',background:'#1a1a2e',color:'#d5d8e2',fontSize:12,fontFamily:'inherit'}}><option value="">Select...</option>{(f.options||'').split(',').map((o,j)=><option key={j} value={o.trim()}>{o.trim()}</option>)}</select>:
+        f.type==='checkbox'?<label style={{display:'flex',alignItems:'center',gap:6,fontSize:11,color:'#a0a0b0'}}><input type="checkbox" checked={vals[f.label]||false} onChange={e=>setVals(v=>({...v,[f.label]:e.target.checked}))} style={{accentColor:'#6cab96'}} /> {f.label}</label>:
+        f.type==='radio'?<div>{(f.options||'').split(',').map((o,j)=><label key={j} style={{display:'flex',alignItems:'center',gap:6,fontSize:11,color:'#a0a0b0',marginBottom:2}}><input type="radio" name={f.label} value={o.trim()} checked={vals[f.label]===o.trim()} onChange={e=>setVals(v=>({...v,[f.label]:e.target.value}))} style={{accentColor:'#6cab96'}} /> {o.trim()}</label>)}</div>:
+        <input type={f.type||'text'} value={vals[f.label]||''} onChange={e=>setVals(v=>({...v,[f.label]:e.target.value}))} placeholder={f.placeholder} style={{width:'100%',padding:'7px 10px',borderRadius:3,border:'1px solid #2a2a44',background:'#1a1a2e',color:'#d5d8e2',fontSize:12,fontFamily:'inherit'}} />}
+      </div>
+    ))}
+    <button onClick={()=>setSubmitted(true)} style={{width:'100%',padding:'8px 16px',border:'none',borderRadius:3,background:'#6cab96',color:'#0f0f1a',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>{block.submitText||'Send'}</button>
+  </div>
+}
+
+/* ── Loop Grid Widget Preview ── */
+function LoopGridPreview({ block, id, clazz, s, localData }) {
+  const src = block.source||'projects'
+  const items = localData?.[src]
+  const data = Array.isArray(items)?items.slice(0,block.maxItems||6):[]
+  if(!data.length)return <div style={{padding:20,textAlign:'center',color:'#555',fontSize:11}}>No {src} found</div>
+  const cols = block.columns||3
+  return <div>
+    <div style={{fontSize:9,color:'#6cab96',textTransform:'uppercase',letterSpacing:'0.5px',marginBottom:6}}><i className="fas fa-th-list"></i> {src} ({data.length} items)</div>
+    <div style={{display:'grid',gridTemplateColumns:`repeat(${Math.min(cols,data.length)},1fr)`,gap:6}}>
+      {data.map((item,i)=>(
+        <div key={i} style={{padding:8,borderRadius:3,background:'#1a1a2e',border:'1px solid #2a2a44',fontSize:10,color:'#a0a0b0'}}>
+          <div style={{fontWeight:600,color:'#d5d8e2',marginBottom:2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{item.title||item.name||item.q||`Item ${i+1}`}</div>
+          <div style={{overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',color:'#666'}}>{item.description||item.summary||item.a||''}</div>
+        </div>
+      ))}
+    </div>
+  </div>
+}
+
+const LiveSectionContent = memo(function LiveSectionContent({ sectionKey, localData }) {
+  const Comp = SECTION_COMPONENTS[sectionKey]
+  if (!Comp) return null
+  return <Comp {...resolveSectionProps(sectionKey, localData)} />
+})
 
 function buildDefaultRows(data) {
   const sections = data.settings?.sections || {}
   return Object.entries(sections).filter(([,s])=>s.visible!==false).sort((a,b)=>(a[1].order||0)-(b[1].order||0)).map(([key])=>defaultSectionRow(key))
 }
 
-function SortableBlock({ id, children }) {
+const SortableBlock = memo(function SortableBlock({ id, children }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -1195,4 +1589,4 @@ function SortableBlock({ id, children }) {
     touchAction: 'none',
   }
   return <div ref={setNodeRef} style={style} {...attributes} {...listeners}>{children}</div>
-}
+})
