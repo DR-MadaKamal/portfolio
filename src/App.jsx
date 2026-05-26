@@ -42,8 +42,38 @@ const VISITS_KEY = 'portfolio-visits'
 const DAILY_KEY = 'portfolio-daily-visits'
 
 function loadSaved() {
-  try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : null }
-  catch { return null }
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return null
+    const saved = JSON.parse(raw)
+    return {
+      personalData: { ...defaultPersonalData, ...(saved.personalData || {}) },
+      experience: saved.experience || defaultExperience,
+      skillCategories: saved.skillCategories || defaultSkills,
+      education: saved.education || defaultEducation,
+      awards: saved.awards || defaultAwards,
+      certifications: saved.certifications || defaultCerts,
+      projects: saved.projects || defaultProjects,
+      articles: saved.articles || defaultArticles,
+      testimonials: saved.testimonials || defaultTestimonials,
+      quotes: saved.quotes || defaultQuotes,
+      tools: saved.tools || defaultToolsData,
+      clientLogos: saved.clientLogos || defaultLogos,
+      servicesTimeline: saved.servicesTimeline || defaultTimeline,
+      faq: saved.faq || defaultFaq,
+      courses: saved.courses || defaultCourses,
+      portfolioWorks: saved.portfolioWorks || defaultWorks,
+      pricingPlans: saved.pricingPlans || defaultPricing,
+      caseStudies: saved.caseStudies || defaultCaseStudies,
+      languagesList: saved.languagesList || defaultLanguages,
+      businessHours: saved.businessHours || defaultHours,
+      settings: saved.settings,
+      customSections: saved.customSections || [],
+      customPages: saved.customPages || [],
+      sectionDesign: saved.sectionDesign || {},
+      builder: saved.builder,
+    }
+  } catch { return null }
 }
 
 function trackVisit() {
@@ -109,16 +139,7 @@ function App() {
     return () => observer.disconnect()
   }, [])
 
-  const defaults = {
-    personalData: defaultPersonalData, experience: defaultExperience, skillCategories: defaultSkills,
-    education: defaultEducation, awards: defaultAwards, certifications: defaultCerts,
-    projects: defaultProjects, articles: defaultArticles, testimonials: defaultTestimonials,
-    quotes: defaultQuotes, tools: defaultToolsData, clientLogos: defaultLogos,
-    servicesTimeline: defaultTimeline, faq: defaultFaq, courses: defaultCourses,
-    portfolioWorks: defaultWorks, pricingPlans: defaultPricing, caseStudies: defaultCaseStudies,
-    languagesList: defaultLanguages, businessHours: defaultHours,
-  }
-  const d = editedData ? { ...defaults, ...editedData, personalData: { ...defaultPersonalData, ...(editedData.personalData || {}) } } : null
+  const d = editedData
   const sections = d?.settings?.sections || {}
   const tools = d?.settings?.tools || {}
   const sec = (key) => sections[key]?.visible !== false
