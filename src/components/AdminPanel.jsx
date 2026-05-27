@@ -201,6 +201,7 @@ export default function AdminPanel({ onDataChange }) {
               {['dashboard','content','sections','builder','design','pages','media','tools'].map(t => (
                 <button key={t} className={tab === t ? 'active' : ''} onClick={() => setTab(t)}>{t.charAt(0).toUpperCase() + t.slice(1)}</button>
               ))}
+              <button onClick={() => debouncedSave(current, 'Manual Save')}><i className="fas fa-save"></i> Save</button>
               <button onClick={() => setShowHistory(true)}>History ({history.length})</button>
               <button onClick={exportJSON}>Export</button>
               <button onClick={importJSON}>Import</button>
@@ -308,7 +309,14 @@ function DashboardForm({ data }) {
 
 /* ========== CONTENT (consolidated) ========== */
 function ContentForm({ data, onSave }) {
+  const dr = useRef(data); dr.current = data
   const [contentTab, setContentTab] = useState('personal')
+  const [savedMsg, setSavedMsg] = useState('')
+  const handleSave = () => {
+    onSave(dr.current, 'Content')
+    setSavedMsg('Saved!')
+    setTimeout(() => setSavedMsg(''), 1500)
+  }
   return (
     <div>
       <div className="admin-sub-tabs">
@@ -326,6 +334,10 @@ function ContentForm({ data, onSave }) {
       {contentTab === 'testimonials' && <TestimonialsForm data={data} onSave={onSave} />}
       {contentTab === 'awards' && <AwardsForm data={data} onSave={onSave} />}
       {contentTab === 'clients' && <ClientsForm data={data} onSave={onSave} />}
+      <div style={{display:'flex',alignItems:'center',gap:12,marginTop:20}}>
+        <button className="admin-add-btn" onClick={handleSave}><i className="fas fa-save"></i> Save</button>
+        {savedMsg && <span style={{color:'var(--accent)',fontSize:'0.82rem'}}>{savedMsg}</span>}
+      </div>
     </div>
   )
 }
@@ -333,7 +345,10 @@ function ContentForm({ data, onSave }) {
 function PersonalForm({ data, onSave }) {
   const [d, setD] = useState({ ...defaultPersonal, ...data.personalData })
   const r = useRef(true)
-  useEffect(() => { if (r.current) { r.current = false; return }; const t = setTimeout(() => onSave({ ...data, personalData: d }, 'Personal'), 500); return () => clearTimeout(t) }, [d])
+  const dr = useRef(data); dr.current = data
+  const dRef = useRef(d); dRef.current = d
+  useEffect(() => { if (r.current) { r.current = false; return }; const t = setTimeout(() => onSave({ ...dr.current, personalData: d }, 'Personal'), 500); return () => clearTimeout(t) }, [d])
+  useEffect(() => () => onSave({ ...dr.current, personalData: dRef.current }, 'Personal'), [])
   const set = (k, v) => setD({ ...d, [k]: v })
   return (<div>
     <Input label="First Name" value={d.firstName} onChange={v => set('firstName', v)} />
@@ -353,13 +368,17 @@ function PersonalForm({ data, onSave }) {
     <div style={{fontSize:'0.72rem',color:'var(--text-dim)',margin:'4px 0'}}>— About section —</div>
     <Input label="About Summary" value={d.summary} onChange={v => set('summary', v)} multiline />
     <Input label="Available for work" value={d.available} type="checkbox" />
+    <div style={{marginTop:12}}><button className="admin-add-btn" onClick={() => onSave({ ...dr.current, personalData: d }, 'Personal')}><i className="fas fa-save"></i> Save</button></div>
   </div>)
 }
 
 function ExperienceForm({ data, onSave }) {
   const [list, setList] = useState(data.experience)
   const r = useRef(true)
-  useEffect(() => { if (r.current) { r.current = false; return }; const t = setTimeout(() => onSave({ ...data, experience: list }, 'Experience'), 500); return () => clearTimeout(t) }, [list])
+  const dr = useRef(data); dr.current = data
+  const lr = useRef(list); lr.current = list
+  useEffect(() => { if (r.current) { r.current = false; return }; const t = setTimeout(() => onSave({ ...dr.current, experience: list }, 'Experience'), 500); return () => clearTimeout(t) }, [list])
+  useEffect(() => () => onSave({ ...dr.current, experience: lr.current }, 'Experience'), [])
   const update = (i, f, v) => setList(p => { const c = [...p]; c[i] = { ...c[i], [f]: v }; return c })
   const add = () => setList(p => [...p, { role: 'New Role', company: 'Company', period: '', highlights: [], links: [], media: [] }])
   const remove = (i) => { if (confirm('Delete?')) setList(p => p.filter((_, idx) => idx !== i)) }
@@ -385,13 +404,17 @@ function ExperienceForm({ data, onSave }) {
       </SortableItem>))}
     </SortableList>
     <button className="admin-add-btn" onClick={add}>+ Add Experience</button>
+    <div style={{marginTop:12}}><button className="admin-add-btn" onClick={() => onSave({ ...dr.current, experience: list }, 'Experience')}><i className="fas fa-save"></i> Save</button></div>
   </div>)
 }
 
 function ProjectsForm({ data, onSave }) {
   const [list, setList] = useState(data.projects)
   const r = useRef(true)
-  useEffect(() => { if (r.current) { r.current = false; return }; const t = setTimeout(() => onSave({ ...data, projects: list }, 'Projects'), 500); return () => clearTimeout(t) }, [list])
+  const dr = useRef(data); dr.current = data
+  const lr = useRef(list); lr.current = list
+  useEffect(() => { if (r.current) { r.current = false; return }; const t = setTimeout(() => onSave({ ...dr.current, projects: list }, 'Projects'), 500); return () => clearTimeout(t) }, [list])
+  useEffect(() => () => onSave({ ...dr.current, projects: lr.current }, 'Projects'), [])
   const update = (i, f, v) => setList(p => { const c = [...p]; c[i] = { ...c[i], [f]: v }; return c })
   const add = () => setList(p => [...p, { title: 'New Project', description: '', url: '', tags: [], challenge: '', solution: '', result: '', images: [] }])
   const remove = (i) => { if (confirm('Delete?')) setList(p => p.filter((_, idx) => idx !== i)) }
@@ -425,13 +448,17 @@ function ProjectsForm({ data, onSave }) {
       </SortableItem>))}
     </SortableList>
     <button className="admin-add-btn" onClick={add}>+ Add Project</button>
+    <div style={{marginTop:12}}><button className="admin-add-btn" onClick={() => onSave({ ...dr.current, projects: list }, 'Projects')}><i className="fas fa-save"></i> Save</button></div>
   </div>)
 }
 
 function ArticlesForm({ data, onSave }) {
   const [list, setList] = useState(data.articles)
   const r = useRef(true)
-  useEffect(() => { if (r.current) { r.current = false; return }; const t = setTimeout(() => onSave({ ...data, articles: list }, 'Articles'), 500); return () => clearTimeout(t) }, [list])
+  const dr = useRef(data); dr.current = data
+  const lr = useRef(list); lr.current = list
+  useEffect(() => { if (r.current) { r.current = false; return }; const t = setTimeout(() => onSave({ ...dr.current, articles: list }, 'Articles'), 500); return () => clearTimeout(t) }, [list])
+  useEffect(() => () => onSave({ ...dr.current, articles: lr.current }, 'Articles'), [])
   const update = (i, f, v) => setList(p => { const c = [...p]; c[i] = { ...c[i], [f]: v }; return c })
   const add = () => setList(p => [...p, { title: 'New Article', description: '', image: '', content: '', readTime: '5 min', date: new Date().toISOString().slice(0,10), tags: [], author: { name: 'Mohammed Kamal Shaat', avatar: '/portfolio/photo.png' } }])
   const remove = (i) => { if (confirm('Delete?')) setList(p => p.filter((_, idx) => idx !== i)) }
@@ -460,13 +487,17 @@ function ArticlesForm({ data, onSave }) {
       </SortableItem>))}
     </SortableList>
     <button className="admin-add-btn" onClick={add}>+ Add Article</button>
+    <div style={{marginTop:12}}><button className="admin-add-btn" onClick={() => onSave({ ...dr.current, articles: list }, 'Articles')}><i className="fas fa-save"></i> Save</button></div>
   </div>)
 }
 
 function SkillsForm({ data, onSave }) {
   const [list, setList] = useState(data.skillCategories)
   const r = useRef(true)
-  useEffect(() => { if (r.current) { r.current = false; return }; const t = setTimeout(() => onSave({ ...data, skillCategories: list }, 'Skills'), 500); return () => clearTimeout(t) }, [list])
+  const dr = useRef(data); dr.current = data
+  const lr = useRef(list); lr.current = list
+  useEffect(() => { if (r.current) { r.current = false; return }; const t = setTimeout(() => onSave({ ...dr.current, skillCategories: list }, 'Skills'), 500); return () => clearTimeout(t) }, [list])
+  useEffect(() => () => onSave({ ...dr.current, skillCategories: lr.current }, 'Skills'), [])
   const updateCat = (i, v) => setList(p => { const c = [...p]; c[i] = { ...c[i], category: v }; return c })
   const addCat = () => setList(p => [...p, { category: 'New Category', skills: [{ name: 'Skill', percentage: 80 }] }])
   const delCat = (i) => setList(p => p.filter((_, idx) => idx !== i))
@@ -484,62 +515,77 @@ function SkillsForm({ data, onSave }) {
       <button className="admin-add-small" onClick={() => addSkill(ci)}>+ Skill</button>
     </div>))}
     <button className="admin-add-btn" onClick={addCat}>+ Add Category</button>
+    <div style={{marginTop:12}}><button className="admin-add-btn" onClick={() => onSave({ ...dr.current, skillCategories: list }, 'Skills')}><i className="fas fa-save"></i> Save</button></div>
   </div>)
 }
 
 function EducationForm({ data, onSave }) {
   const [list, setList] = useState(data.education)
   const r = useRef(true)
-  useEffect(() => { if (r.current) { r.current = false; return }; const t = setTimeout(() => onSave({ ...data, education: list }, 'Education'), 500); return () => clearTimeout(t) }, [list])
+  const dr = useRef(data); dr.current = data
+  const lr = useRef(list); lr.current = list
+  useEffect(() => { if (r.current) { r.current = false; return }; const t = setTimeout(() => onSave({ ...dr.current, education: list }, 'Education'), 500); return () => clearTimeout(t) }, [list])
+  useEffect(() => () => onSave({ ...dr.current, education: lr.current }, 'Education'), [])
   const update = (i, f, v) => setList(p => { const c = [...p]; c[i] = { ...c[i], [f]: v }; return c })
   const add = () => setList(p => [...p, { degree: 'Degree', school: 'School', year: 'Year' }])
   const remove = (i) => setList(p => p.filter((_, idx) => idx !== i))
-  return (<div><SortableList items={list} onReorder={setList} getId={(_, i) => i}>{list.map((e, i) => (<SortableItem key={i} id={i}>{(listeners) => (<div className="admin-card"><div className="admin-card-header"><button {...listeners} className="admin-drag-handle" title="Drag to reorder"><i className="fas fa-grip-vertical"></i></button><strong style={{flex:1}}>{e.degree}</strong><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div><Input label="Degree" value={e.degree} onChange={v => update(i, 'degree', v)} /><Input label="School" value={e.school} onChange={v => update(i, 'school', v)} /><Input label="Year" value={e.year} onChange={v => update(i, 'year', v)} /></div>)}</SortableItem>))}</SortableList><button className="admin-add-btn" onClick={add}>+ Add Education</button></div>)
+  return (<div><SortableList items={list} onReorder={setList} getId={(_, i) => i}>{list.map((e, i) => (<SortableItem key={i} id={i}>{(listeners) => (<div className="admin-card"><div className="admin-card-header"><button {...listeners} className="admin-drag-handle" title="Drag to reorder"><i className="fas fa-grip-vertical"></i></button><strong style={{flex:1}}>{e.degree}</strong><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div><Input label="Degree" value={e.degree} onChange={v => update(i, 'degree', v)} /><Input label="School" value={e.school} onChange={v => update(i, 'school', v)} /><Input label="Year" value={e.year} onChange={v => update(i, 'year', v)} /></div>)}</SortableItem>))}</SortableList><button className="admin-add-btn" onClick={add}>+ Add Education</button><div style={{marginTop:12}}><button className="admin-add-btn" onClick={() => onSave({ ...dr.current, education: list }, 'Education')}><i className="fas fa-save"></i> Save</button></div></div>)
 }
 
 function CoursesForm({ data, onSave }) {
   const [list, setList] = useState(data.courses || [])
   const r = useRef(true)
-  useEffect(() => { if (r.current) { r.current = false; return }; const t = setTimeout(() => onSave({ ...data, courses: list }, 'Courses'), 500); return () => clearTimeout(t) }, [list])
+  const dr = useRef(data); dr.current = data
+  const lr = useRef(list); lr.current = list
+  useEffect(() => { if (r.current) { r.current = false; return }; const t = setTimeout(() => onSave({ ...dr.current, courses: list }, 'Courses'), 500); return () => clearTimeout(t) }, [list])
+  useEffect(() => () => onSave({ ...dr.current, courses: lr.current }, 'Courses'), [])
   const update = (i, f, v) => setList(p => { const c = [...p]; c[i] = { ...c[i], [f]: v }; return c })
   const add = () => setList(p => [...p, { name: 'Course', provider: 'Provider', year: '' }])
   const remove = (i) => setList(p => p.filter((_, idx) => idx !== i))
-  return (<div><SortableList items={list} onReorder={setList} getId={(_, i) => i}>{list.map((c, i) => (<SortableItem key={i} id={i}>{(listeners) => (<div className="admin-card"><div className="admin-card-header"><button {...listeners} className="admin-drag-handle" title="Drag to reorder"><i className="fas fa-grip-vertical"></i></button><strong style={{flex:1}}>{c.name}</strong><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div><Input label="Name" value={c.name} onChange={v => update(i, 'name', v)} /><Input label="Provider" value={c.provider} onChange={v => update(i, 'provider', v)} /><Input label="Year" value={c.year} onChange={v => update(i, 'year', v)} /></div>)}</SortableItem>))}</SortableList><button className="admin-add-btn" onClick={add}>+ Add Course</button></div>)
+  return (<div><SortableList items={list} onReorder={setList} getId={(_, i) => i}>{list.map((c, i) => (<SortableItem key={i} id={i}>{(listeners) => (<div className="admin-card"><div className="admin-card-header"><button {...listeners} className="admin-drag-handle" title="Drag to reorder"><i className="fas fa-grip-vertical"></i></button><strong style={{flex:1}}>{c.name}</strong><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div><Input label="Name" value={c.name} onChange={v => update(i, 'name', v)} /><Input label="Provider" value={c.provider} onChange={v => update(i, 'provider', v)} /><Input label="Year" value={c.year} onChange={v => update(i, 'year', v)} /></div>)}</SortableItem>))}</SortableList><button className="admin-add-btn" onClick={add}>+ Add Course</button><div style={{marginTop:12}}><button className="admin-add-btn" onClick={() => onSave({ ...dr.current, courses: list }, 'Courses')}><i className="fas fa-save"></i> Save</button></div></div>)
 }
 
 function TestimonialsForm({ data, onSave }) {
   const [list, setList] = useState(data.testimonials || [])
   const r = useRef(true)
+  const dr = useRef(data); dr.current = data
+  const lr = useRef(list); lr.current = list
   useEffect(() => {
     if (r.current) { r.current = false; return }
-    const s = data.settings || {}
-    const timer = setTimeout(() => onSave({ ...data, testimonials: list, settings: { ...s, testimonialData: list } }, 'Testimonials'), 500)
+    const timer = setTimeout(() => onSave({ ...dr.current, testimonials: list, settings: { ...dr.current.settings, testimonialData: list } }, 'Testimonials'), 500)
     return () => clearTimeout(timer)
   }, [list])
+  useEffect(() => () => onSave({ ...dr.current, testimonials: lr.current }, 'Testimonials'), [])
   const update = (i, f, v) => setList(p => { const c = [...p]; c[i] = { ...c[i], [f]: v }; return c })
   const add = () => setList(p => [...p, { name: 'Name', role: 'Role', text: 'Review text', rating: 5 }])
   const remove = (i) => setList(p => p.filter((_, idx) => idx !== i))
-  return (<div><SortableList items={list} onReorder={setList} getId={(_, i) => i}>{list.map((t, i) => (<SortableItem key={i} id={i}>{(listeners) => (<div className="admin-card"><div className="admin-card-header"><button {...listeners} className="admin-drag-handle" title="Drag to reorder"><i className="fas fa-grip-vertical"></i></button><strong style={{flex:1}}>{t.name}</strong><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div><Input label="Name" value={t.name} onChange={v => update(i, 'name', v)} /><Input label="Role" value={t.role} onChange={v => update(i, 'role', v)} /><Input label="Text" value={t.text} onChange={v => update(i, 'text', v)} multiline /><Input label="Rating (1-5)" value={t.rating} type="number" onChange={v => update(i, 'rating', parseInt(v) || 5)} /></div>)}</SortableItem>))}</SortableList><button className="admin-add-btn" onClick={add}>+ Add Testimonial</button></div>)
+  return (<div><SortableList items={list} onReorder={setList} getId={(_, i) => i}>{list.map((t, i) => (<SortableItem key={i} id={i}>{(listeners) => (<div className="admin-card"><div className="admin-card-header"><button {...listeners} className="admin-drag-handle" title="Drag to reorder"><i className="fas fa-grip-vertical"></i></button><strong style={{flex:1}}>{t.name}</strong><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div><Input label="Name" value={t.name} onChange={v => update(i, 'name', v)} /><Input label="Role" value={t.role} onChange={v => update(i, 'role', v)} /><Input label="Text" value={t.text} onChange={v => update(i, 'text', v)} multiline /><Input label="Rating (1-5)" value={t.rating} type="number" onChange={v => update(i, 'rating', parseInt(v) || 5)} /></div>)}</SortableItem>))}</SortableList><button className="admin-add-btn" onClick={add}>+ Add Testimonial</button><div style={{marginTop:12}}><button className="admin-add-btn" onClick={() => onSave({ ...dr.current, testimonials: list }, 'Testimonials')}><i className="fas fa-save"></i> Save</button></div></div>)
 }
 
 function AwardsForm({ data, onSave }) {
   const [list, setList] = useState(data.awards || [])
   const r = useRef(true)
+  const dr = useRef(data); dr.current = data
+  const lr = useRef(list); lr.current = list
   useEffect(() => {
     if (r.current) { r.current = false; return }
-    const timer = setTimeout(() => onSave({ ...data, awards: list }, 'Awards'), 500)
+    const timer = setTimeout(() => onSave({ ...dr.current, awards: list }, 'Awards'), 500)
     return () => clearTimeout(timer)
   }, [list])
+  useEffect(() => () => onSave({ ...dr.current, awards: lr.current }, 'Awards'), [])
   const update = (i, f, v) => setList(p => { const c = [...p]; c[i] = { ...c[i], [f]: v }; return c })
   const add = () => setList(p => [...p, { title: 'Award', issuer: 'Issuer', year: '', icon: 'fa-trophy' }])
   const remove = (i) => setList(p => p.filter((_, idx) => idx !== i))
-  return (<div><SortableList items={list} onReorder={setList} getId={(_, i) => i}>{list.map((a, i) => (<SortableItem key={i} id={i}>{(listeners) => (<div className="admin-card"><div className="admin-card-header"><button {...listeners} className="admin-drag-handle" title="Drag to reorder"><i className="fas fa-grip-vertical"></i></button><strong style={{flex:1}}>{a.title}</strong><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div><Input label="Title" value={a.title} onChange={v => update(i, 'title', v)} /><Input label="Issuer" value={a.issuer} onChange={v => update(i, 'issuer', v)} /><Input label="Year" value={a.year} onChange={v => update(i, 'year', v)} /><Input label="Icon Class" value={a.icon} onChange={v => update(i, 'icon', v)} /></div>)}</SortableItem>))}</SortableList><button className="admin-add-btn" onClick={add}>+ Add Award</button></div>)
+  return (<div><SortableList items={list} onReorder={setList} getId={(_, i) => i}>{list.map((a, i) => (<SortableItem key={i} id={i}>{(listeners) => (<div className="admin-card"><div className="admin-card-header"><button {...listeners} className="admin-drag-handle" title="Drag to reorder"><i className="fas fa-grip-vertical"></i></button><strong style={{flex:1}}>{a.title}</strong><button className="admin-del-btn" onClick={() => remove(i)}>&times;</button></div><Input label="Title" value={a.title} onChange={v => update(i, 'title', v)} /><Input label="Issuer" value={a.issuer} onChange={v => update(i, 'issuer', v)} /><Input label="Year" value={a.year} onChange={v => update(i, 'year', v)} /><Input label="Icon Class" value={a.icon} onChange={v => update(i, 'icon', v)} /></div>)}</SortableItem>))}</SortableList><button className="admin-add-btn" onClick={add}>+ Add Award</button><div style={{marginTop:12}}><button className="admin-add-btn" onClick={() => onSave({ ...dr.current, awards: list }, 'Awards')}><i className="fas fa-save"></i> Save</button></div></div>)
 }
 
 function ClientsForm({ data, onSave }) {
   const [list, setList] = useState(data.clientLogos || [])
   const r = useRef(true)
-  useEffect(() => { if (r.current) { r.current = false; return }; const timer = setTimeout(() => onSave({ ...data, clientLogos: list }, 'Clients'), 500); return () => clearTimeout(timer) }, [list])
+  const dr = useRef(data); dr.current = data
+  const lr = useRef(list); lr.current = list
+  useEffect(() => { if (r.current) { r.current = false; return }; const timer = setTimeout(() => onSave({ ...dr.current, clientLogos: list }, 'Clients'), 500); return () => clearTimeout(timer) }, [list])
+  useEffect(() => () => onSave({ ...dr.current, clientLogos: lr.current }, 'Clients'), [])
   const update = (i, f, v) => setList(p => { const c = [...p]; c[i] = { ...c[i], [f]: v }; return c })
   const add = () => setList(p => [...p, { src: '/portfolio/images/logos/new-logo.png', name: 'New Client', link: '' }])
   const remove = (i) => { if (confirm('Delete this client?')) setList(p => p.filter((_, idx) => idx !== i)) }
@@ -556,6 +602,7 @@ function ClientsForm({ data, onSave }) {
       </SortableItem>))}
     </SortableList>
     <button className="admin-add-btn" onClick={add}>+ Add Client</button>
+    <div style={{marginTop:12}}><button className="admin-add-btn" onClick={() => onSave({ ...dr.current, clientLogos: list }, 'Clients')}><i className="fas fa-save"></i> Save</button></div>
   </div>)
 }
 
@@ -564,11 +611,15 @@ function SectionsForm({ data, onSave }) {
   const [sections, setSections] = useState(data.settings?.sections || {})
   const [customSections, setCustomSections] = useState(data.customSections || [])
   const r = useRef(true)
+  const dr = useRef(data); dr.current = data
+  const sectionsRef = useRef(sections); sectionsRef.current = sections
+  const csRef = useRef(customSections); csRef.current = customSections
   useEffect(() => {
     if (r.current) { r.current = false; return }
-    const timer = setTimeout(() => onSave({ ...data, settings: { ...data.settings, sections }, customSections }, 'Sections'), 400)
+    const timer = setTimeout(() => onSave({ ...dr.current, settings: { ...dr.current.settings, sections }, customSections }, 'Sections'), 400)
     return () => clearTimeout(timer)
   }, [sections, customSections])
+  useEffect(() => () => onSave({ ...dr.current, settings: { ...dr.current.settings, sections: sectionsRef.current }, customSections: csRef.current }, 'Sections'), [])
 
   const toggle = (key) => setSections(p => ({ ...p, [key]: { ...p[key], visible: !p[key]?.visible } }))
 
@@ -630,6 +681,7 @@ function SectionsForm({ data, onSave }) {
         ))}
       </SortableList>
       <button className="admin-add-btn" onClick={csAdd}>+ Add Custom Section</button>
+      <div style={{marginTop:12}}><button className="admin-add-btn" onClick={() => onSave({ ...dr.current, settings: { ...dr.current.settings, sections }, customSections }, 'Sections')}><i className="fas fa-save"></i> Save</button></div>
     </div>
   )
 }
@@ -639,11 +691,15 @@ function DesignForm({ data, onSave }) {
   const [theme, setTheme] = useState(data.settings?.theme || {})
   const [sectionDesign, setSectionDesign] = useState(data.sectionDesign || {})
   const r = useRef(true)
+  const dr = useRef(data); dr.current = data
+  const themeRef = useRef(theme); themeRef.current = theme
+  const sdRef = useRef(sectionDesign); sdRef.current = sectionDesign
   useEffect(() => {
     if (r.current) { r.current = false; return }
-    const timer = setTimeout(() => { onSave({ ...data, settings: { ...data.settings, theme }, sectionDesign }, 'Design'); applyTheme(theme) }, 400)
+    const timer = setTimeout(() => { onSave({ ...dr.current, settings: { ...dr.current.settings, theme }, sectionDesign }, 'Design'); applyTheme(theme) }, 400)
     return () => clearTimeout(timer)
   }, [theme, sectionDesign])
+  useEffect(() => () => onSave({ ...dr.current, settings: { ...dr.current.settings, theme: themeRef.current }, sectionDesign: sdRef.current }, 'Design'), [])
 
   const setThemeField = (key, val) => setTheme(p => ({ ...p, [key]: val }))
   const setSecDesign = (key, f, val) => setSectionDesign(p => ({ ...p, [key]: { ...(p[key] || {}), [f]: val } }))
@@ -679,6 +735,7 @@ function DesignForm({ data, onSave }) {
           </div>
         ))}
       </div>
+      <div style={{marginTop:12}}><button className="admin-add-btn" onClick={() => onSave({ ...dr.current, settings: { ...dr.current.settings, theme }, sectionDesign }, 'Design')}><i className="fas fa-save"></i> Save</button></div>
     </div>
   )
 }
@@ -687,11 +744,14 @@ function DesignForm({ data, onSave }) {
 function PagesForm({ data, onSave }) {
   const [pages, setPages] = useState(data.customPages || [])
   const r = useRef(true)
+  const dr = useRef(data); dr.current = data
+  const pagesRef = useRef(pages); pagesRef.current = pages
   useEffect(() => {
     if (r.current) { r.current = false; return }
-    const timer = setTimeout(() => onSave({ ...data, customPages: pages }, 'Pages'), 400)
+    const timer = setTimeout(() => onSave({ ...dr.current, customPages: pages }, 'Pages'), 400)
     return () => clearTimeout(timer)
   }, [pages])
+  useEffect(() => () => onSave({ ...dr.current, customPages: pagesRef.current }, 'Pages'), [])
 
   const add = () => setPages(p => [...p, { id: Date.now(), title: 'New Page', slug: 'new-page', content: '', enabled: true, metaTitle: '', metaDesc: '' }])
   const update = (i, f, v) => setPages(p => { const c = [...p]; c[i] = { ...c[i], [f]: v }; return c })
@@ -717,6 +777,7 @@ function PagesForm({ data, onSave }) {
         </div>
       ))}
       <button className="admin-add-btn" onClick={add}>+ Add Page</button>
+      <div style={{marginTop:12}}><button className="admin-add-btn" onClick={() => onSave({ ...dr.current, customPages: pages }, 'Pages')}><i className="fas fa-save"></i> Save</button></div>
     </div>
   )
 }
@@ -725,7 +786,10 @@ function PagesForm({ data, onSave }) {
 function MediaForm({ data, onSave }) {
   const [images, setImages] = useState(data.settings?.images || [])
   const r = useRef(true)
-  useEffect(() => { if (r.current) { r.current = false; return }; const timer = setTimeout(() => { onSave({ ...data, settings: { ...data.settings, images } }, 'Media') }, 400); return () => clearTimeout(timer) }, [images])
+  const dr = useRef(data); dr.current = data
+  const imagesRef = useRef(images); imagesRef.current = images
+  useEffect(() => { if (r.current) { r.current = false; return }; const timer = setTimeout(() => { onSave({ ...dr.current, settings: { ...dr.current.settings, images } }, 'Media') }, 400); return () => clearTimeout(timer) }, [images])
+  useEffect(() => () => onSave({ ...dr.current, settings: { ...dr.current.settings, images: imagesRef.current } }, 'Media'), [])
   const [newUrl, setNewUrl] = useState(''); const [newLabel, setNewLabel] = useState(''); const [newCat, setNewCat] = useState('general')
   const add = () => { if (!newUrl.trim()) return; setImages(p => [...p, { id: Date.now(), url: newUrl.trim(), label: newLabel.trim() || 'Untitled', category: newCat }]); setNewUrl(''); setNewLabel('') }
   const remove = (id) => { if (confirm('Remove?')) setImages(p => p.filter(img => img.id !== id)) }
@@ -750,15 +814,18 @@ function MediaForm({ data, onSave }) {
     <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(140px,1fr))',gap:8}}>
       {filtered.map(img => (<div key={img.id} className="admin-img-card"><img src={img.url} alt={img.label} loading="lazy" onError={e => e.target.style.display='none'} /><div className="admin-img-info"><span className="admin-img-label">{img.label}</span><span className="admin-img-cat">{img.category}</span></div><button className="admin-img-del" onClick={() => remove(img.id)} title="Remove">&times;</button></div>))}
       {images.length === 0 && <p style={{fontSize:'0.78rem',color:'var(--text-muted)',gridColumn:'1/-1',textAlign:'center',padding:40}}>No images yet.</p>}
+      <div style={{marginTop:12}}><button className="admin-add-btn" onClick={() => onSave({ ...dr.current, settings: { ...dr.current.settings, images } }, 'Media')}><i className="fas fa-save"></i> Save</button></div>
     </div>
   </div>)
 }
 
 /* ========== TOOLS ========== */
 function ToolsForm({ data, onSave }) {
-  const settings = data.settings || {}; const tools = settings.tools || {}
-  const [d, setD] = useState(tools); const r = useRef(true)
-  useEffect(() => { if (r.current) { r.current = false; return }; const timer = setTimeout(() => { onSave({ ...data, settings: { ...settings, tools: d } }, 'Tools') }, 500); return () => clearTimeout(timer) }, [d])
+  const [d, setD] = useState((data.settings?.tools) || {}); const r = useRef(true)
+  const dr = useRef(data); dr.current = data
+  const dRef = useRef(d); dRef.current = d
+  useEffect(() => { if (r.current) { r.current = false; return }; const timer = setTimeout(() => { onSave({ ...dr.current, settings: { ...dr.current.settings, tools: d } }, 'Tools') }, 500); return () => clearTimeout(timer) }, [d])
+  useEffect(() => () => onSave({ ...dr.current, settings: { ...dr.current.settings, tools: dRef.current } }, 'Tools'), [])
   const set = (k, v) => setD(p => ({ ...p, [k]: v }))
 
   return (<div>
@@ -768,5 +835,6 @@ function ToolsForm({ data, onSave }) {
     <div className="admin-card"><strong>SEO & Performance</strong><Input label="Font Family" value={d.fontFamily || 'Inter'} onChange={v => set('fontFamily', v)} /><Input label="Image CDN URL" value={d.imageCdn || ''} onChange={v => set('imageCdn', v)} /></div>
     <div className="admin-card"><strong>Maintenance Mode</strong><label className="admin-toggle-label"><span>Enable Maintenance Mode</span><label className="admin-toggle"><input type="checkbox" checked={!!d.maintenanceMode} onChange={() => set('maintenanceMode', !d.maintenanceMode)} /><span className="admin-toggle-slider"></span></label></label>{d.maintenanceMode && <Input label="Maintenance Message" value={d.maintenanceMsg} onChange={v => set('maintenanceMsg', v)} multiline />}</div>
     <div className="admin-card"><strong>Toggles</strong>{['newsletterEnabled','cookieConsentEnabled','pwaEnabled','rssEnabled'].map(key => (<div key={key} className="admin-toggle-label"><span>{key.replace(/Enabled$/, '').replace(/([A-Z])/g, ' $1').trim()}</span><label className="admin-toggle"><input type="checkbox" checked={!!d[key]} onChange={() => set(key, !d[key])} /><span className="admin-toggle-slider"></span></label></div>))}</div>
+    <div style={{marginTop:12}}><button className="admin-add-btn" onClick={() => onSave({ ...dr.current, settings: { ...dr.current.settings, tools: d } }, 'Tools')}><i className="fas fa-save"></i> Save</button></div>
   </div>)
 }

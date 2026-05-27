@@ -286,6 +286,9 @@ export default function VisualBuilder({ data, onSave, onExit }) {
   const [popups, setPopups] = useState(() => data.builder?.popups || [])
   const [activePopupId, setActivePopupId] = useState(null)
   const [editingPopupTrigger, setEditingPopupTrigger] = useState(false)
+  const globalWidgetsRef = useRef(globalWidgets); globalWidgetsRef.current = globalWidgets
+  const themesRef = useRef(themes); themesRef.current = themes
+  const popupsRef = useRef(popups); popupsRef.current = popups
   const r = useRef(true)
   const inlinePrevRef = useRef(null)
   const latestRef = useRef({ rows, localData })
@@ -299,7 +302,7 @@ export default function VisualBuilder({ data, onSave, onExit }) {
   useEffect(() => {
     if (data && Object.keys(data).length) {
       syncingRef.current = true
-      setLocalData(prev => { const m = JSON.parse(JSON.stringify(data)); if (prev?.builder?.rows) m.builder = { rows: prev.builder.rows, globalWidgets: prev.builder?.globalWidgets || globalWidgets }; return m })
+      setLocalData(prev => { const m = JSON.parse(JSON.stringify(data)); if (prev?.builder?.rows) m.builder = { rows: prev.builder.rows, globalWidgets: prev.builder?.globalWidgets || globalWidgetsRef.current }; return m })
     }
   }, [data])
 
@@ -309,7 +312,7 @@ export default function VisualBuilder({ data, onSave, onExit }) {
     const timer = setTimeout(() => {
       const { rows: r2, localData: d } = latestRef.current
       const saved = JSON.parse(JSON.stringify(d))
-      saved.builder = { rows: r2, globalWidgets, themes, popups }
+      saved.builder = { rows: r2, globalWidgets: globalWidgetsRef.current, themes: themesRef.current, popups: popupsRef.current }
       if (saved.settings?.sections) {
         const visibles = new Set()
         r2.forEach((row, i) => {
@@ -326,11 +329,37 @@ export default function VisualBuilder({ data, onSave, onExit }) {
     }, 500)
     return () => clearTimeout(timer)
   }, [rows, localData, globalWidgets])
+
+  useEffect(() => () => {
+    const { rows: r2, localData: d } = latestRef.current
+    const saved = JSON.parse(JSON.stringify(d))
+    saved.builder = { rows: r2, globalWidgets: globalWidgetsRef.current, themes: themesRef.current, popups: popupsRef.current }
+    if (saved.settings?.sections) {
+      r2.forEach((row, i) => {
+        if ((row.type === 'section' || row.type === 'widget-section') && row.sectionKey) {
+          if (!saved.settings.sections[row.sectionKey]) saved.settings.sections[row.sectionKey] = {}
+          saved.settings.sections[row.sectionKey].visible = row.hidden !== true
+          saved.settings.sections[row.sectionKey].order = i
+        }
+      })
+    }
+    onSave(saved, 'Builder')
+  }, [])
   
   const isDirty = useMemo(() => {
-    const cur = JSON.stringify(localData) + JSON.stringify(rows)
-    return cur !== lastSavedRef.current
-  }, [localData, rows])
+    const copy = JSON.parse(JSON.stringify(localData))
+    copy.builder = { rows, globalWidgets, themes, popups }
+    if (copy.settings?.sections) {
+      rows.forEach((row, i) => {
+        if ((row.type === 'section' || row.type === 'widget-section') && row.sectionKey) {
+          if (!copy.settings.sections[row.sectionKey]) copy.settings.sections[row.sectionKey] = {}
+          copy.settings.sections[row.sectionKey].visible = row.hidden !== true
+          copy.settings.sections[row.sectionKey].order = i
+        }
+      })
+    }
+    return JSON.stringify(copy) !== lastSavedRef.current
+  }, [localData, rows, globalWidgets, themes, popups])
 
   const pushHistory = useCallback((newRows) => {
     setRows(newRows)
@@ -471,7 +500,7 @@ export default function VisualBuilder({ data, onSave, onExit }) {
   function handleSaveNow() {
     const { localData: d } = latestRef.current
     const saved = JSON.parse(JSON.stringify(d))
-    saved.builder = { rows: latestRef.current.rows, globalWidgets, themes, popups }
+    saved.builder = { rows: latestRef.current.rows, globalWidgets: globalWidgetsRef.current, themes: themesRef.current, popups: popupsRef.current }
     if (saved.settings?.sections) {
       const visibles = new Set()
       latestRef.current.rows.forEach((row, i) => {
@@ -483,6 +512,7 @@ export default function VisualBuilder({ data, onSave, onExit }) {
         }
       })
     }
+    lastSavedRef.current = JSON.stringify(saved)
     onSave(saved, 'Builder')
   }
 
