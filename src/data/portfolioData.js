@@ -29,7 +29,7 @@ I am always open to connecting with industry professionals, agency partners, and
   ],
   available: true,
   whatsapp: '201009852109',
-  cvUrl: '/portfolio/CV_Mohammed_Kamal.pdf',
+  cvUrl: '/portfolio/Mohammed_Kamal_Shaat_CV_Final.pdf',
 }
 
 export const experience = [
