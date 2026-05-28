@@ -104,35 +104,36 @@ function renderSearchConsoleMeta(metaContent) {
   el.setAttribute('content', metaContent)
 }
 
+const BASE_PATH = '/portfolio'
+
+function parseArticlePath(pathname) {
+  const p = pathname.startsWith(BASE_PATH) ? pathname.slice(BASE_PATH.length) : pathname
+  const match = p.match(/^\/article\/(.+)$/)
+  if (match) {
+    const slug = match[1]
+    const list = articlesRef.current
+    const found = list.findIndex(a => a.slug === slug || slugify(a.title) === slug)
+    return found >= 0 ? found : null
+  }
+  return null
+}
+
 function App() {
   const [activeSection, setActiveSection] = useState('home')
   const [editedData, setEditedData] = useState(loadSaved)
-  const [articleHashIdx, setArticleHashIdx] = useState(null)
+  const [articlePathIdx, setArticlePathIdx] = useState(null)
   const articlesRef = useRef(editedData?.articles || defaultArticles)
   useEffect(() => { articlesRef.current = editedData?.articles || defaultArticles }, [editedData])
 
   useEffect(() => { trackVisit(); reportWebVitals() }, [])
 
-  function parseArticleHash(hash) {
-    const oldMatch = hash.match(/^#article-(\d+)$/)
-    if (oldMatch) return parseInt(oldMatch[1])
-    const newMatch = hash.match(/^#article\/(.+)$/)
-    if (newMatch) {
-      const slug = newMatch[1]
-      const list = articlesRef.current
-      const found = list.findIndex(a => a.slug === slug || slugify(a.title) === slug)
-      return found >= 0 ? found : null
-    }
-    return null
-  }
-
   useEffect(() => {
-    setArticleHashIdx(parseArticleHash(window.location.hash))
-    const onHashChange = () => {
-      setArticleHashIdx(parseArticleHash(window.location.hash))
+    setArticlePathIdx(parseArticlePath(window.location.pathname))
+    const onPopState = () => {
+      setArticlePathIdx(parseArticlePath(window.location.pathname))
     }
-    window.addEventListener('hashchange', onHashChange)
-    return () => window.removeEventListener('hashchange', onHashChange)
+    window.addEventListener('popstate', onPopState)
+    return () => window.removeEventListener('popstate', onPopState)
   }, [])
 
   useEffect(() => {
@@ -168,7 +169,7 @@ function App() {
     { key: 'process', comp: <ServicesTimeline servicesTimeline={d?.servicesTimeline} /> },
     { key: 'tools', comp: <ToolsShowcase tools={d?.tools} /> },
     { key: 'faq', comp: <FAQSection faq={d?.faq} /> },
-    { key: 'articles', comp: <Articles articles={d?.articles} initialArticleIdx={articleHashIdx} onArticleOpened={(idx) => { if (idx < 0) setArticleHashIdx(null); else setArticleHashIdx(idx) }} /> },
+    { key: 'articles', comp: <Articles articles={d?.articles} initialArticleIdx={articlePathIdx} onArticleOpened={(idx) => { if (idx < 0) setArticlePathIdx(null); else setArticlePathIdx(idx) }} /> },
     { key: 'portfolio-download', comp: <PortfolioDownload /> },
     { key: 'contact', comp: <SayHello /> },
     { key: 'map', comp: <GoogleMapsEmbed location={d?.personalData?.location} /> },

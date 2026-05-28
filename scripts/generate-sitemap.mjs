@@ -73,7 +73,7 @@ const pages = [
 articles.forEach((a) => {
   const slug = slugify(a.title)
   pages.push({
-    loc: `${BASE}/#article/${slug}`,
+    loc: `${BASE}/article/${slug}`,
     priority: 0.8,
     changefreq: 'monthly',
     lastmod: a.date,

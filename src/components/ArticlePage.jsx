@@ -110,7 +110,7 @@ function updateMeta(a, idx) {
   set('og:title', title)
   set('og:description', a.description)
   set('og:image', a.image || `${BASE}/photo.png`)
-  set('og:url', a.slug ? `${BASE}/#article/${a.slug}` : `${BASE}/#article-${idx}`)
+  set('og:url', a.slug ? `${BASE}/article/${a.slug}` : `${BASE}/#article-${idx}`)
   set('twitter:title', title)
   set('twitter:description', a.description)
   set('twitter:image', a.image || `${BASE}/photo.png`)
@@ -143,12 +143,25 @@ export default function ArticlePage({ articleIdx, onClose, articles: editedArtic
   useEffect(() => { setIdx(articleIdx) }, [articleIdx])
 
   useEffect(() => {
-    if (a) {
-      updateMeta(a, idx)
-      window.location.hash = a.slug ? `article/${a.slug}` : `article-${idx}`
-    }
-    return () => { restoreMeta(); window.location.hash = '' }
+    if (a) updateMeta(a, idx)
+    return () => { restoreMeta() }
   }, [idx, a])
+
+  useEffect(() => {
+    if (!a) return
+    const path = a.slug ? `/portfolio/article/${a.slug}` : null
+    if (path && window.location.pathname !== path) {
+      window.history.pushState(null, '', path)
+    }
+  }, [idx])
+
+  const handleClose = () => {
+    if (window.location.pathname.startsWith('/portfolio/article/')) {
+      window.history.pushState(null, '', '/portfolio')
+    }
+    restoreMeta()
+    onClose()
+  }
 
   const navigate = (dir) => {
     const next = idx + dir
@@ -169,11 +182,11 @@ export default function ArticlePage({ articleIdx, onClose, articles: editedArtic
     <AnimatePresence>
       <motion.div className="article-page-overlay"
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        onClick={(e) => { if (e.target.className === 'article-page-overlay') onClose() }}>
+        onClick={(e) => { if (e.target.className === 'article-page-overlay') handleClose() }}>
         <motion.div className="article-page"
           initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }}>
           <ReadingProgress />
-          <button className="article-page-close" onClick={onClose}>&times;</button>
+          <button className="article-page-close" onClick={handleClose}>&times;</button>
 
           {a.image && (
             <div className="article-page-hero">
