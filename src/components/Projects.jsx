@@ -54,7 +54,7 @@ export default function Projects({ projects: editedProjects }) {
             </div>
           </div>
           <motion.div className="featured-project-img" whileHover={{ scale: 1.02 }}>
-            <img src="/portfolio/logo.png" alt={featured.title} loading="lazy" />
+            <picture><source srcSet="/portfolio/logo.webp" type="image/webp" /><img src="/portfolio/logo.png" alt={featured.title} loading="lazy" /></picture>
           </motion.div>
         </motion.div>
 
