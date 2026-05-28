@@ -312,7 +312,7 @@ export default function VisualBuilder({ data, onSave, onExit }) {
     const timer = setTimeout(() => {
       const { rows: r2, localData: d } = latestRef.current
       const saved = JSON.parse(JSON.stringify(d))
-      saved.builder = { rows: r2, globalWidgets: globalWidgetsRef.current, themes: themesRef.current, popups: popupsRef.current }
+      saved.builder = { ...(saved.builder || {}), rows: r2, globalWidgets: globalWidgetsRef.current, themes: themesRef.current, popups: popupsRef.current }
       if (saved.settings?.sections) {
         const visibles = new Set()
         r2.forEach((row, i) => {
@@ -333,7 +333,7 @@ export default function VisualBuilder({ data, onSave, onExit }) {
   useEffect(() => () => {
     const { rows: r2, localData: d } = latestRef.current
     const saved = JSON.parse(JSON.stringify(d))
-    saved.builder = { rows: r2, globalWidgets: globalWidgetsRef.current, themes: themesRef.current, popups: popupsRef.current }
+    saved.builder = { ...(saved.builder || {}), rows: r2, globalWidgets: globalWidgetsRef.current, themes: themesRef.current, popups: popupsRef.current }
     if (saved.settings?.sections) {
       r2.forEach((row, i) => {
         if ((row.type === 'section' || row.type === 'widget-section') && row.sectionKey) {
@@ -348,7 +348,7 @@ export default function VisualBuilder({ data, onSave, onExit }) {
   
   const isDirty = useMemo(() => {
     const copy = JSON.parse(JSON.stringify(localData))
-    copy.builder = { rows, globalWidgets, themes, popups }
+    copy.builder = { ...(copy.builder || {}), rows, globalWidgets, themes, popups }
     if (copy.settings?.sections) {
       rows.forEach((row, i) => {
         if ((row.type === 'section' || row.type === 'widget-section') && row.sectionKey) {
@@ -500,7 +500,7 @@ export default function VisualBuilder({ data, onSave, onExit }) {
   function handleSaveNow() {
     const { localData: d } = latestRef.current
     const saved = JSON.parse(JSON.stringify(d))
-    saved.builder = { rows: latestRef.current.rows, globalWidgets: globalWidgetsRef.current, themes: themesRef.current, popups: popupsRef.current }
+    saved.builder = { ...(saved.builder || {}), rows: latestRef.current.rows, globalWidgets: globalWidgetsRef.current, themes: themesRef.current, popups: popupsRef.current }
     if (saved.settings?.sections) {
       const visibles = new Set()
       latestRef.current.rows.forEach((row, i) => {
