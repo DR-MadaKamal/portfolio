@@ -78,14 +78,14 @@ export default function Hero({ personalData: editedPersonalData, quotes: editedQ
                   onClick={(e) => e.stopPropagation()}>
                   <h3>{t.contactVia}</h3>
                   <div className="hire-options">
-                    <a href={`https://wa.me/${data.whatsapp}`} target="_blank" rel="noopener noreferrer" className="hire-option hire-wa"
-                      onClick={() => setHireOpen(false)}>
+                    <button className="hire-option hire-wa"
+                      onClick={() => { window.open(`https://wa.me/${data.whatsapp}`, '_blank', 'noopener'); setHireOpen(false) }}>
                       <i className="fab fa-whatsapp" /> WhatsApp
-                    </a>
-                    <a href={`mailto:${data.email}`} className="hire-option hire-em"
-                      onClick={() => setHireOpen(false)}>
+                    </button>
+                    <button className="hire-option hire-em"
+                      onClick={() => { window.location.href = `mailto:${data.email}?subject=Hiring Inquiry`; setHireOpen(false) }}>
                       <i className="fas fa-envelope" /> Email
-                    </a>
+                    </button>
                   </div>
                   <button className="hire-x" onClick={() => setHireOpen(false)} aria-label="Close">&times;</button>
                 </motion.div>
