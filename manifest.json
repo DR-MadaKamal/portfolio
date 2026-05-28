@@ -1,0 +1,13 @@
+{
+  "name": "Mohammed Kamal Shaat | Pharmacist & Full-Stack Digital Marketer",
+  "short_name": "M. Kamal Portfolio",
+  "description": "Portfolio of Mohammed Kamal Shaat — Pharmacist & Full-Stack Digital Marketer",
+  "start_url": "/portfolio/",
+  "display": "standalone",
+  "background_color": "#0f0f1a",
+  "theme_color": "#0f0f1a",
+  "icons": [
+    { "src": "/portfolio/logo.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/portfolio/logo.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

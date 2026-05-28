@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://DR-MadaKamal.github.io/portfolio/sitemap.xml
