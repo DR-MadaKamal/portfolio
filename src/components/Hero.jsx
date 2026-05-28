@@ -1,4 +1,4 @@
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import { useState, useEffect } from 'react'
 
 import { personalData, quotes as defaultQuotes } from '../data/portfolioData'
@@ -27,6 +27,14 @@ export default function Hero({ personalData: editedPersonalData, quotes: editedQ
   }, [quotes.length])
   const quote = quotes[qIdx]
 
+  const [hireOpen, setHireOpen] = useState(false)
+  useEffect(() => {
+    if (!hireOpen) return
+    const onKey = (e) => { if (e.key === 'Escape') setHireOpen(false) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [hireOpen])
+
   return (
     <section id="home" className="hero">
       <motion.div className="container hero-grid" variants={container} initial="initial" animate="animate">
@@ -49,8 +57,8 @@ export default function Hero({ personalData: editedPersonalData, quotes: editedQ
           <motion.p variants={child}>{data.heroSummary || data.summary}</motion.p>
 
           <motion.div className="hero-cta" variants={child}>
-            <MagneticButton as={motion.a} href={`mailto:${data.email}`} className="btn btn-solid"
-              whileTap={{ scale: 0.97 }}>
+            <MagneticButton as={motion.button} className="btn btn-solid"
+              whileTap={{ scale: 0.97 }} onClick={() => setHireOpen(true)}>
               <i className="fas fa-paper-plane" /> {t.hero.hire}
             </MagneticButton>
             <MagneticButton as={motion.a} href="#projects" className="btn"
@@ -59,6 +67,31 @@ export default function Hero({ personalData: editedPersonalData, quotes: editedQ
             </MagneticButton>
             <DownloadCV />
           </motion.div>
+
+          <AnimatePresence>
+            {hireOpen && (
+              <motion.div className="hire-overlay"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                onClick={() => setHireOpen(false)}>
+                <motion.div className="hire-modal"
+                  initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+                  onClick={(e) => e.stopPropagation()}>
+                  <h3>{t.contactVia}</h3>
+                  <div className="hire-options">
+                    <a href={`https://wa.me/${data.whatsapp}`} target="_blank" rel="noopener noreferrer" className="hire-option hire-wa"
+                      onClick={() => setHireOpen(false)}>
+                      <i className="fab fa-whatsapp" /> WhatsApp
+                    </a>
+                    <a href={`mailto:${data.email}`} className="hire-option hire-em"
+                      onClick={() => setHireOpen(false)}>
+                      <i className="fas fa-envelope" /> Email
+                    </a>
+                  </div>
+                  <button className="hire-x" onClick={() => setHireOpen(false)} aria-label="Close">&times;</button>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {data.available && (
             <motion.div className="available-badge" variants={child}>

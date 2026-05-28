@@ -52,7 +52,18 @@
       .scroll-indicator{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--text-muted);font-size:.7rem;text-transform:uppercase;letter-spacing:1.5px;animation:bounce 2s infinite}
       @keyframes bounce{0%,20%,50%,80%,to{transform:translateX(-50%) translateY(0)}40%{transform:translateX(-50%) translateY(-8px)}60%{transform:translateX(-50%) translateY(-4px)}}
       @media(max-width:768px){.hero-grid{grid-template-columns:1fr;text-align:center}.hero p{margin:0 auto 20px}.navbar .container{padding:0 16px}.section-title{font-size:1.5rem;margin-bottom:32px}}
-      @media(max-width:500px){.hero h1{font-size:1.6rem}.section-title{font-size:1.3rem}}
+      .hire-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;z-index:9999;padding:20px}
+      .hire-modal{background:var(--bg-card);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:40px;text-align:center;position:relative;width:100%;max-width:360px;box-shadow:0 25px 60px rgba(0,0,0,.5)}
+      .hire-modal h3{font-size:1.2rem;font-weight:600;margin-bottom:24px;color:var(--text)}
+      .hire-options{display:flex;flex-direction:column;gap:12px}
+      .hire-option{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 20px;border-radius:12px;font-size:1rem;font-weight:600;text-decoration:none;transition:.25s;border:1px solid transparent}
+      .hire-wa{background:#25D36620;color:#25D366;border-color:#25D36630}
+      .hire-wa:hover{background:#25D366;color:#fff;border-color:#25D366}
+      .hire-em{background:var(--accent)15;color:var(--accent);border-color:var(--accent)30}
+      .hire-em:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+      .hire-x{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--text-muted);font-size:1.5rem;cursor:pointer;line-height:1;padding:4px}
+      .hire-x:hover{color:var(--text)}
+      @media(max-width:500px){.hire-modal{padding:28px 20px}.hire-modal h3{font-size:1rem}.hire-option{font-size:.9rem;padding:12px 16px}}
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
