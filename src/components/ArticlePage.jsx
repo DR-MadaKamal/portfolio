@@ -110,7 +110,7 @@ function updateMeta(a, idx) {
   set('og:title', title)
   set('og:description', a.description)
   set('og:image', a.image || `${BASE}/photo.png`)
-  set('og:url', `${BASE}/#article-${idx}`)
+  set('og:url', a.slug ? `${BASE}/#article/${a.slug}` : `${BASE}/#article-${idx}`)
   set('twitter:title', title)
   set('twitter:description', a.description)
   set('twitter:image', a.image || `${BASE}/photo.png`)
@@ -145,7 +145,7 @@ export default function ArticlePage({ articleIdx, onClose, articles: editedArtic
   useEffect(() => {
     if (a) {
       updateMeta(a, idx)
-      window.location.hash = `article-${idx}`
+      window.location.hash = a.slug ? `article/${a.slug}` : `article-${idx}`
     }
     return () => { restoreMeta(); window.location.hash = '' }
   }, [idx, a])

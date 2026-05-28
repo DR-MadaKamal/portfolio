@@ -6,7 +6,7 @@
   "homepage": "https://DR-MadaKamal.github.io/portfolio",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/generate-sitemap.mjs && vite build",
     "preview": "vite preview",
     "deploy": "gh-pages -d dist"
   },

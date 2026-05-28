@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense, lazy } from 'react'
+import { useState, useEffect, useRef, Suspense, lazy } from 'react'
 import ErrorBoundary from './components/ErrorBoundary'
 import LoadingSkeleton from './components/LoadingSkeleton'
 import Navbar from './components/Navbar'
@@ -35,6 +35,7 @@ import AnalyticsDashboard from './components/AnalyticsDashboard'
 import WhatsAppButton from './components/WhatsAppButton'
 import { LangProvider } from './context/LangContext'
 import { personalData as defaultPersonalData, experience as defaultExperience, skillCategories as defaultSkills, education as defaultEducation, awards as defaultAwards, certifications as defaultCerts, projects as defaultProjects, articles as defaultArticles, testimonials as defaultTestimonials, quotes as defaultQuotes, tools as defaultToolsData, clientLogos as defaultLogos, servicesTimeline as defaultTimeline, faq as defaultFaq, courses as defaultCourses, portfolioWorks as defaultWorks, pricingPlans as defaultPricing, caseStudies as defaultCaseStudies, languagesList as defaultLanguages, businessHours as defaultHours } from './data/portfolioData'
+import { slugify } from './utils/slugify'
 import { reportWebVitals } from './utils/webVitals'
 
 const STORAGE_KEY = 'portfolio-admin-data'
@@ -107,23 +108,28 @@ function App() {
   const [activeSection, setActiveSection] = useState('home')
   const [editedData, setEditedData] = useState(loadSaved)
   const [articleHashIdx, setArticleHashIdx] = useState(null)
+  const articlesRef = useRef(editedData?.articles || defaultArticles)
+  useEffect(() => { articlesRef.current = editedData?.articles || defaultArticles }, [editedData])
 
   useEffect(() => { trackVisit(); reportWebVitals() }, [])
 
-  useEffect(() => {
-    if (editedData?.settings?.theme) applyTheme(editedData.settings.theme)
-    if (editedData?.settings?.tools?.searchConsoleMeta) renderSearchConsoleMeta(editedData.settings.tools.searchConsoleMeta)
-  }, [editedData])
+  function parseArticleHash(hash) {
+    const oldMatch = hash.match(/^#article-(\d+)$/)
+    if (oldMatch) return parseInt(oldMatch[1])
+    const newMatch = hash.match(/^#article\/(.+)$/)
+    if (newMatch) {
+      const slug = newMatch[1]
+      const list = articlesRef.current
+      const found = list.findIndex(a => a.slug === slug || slugify(a.title) === slug)
+      return found >= 0 ? found : null
+    }
+    return null
+  }
 
   useEffect(() => {
-    const match = window.location.hash.match(/^#article-(\d+)$/)
-    if (match) {
-      setArticleHashIdx(parseInt(match[1]))
-    }
+    setArticleHashIdx(parseArticleHash(window.location.hash))
     const onHashChange = () => {
-      const m = window.location.hash.match(/^#article-(\d+)$/)
-      if (m) setArticleHashIdx(parseInt(m[1]))
-      else setArticleHashIdx(null)
+      setArticleHashIdx(parseArticleHash(window.location.hash))
     }
     window.addEventListener('hashchange', onHashChange)
     return () => window.removeEventListener('hashchange', onHashChange)

@@ -3,3 +3,5 @@ dist
 .DS_Store
 *.local
 vite*.log
+public/sitemap.xml
+public/robots.txt

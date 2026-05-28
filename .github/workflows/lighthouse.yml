@@ -1,0 +1,28 @@
+name: Lighthouse
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 8 * * 0'
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      - name: Start local server
+        run: |
+          npx serve -s dist -l 3000 &
+          sleep 3
+      - name: Run Lighthouse
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          urls: http://localhost:3000
+          uploadArtifacts: true
+          temporaryPublicStorage: true

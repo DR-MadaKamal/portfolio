@@ -287,8 +287,13 @@ export const courses = [
 
 const articleAuthor = { name: 'Mohammed Kamal Shaat', avatar: '/portfolio/photo.png' }
 
+function slugify(text) {
+  return text.toLowerCase().replace(/['']/g,'').replace(/[&]/g,'and').replace(/[^a-z0-9-]+/g,'-').replace(/^-+|-+$/g,'')
+}
+
 export const articles = [
   {
+    slug: slugify('The Role of AI in Modern Medical Marketing'),
     title: 'The Role of AI in Modern Medical Marketing',
     description: 'How artificial intelligence is transforming healthcare marketing — from patient targeting to personalized content creation and predictive analytics.',
     image: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=600',
@@ -327,6 +332,7 @@ As AI continues to evolve, the integration of natural language processing and co
 The key is to embrace AI not as a replacement for human creativity, but as a powerful tool that amplifies our ability to connect, educate, and heal.`,
   },
   {
+    slug: slugify('Building Brands in the Pharmaceutical Industry'),
     title: 'Building Brands in the Pharmaceutical Industry',
     description: 'A deep dive into brand strategy for pharma: regulatory considerations, HCP engagement, and omnichannel approaches that drive results.',
     image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=600',
@@ -382,6 +388,7 @@ HCP Satisfaction  > 4.5/5
 \`\`\``,
   },
   {
+    slug: slugify('Motion Graphics: The Secret Weapon for Engagement'),
     title: 'Motion Graphics: The Secret Weapon for Engagement',
     description: 'Why high-end motion graphics outperform static content in digital campaigns and how to leverage them effectively.',
     image: 'https://images.unsplash.com/photo-1536240478700-b869070f9279?w=600',
@@ -429,6 +436,7 @@ Animated journey maps that help patients understand treatment pathways in a clea
 Professional motion graphics require expertise in After Effects, Cinema 4D, and sometimes custom scripting. The investment pays off through higher engagement rates, longer dwell times, and improved brand recall.`,
   },
   {
+    slug: slugify('SEO for Healthcare Websites: A Complete Guide'),
     title: 'SEO for Healthcare Websites: A Complete Guide',
     description: 'Master healthcare SEO with strategies for medical websites, local search optimization, and compliance-aware content marketing.',
     image: 'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=600',
@@ -494,6 +502,7 @@ DON'T: Promise cures, make unsubstantiated claims, or substitute medical advice
 Healthcare SEO is a long-term investment that pays dividends in patient trust and organic visibility.`,
   },
   {
+    slug: slugify('The Complete Guide to Facebook & Meta Ads for Clinics'),
     title: 'The Complete Guide to Facebook & Meta Ads for Clinics',
     description: 'Step-by-step strategies for running compliant, high-ROI Meta advertising campaigns for healthcare clinics and medical practices.',
     image: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=600',
@@ -570,6 +579,7 @@ Always implement the Meta Pixel and set up conversion tracking for:
 Healthcare advertising on Meta can deliver 3-5x ROAS when done correctly with the right creative and targeting strategy.`,
   },
   {
+    slug: slugify('How to Build a High-Converting Medical Website'),
     title: 'How to Build a High-Converting Medical Website',
     description: 'From UX design to patient journey mapping — everything you need to create a medical website that attracts, converts, and retains patients.',
     image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600',
