@@ -108,7 +108,8 @@ const BASE_PATH = '/portfolio'
 
 function parseArticlePath(pathname) {
   const p = pathname.startsWith(BASE_PATH) ? pathname.slice(BASE_PATH.length) : pathname
-  const match = p.match(/^\/article\/(.+)$/)
+  const cleaned = p.replace(/\/+$/, '')
+  const match = cleaned.match(/^\/article\/([^/]+)$/)
   if (match) {
     const slug = match[1]
     const list = articlesRef.current

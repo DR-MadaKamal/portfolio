@@ -149,15 +149,15 @@ export default function ArticlePage({ articleIdx, onClose, articles: editedArtic
 
   useEffect(() => {
     if (!a) return
-    const path = a.slug ? `/portfolio/article/${a.slug}` : null
+    const path = a.slug ? `/portfolio/article/${a.slug}/` : null
     if (path && window.location.pathname !== path) {
       window.history.pushState(null, '', path)
     }
   }, [idx])
 
   const handleClose = () => {
-    if (window.location.pathname.startsWith('/portfolio/article/')) {
-      window.history.pushState(null, '', '/portfolio')
+    if (window.location.pathname.match(/^\/portfolio\/article\//)) {
+      window.history.pushState(null, '', '/portfolio/')
     }
     restoreMeta()
     onClose()
