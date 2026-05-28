@@ -296,6 +296,7 @@ export default function VisualBuilder({ data, onSave, onExit }) {
   const hoverTimerRef = useRef(null)
   const syncingRef = useRef(false)
   const lastSavedRef = useRef(JSON.stringify(data))
+  const onSaveRef = useRef(onSave); onSaveRef.current = onSave
 
   latestRef.current = { rows, localData }
 
@@ -314,18 +315,18 @@ export default function VisualBuilder({ data, onSave, onExit }) {
       const saved = JSON.parse(JSON.stringify(d))
       saved.builder = { ...(saved.builder || {}), rows: r2, globalWidgets: globalWidgetsRef.current, themes: themesRef.current, popups: popupsRef.current }
       if (saved.settings?.sections) {
-        const visibles = new Set()
         r2.forEach((row, i) => {
           if ((row.type === 'section' || row.type === 'widget-section') && row.sectionKey) {
             if (!saved.settings.sections[row.sectionKey]) saved.settings.sections[row.sectionKey] = {}
             saved.settings.sections[row.sectionKey].visible = row.hidden !== true
             saved.settings.sections[row.sectionKey].order = i
-            visibles.add(row.sectionKey)
           }
         })
       }
-      lastSavedRef.current = JSON.stringify(saved)
-      onSave(saved, 'Builder')
+      const savedStr = JSON.stringify(saved)
+      if (savedStr === lastSavedRef.current) return
+      lastSavedRef.current = savedStr
+      onSaveRef.current(saved, 'Builder')
     }, 500)
     return () => clearTimeout(timer)
   }, [rows, localData, globalWidgets])
@@ -343,7 +344,9 @@ export default function VisualBuilder({ data, onSave, onExit }) {
         }
       })
     }
-    onSave(saved, 'Builder')
+    const savedStr = JSON.stringify(saved)
+    if (savedStr === lastSavedRef.current) return
+    onSaveRef.current(saved, 'Builder')
   }, [])
   
   const isDirty = useMemo(() => {
@@ -502,18 +505,16 @@ export default function VisualBuilder({ data, onSave, onExit }) {
     const saved = JSON.parse(JSON.stringify(d))
     saved.builder = { ...(saved.builder || {}), rows: latestRef.current.rows, globalWidgets: globalWidgetsRef.current, themes: themesRef.current, popups: popupsRef.current }
     if (saved.settings?.sections) {
-      const visibles = new Set()
       latestRef.current.rows.forEach((row, i) => {
         if ((row.type === 'section' || row.type === 'widget-section') && row.sectionKey) {
           if (!saved.settings.sections[row.sectionKey]) saved.settings.sections[row.sectionKey] = {}
           saved.settings.sections[row.sectionKey].visible = row.hidden !== true
           saved.settings.sections[row.sectionKey].order = i
-          visibles.add(row.sectionKey)
         }
       })
     }
     lastSavedRef.current = JSON.stringify(saved)
-    onSave(saved, 'Builder')
+    onSaveRef.current(saved, 'Builder')
   }
 
   function startInlineEdit(rowId) {
