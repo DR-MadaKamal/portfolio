@@ -3,15 +3,6 @@ import ErrorBoundary from './components/ErrorBoundary'
 import LoadingSkeleton from './components/LoadingSkeleton'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
-import ScrollToTop from './components/ScrollToTop'
-import ScrollProgressBar from './components/ScrollProgressBar'
-import AnimatedBackground from './components/AnimatedBackground'
-import Toast from './components/Toast'
-import AdminPanel from './components/AdminPanel'
-import CustomCursor from './components/CustomCursor'
-import SoundEffects from './components/SoundEffects'
-import PopupRenderer from './components/PopupRenderer'
-import ThemeRenderer from './components/ThemeRenderer'
 
 const About = lazy(() => import('./components/About'))
 const Projects = lazy(() => import('./components/Projects'))
@@ -27,12 +18,21 @@ const ServicesTimeline = lazy(() => import('./components/ServicesTimeline'))
 const CaseStudies = lazy(() => import('./components/CaseStudies'))
 const PortfolioGallery = lazy(() => import('./components/PortfolioGallery'))
 const PortfolioDownload = lazy(() => import('./components/PortfolioDownload'))
-import CookieConsent from './components/CookieConsent'
 const NewsletterSignup = lazy(() => import('./components/NewsletterSignup'))
-import LiveChatWidget from './components/LiveChatWidget'
 const GoogleMapsEmbed = lazy(() => import('./components/GoogleMapsEmbed'))
-import AnalyticsDashboard from './components/AnalyticsDashboard'
-import WhatsAppButton from './components/WhatsAppButton'
+const ScrollToTop = lazy(() => import('./components/ScrollToTop'))
+const ScrollProgressBar = lazy(() => import('./components/ScrollProgressBar'))
+const AnimatedBackground = lazy(() => import('./components/AnimatedBackground'))
+const Toast = lazy(() => import('./components/Toast'))
+const AdminPanel = lazy(() => import('./components/AdminPanel'))
+const CustomCursor = lazy(() => import('./components/CustomCursor'))
+const SoundEffects = lazy(() => import('./components/SoundEffects'))
+const PopupRenderer = lazy(() => import('./components/PopupRenderer'))
+const ThemeRenderer = lazy(() => import('./components/ThemeRenderer'))
+const CookieConsent = lazy(() => import('./components/CookieConsent'))
+const LiveChatWidget = lazy(() => import('./components/LiveChatWidget'))
+const AnalyticsDashboard = lazy(() => import('./components/AnalyticsDashboard'))
+const WhatsAppButton = lazy(() => import('./components/WhatsAppButton'))
 import { LangProvider } from './context/LangContext'
 import { personalData as defaultPersonalData, experience as defaultExperience, skillCategories as defaultSkills, education as defaultEducation, awards as defaultAwards, certifications as defaultCerts, projects as defaultProjects, articles as defaultArticles, testimonials as defaultTestimonials, quotes as defaultQuotes, tools as defaultToolsData, clientLogos as defaultLogos, servicesTimeline as defaultTimeline, faq as defaultFaq, courses as defaultCourses, portfolioWorks as defaultWorks, pricingPlans as defaultPricing, caseStudies as defaultCaseStudies, languagesList as defaultLanguages, businessHours as defaultHours } from './data/portfolioData'
 import { slugify } from './utils/slugify'
@@ -181,16 +181,16 @@ function App() {
   return (
     <LangProvider>
       <a href="#main-content" className="skip-link">Skip to content</a>
-      <AnimatedBackground />
-      <CustomCursor />
-      <SoundEffects />
-      <ScrollProgressBar />
-      <Toast />
-      <AdminPanel onDataChange={setEditedData} />
-      <LiveChatWidget chatCode={tools.chatCode} />
-      {headerTheme ? <ThemeRenderer theme={headerTheme} localData={d} /> : <Navbar activeSection={activeSection} setActiveSection={setActiveSection}
+      <Suspense fallback={null}><AnimatedBackground /></Suspense>
+      <Suspense fallback={null}><CustomCursor /></Suspense>
+      <Suspense fallback={null}><SoundEffects /></Suspense>
+      <Suspense fallback={null}><ScrollProgressBar /></Suspense>
+      <Suspense fallback={null}><Toast /></Suspense>
+      <Suspense fallback={null}><AdminPanel onDataChange={setEditedData} /></Suspense>
+      <Suspense fallback={null}><LiveChatWidget chatCode={tools.chatCode} /></Suspense>
+      {headerTheme ? <Suspense fallback={null}><ThemeRenderer theme={headerTheme} localData={d} /></Suspense> : <Navbar activeSection={activeSection} setActiveSection={setActiveSection}
         projects={d?.projects} articles={d?.articles} />}
-      {tools.cookieConsentEnabled !== false && <CookieConsent />}
+      {tools.cookieConsentEnabled !== false && <Suspense fallback={null}><CookieConsent /></Suspense>}
       <main id="main-content">
         {sectionMap.map(s => (
           <ErrorBoundary key={s.key} fallbackMsg={`Section "${s.key}" failed to load.`}>
@@ -200,16 +200,16 @@ function App() {
           </ErrorBoundary>
         ))}
       </main>
-      <WhatsAppButton personalData={d?.personalData} />
-      <ScrollToTop />
-      <AnalyticsDashboard />
-      {footerTheme ? <ThemeRenderer theme={footerTheme} localData={d} /> : <Footer personalData={d?.personalData} />}
+      <Suspense fallback={null}><WhatsAppButton personalData={d?.personalData} /></Suspense>
+      <Suspense fallback={null}><ScrollToTop /></Suspense>
+      <Suspense fallback={null}><AnalyticsDashboard /></Suspense>
+      {footerTheme ? <Suspense fallback={null}><ThemeRenderer theme={footerTheme} localData={d} /></Suspense> : <Footer personalData={d?.personalData} />}
       {tools.googleAnalyticsId && (
         <script dangerouslySetInnerHTML={{
           __html: `(self.requestIdleCallback||setTimeout)(function(){var s=document.createElement('script');s.async=!0;s.src='https://www.googletagmanager.com/gtag/js?id=${tools.googleAnalyticsId}';document.head.appendChild(s);window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${tools.googleAnalyticsId}');});`
         }} />
       )}
-      <PopupRenderer popups={popups} />
+      <Suspense fallback={null}><PopupRenderer popups={popups} /></Suspense>
       {tools.facebookPixelId && (
         <script dangerouslySetInnerHTML={{
           __html: `(self.requestIdleCallback||setTimeout)(function(){!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${tools.facebookPixelId}');fbq('track','PageView');});`
